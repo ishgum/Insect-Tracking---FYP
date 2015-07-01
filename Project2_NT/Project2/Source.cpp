@@ -50,17 +50,31 @@ double get_cpu_time(){
 		return 0;
 	}
 }
+//  Posix/Linux
+#else
+#include <time.h>
+#include <sys/time.h>
+double get_wall_time(){
+	struct timeval time;
+	if (gettimeofday(&time, NULL)){
+		//  Handle error
+		return 0;
+	}
+	return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+double get_cpu_time(){
+	return (double)clock() / CLOCKS_PER_SEC;
+}
 #endif
 
 
-
 #define ROI_SIZE .15
-//#define DEBUG
-#define FPS //wall breaks on release mode
+//#define DEBUG		//display video output windows
+//#define FPS //wall breaks on release mode
 #define KALMAN
 #define ShowHistogram
 #define HEIGHT_OFFSET 10
-#define RECORD_SOURCE_W_BOX
+//#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
 #define FIND_DEPTH
 
 
@@ -276,7 +290,9 @@ Mat preprocessImage(Mat image) {
 	static int lumThreshold = 0;
 
 
-
+	// Conversion uses significant processor time,
+	// using point grey camera we should be able to skip this step,
+	// as it proivdes only one 'brightness' channel.
 	cvtColor(image, image_hsl, CV_BGR2HLS);		// Convert image to HSL
 	split(image_hsl, values);						// Split into channels
 
@@ -383,18 +399,20 @@ int main(int argc, char** argv)
 	VideoCapture capture;
 
 	//EARLY TESTS:
-	//capture.open("C:/Users/myadmin/Videos/plainHigh1.avi");
-	//capture.open("C:/Users/myadmin/Documents/Image/Tests/MVI_2990.MOV"); //runs at ~6fps
-	//capture.open("C:/Users/myadmin/Documents/Image/Tests/MVI_2987.MOV");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2990.MOV"); //runs at ~6fps
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2987.MOV");
 
 	//IR RREFLEC TESTS:
 	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
-	capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
-	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193006-0000_8bit_uncompressed.avi"); // Princess Beetle and the sparkly dress, Co-Staring Michael
-	//capture.open("C:/Users/myadmin/Documents/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
+//	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
+	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only.avi"); 
+
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193006-0000_8bit_uncompressed.avi"); // Princess Beetle and the sparkly dress, Co-Staring Michael
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
 
 	//DEPTH TESTS:
-	//capture.open("C:/Users/myadmin/Documents/IR_footage_depth/realRun2_0.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 
 #ifdef RECORD_SOURCE_W_BOX
 	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -416,7 +434,7 @@ int main(int argc, char** argv)
 #ifdef FPS
 	int frame_num = 1;
 	// Timing functions
-	int wait_period = 50;				/// Waitkey period
+	int wait_period = 10;				/// Waitkey period
 	double wall0 = get_wall_time();
 	double cpu0 = get_cpu_time();
 	int num_frames_proc = -1;
@@ -667,15 +685,18 @@ int main(int argc, char** argv)
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
 
+#ifndef FPS
+		int wait_period = 10;
+#endif
 		//wait_period = 50;
-		waitKey(50); // fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
+		waitKey(wait_period); // fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
 		printf("\n");
 	}
 
 	capture.release();
 
 	//while (waitKey(10) < 0) {
-	//	cout << "Done\n";
+		cout << "Done\n";
 	//}
 
 	return(0);
