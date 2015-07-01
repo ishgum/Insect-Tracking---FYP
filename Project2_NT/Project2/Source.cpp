@@ -18,6 +18,25 @@ using namespace cv;
 using namespace std;
 
 
+#define ROI_SIZE .15
+//#define DEBUG		//display video output windows
+//#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
+#define KALMAN
+#define ShowHistogram
+#define HEIGHT_OFFSET 10
+//#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
+#define FIND_DEPTH
+
+
+RNG rng(12345);
+
+#define THRESH_FILTER_SIZE 10
+
+bool noBug = false;
+int threshCount = 0;
+int threshFilter[THRESH_FILTER_SIZE] = { 0 };
+
+
 
 // Functions for system clock so we can determine runtine FPS
 // copied from http://stackoverflow.com/questions/17432502
@@ -68,23 +87,6 @@ double get_cpu_time(){
 #endif
 
 
-#define ROI_SIZE .15
-#define DEBUG		//display video output windows
-#define FPS //wall breaks on release mode
-#define KALMAN
-#define ShowHistogram
-#define HEIGHT_OFFSET 10
-//#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
-#define FIND_DEPTH
-
-
-RNG rng(12345);
-
-#define THRESH_FILTER_SIZE 10
-
-bool noBug = false;
-int threshCount = 0;
-int threshFilter[THRESH_FILTER_SIZE] = { 0 };
 
 
 MatND findHistogram(Mat inputImage, int numBins = 256) {
@@ -433,10 +435,11 @@ int main(int argc, char** argv)
 	vector<Point> targetv, kalmanv;
 #endif
 
+	int wait_period = 10;   /// Waitkey period
+
 #ifdef FPS
 	int frame_num = 1;
 	// Timing functions
-	int wait_period = 10;				/// Waitkey period
 	double wall0 = get_wall_time();
 	double cpu0 = get_cpu_time();
 	int num_frames_proc = -1;
@@ -457,9 +460,10 @@ int main(int argc, char** argv)
 
 	while (!src.empty()) {
 
-
+#if defined(DEBUG) || defined(RECORD_SOURCE_W_BOX)
 		Mat srcBox = src.clone();
 		rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
+#endif
 #ifdef DEBUG
 		imshow("Source w Box", srcBox);
 #endif
@@ -590,7 +594,7 @@ int main(int argc, char** argv)
 			noBug = false;
 		}
 
-
+#ifdef DEBUG
 		/// Draw contours
 		Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
 		//printf("\nCounter Sizes: ");
@@ -602,7 +606,7 @@ int main(int argc, char** argv)
 		}
 
 		/// Show in a window
-#ifdef DEBUG
+
 		namedWindow("Contours", CV_WINDOW_AUTOSIZE);
 		imshow("Contours", drawing);
 #endif // DEBUG
@@ -636,12 +640,13 @@ int main(int argc, char** argv)
 	
 		Point stateVel(correction.at<float>(2), correction.at<float>(3));
 		Point measLoc(measurement.at<float>(0), measurement.at<float>(1));
-
+		targetv.push_back(measLoc);
+		kalmanv.push_back(stateLoc);
+#ifdef DEBUG
 		// plot stuff
 		src = Scalar::all(0);
 
-		targetv.push_back(measLoc);
-		kalmanv.push_back(stateLoc);
+
 		drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
 		drawCross(src, measLoc, Scalar(0, 0, 255), 5);
 
@@ -650,7 +655,7 @@ int main(int argc, char** argv)
 
 		for (int i = 0; i < kalmanv.size() - 1; i++)
 			line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
-#ifdef DEBUG
+
 		imshow("Frame Kalman", src);
 #endif
 #endif //Kalman
@@ -687,9 +692,6 @@ int main(int argc, char** argv)
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
 
-#ifndef FPS
-		int wait_period = 10;
-#endif
 		//wait_period = 50;
 		waitKey(wait_period); // fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
 		printf("\n");
