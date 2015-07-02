@@ -17,9 +17,9 @@
 using namespace cv;
 using namespace std;
 
-
+#define RGB_SOURCE		// preformance increase when left undefined for a greyscale source
 #define ROI_SIZE .15
-//#define DEBUG		//display video output windows
+#define DEBUG		//display video output windows
 //#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 #define KALMAN
 #define ShowHistogram
@@ -295,7 +295,9 @@ Mat preprocessImage(Mat image) {
 	// Conversion uses significant processor time,
 	// using point grey camera we should be able to skip this step,
 	// as it proivdes only one 'brightness' channel.
-	//cvtColor(image, image_hsl, CV_BGR2HLS);		// Convert image to HSL
+#ifdef RGB_SOURCE
+	cvtColor(image, image, CV_BGR2HLS);		// Convert image to HSL
+#endif
 	split(image, values);						// Split into channels
 	//printf("\n\nimage chan:\t%d", image.channels());
 	Mat lum = values[1];
@@ -410,13 +412,15 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
 //	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only.avi"); 
-	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only_Uncompressed_Grayscale.avi");
-
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only_Uncompressed_Grayscale.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193006-0000_8bit_uncompressed.avi"); // Princess Beetle and the sparkly dress, Co-Staring Michael
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
 
 	//DEPTH TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+
+	//DYLANS folder structure:
+	capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
 
 #ifdef RECORD_SOURCE_W_BOX
 	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
