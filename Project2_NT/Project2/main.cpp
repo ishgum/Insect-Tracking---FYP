@@ -1,26 +1,16 @@
 
-#define RUN
+#define RUN //what's this do? - Dylan
 #ifdef RUN
 
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/video/tracking.hpp>
-#include <iostream>
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <ctype.h>
+#include "main.h"
 
 using namespace cv;
 using namespace std;
 
-#define RGB_SOURCE		// preformance increase when left undefined for a greyscale source
+#define RGB_SOURCE		// preformance increase when left undefined for a greyscale source (skips HSL conv)
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows
-//#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
+#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 #define KALMAN
 #define ShowHistogram
 #define HEIGHT_OFFSET 10
@@ -37,54 +27,6 @@ int threshCount = 0;
 int threshFilter[THRESH_FILTER_SIZE] = { 0 };
 
 
-
-// Functions for system clock so we can determine runtine FPS
-// copied from http://stackoverflow.com/questions/17432502
-//  Windows
-#ifdef _WIN32
-#include <Windows.h>
-double get_wall_time(){
-	LARGE_INTEGER time, freq;
-	if (!QueryPerformanceFrequency(&freq)){
-		//  Handle error
-		return 0;
-	}
-	if (!QueryPerformanceCounter(&time)){
-		//  Handle error
-		return 0;
-	}
-	return (double)time.QuadPart / freq.QuadPart;
-}
-double get_cpu_time(){
-	FILETIME a, b, c, d;
-	if (GetProcessTimes(GetCurrentProcess(), &a, &b, &c, &d) != 0){
-		//  Returns total user time.
-		//  Can be tweaked to include kernel times as well.
-		return
-			(double)(d.dwLowDateTime |
-			((unsigned long long)d.dwHighDateTime << 32)) * 0.0000001;
-	}
-	else{
-		//  Handle error
-		return 0;
-	}
-}
-//  Posix/Linux
-#else
-#include <time.h>
-#include <sys/time.h>
-double get_wall_time(){
-	struct timeval time;
-	if (gettimeofday(&time, NULL)){
-		//  Handle error
-		return 0;
-	}
-	return (double)time.tv_sec + (double)time.tv_usec * .000001;
-}
-double get_cpu_time(){
-	return (double)clock() / CLOCKS_PER_SEC;
-}
-#endif
 
 
 
@@ -709,60 +651,3 @@ int main(int argc, char** argv)
 
 	return(0);
 }
-
-
-
-/*
-Mat image;
-image = imread("C:/Users/myadmin/Documents/Image/TestImageInfraRed.jpg", 1);
-
-
-Mat gray_image;
-cvtColor(image, gray_image, CV_BGR2GRAY);
-
-Mat small_image(image, Range::all(), Range(1, 500));
-
-namedWindow("Pointless", CV_WINDOW_AUTOSIZE);
-namedWindow("Gray image", CV_WINDOW_AUTOSIZE);
-namedWindow("Small image", CV_WINDOW_AUTOSIZE);
-
-
-imshow("Pointless", image);
-imshow("Gray image", gray_image);
-imshow("Small image", small_image);
-Z*/
-
-
-/*
-
-int alpha = 0; // Simple contrast control
-int beta = 1;
-
-void contrast(void) {
-namedWindow("Contrast", CV_WINDOW_AUTOSIZE);
-
-createTrackbar("Alpha:", "Contrast", &alpha, 3);
-createTrackbar("Beta:", "Contrast", &beta, 100);
-/// Load source image and convert it to gray
-
-Mat src_2 = Mat::zeros(src.size(), src.type());
-
-for (int y = 0; y < src.rows; y++)
-{
-for (int x = 0; x < src.cols; x++)
-{
-for (int c = 0; c < 3; c++)
-{
-src_2.at<Vec3b>(y, x)[c] =
-saturate_cast<uchar>(alpha*(src.at<Vec3b>(y, x)[c]) + beta);
-}
-}
-}
-
-imshow("Contrast", src_2);
-}
-*/
-
-
-
-
