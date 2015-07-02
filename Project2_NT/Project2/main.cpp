@@ -113,6 +113,8 @@ Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 /********** @function main ***********/
 int main(int argc, char** argv)
 {
+	Beetle beetle;
+
 	const string videoFile[] = {
 		"C:/Users/myadmin/Videos/plainLow1.avi"
 		"C:/Users/myadmin/Videos/plainLow2.avi"

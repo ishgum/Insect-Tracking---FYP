@@ -1,13 +1,13 @@
 #include "beetle.h"
 
 
-beetle::beetle() //constructor
+Beetle::Beetle() //constructor
 {
 	found = false;
 	state.assign(6, 0); //x, y, z, dx, dy, dz = 0;
 }
 
 
-beetle::~beetle() //destructor
+Beetle::~Beetle() //destructor
 {
 }

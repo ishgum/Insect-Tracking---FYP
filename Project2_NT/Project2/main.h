@@ -17,6 +17,8 @@ using namespace std;
 #include "fps.h"
 #include "histogram.h"
 #include "kalman.h"
+#include "beetle.h"
+#include "image_processing.h"
 
 
 

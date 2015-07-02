@@ -30,6 +30,9 @@
     <ClCompile Include="beetle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="image_processing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fps.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="beetle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="image_processing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
