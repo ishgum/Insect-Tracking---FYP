@@ -16,6 +16,7 @@ using namespace std;
 
 #include "fps.h"
 #include "histogram.h"
+#include "kalman.h"
 
 
 
