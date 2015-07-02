@@ -1,26 +1,19 @@
 
-#define RUN //what's this do? - Dylan
+#define RUN // what is this for? - Dylan
 #ifdef RUN
 
 #include "main.h"
-
-using namespace cv;
-using namespace std;
 
 #define RGB_SOURCE		// preformance increase when left undefined for a greyscale source (skips HSL conv)
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 #define KALMAN
-#define ShowHistogram
 #define HEIGHT_OFFSET 10
 //#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
 #define FIND_DEPTH
-
-
-RNG rng(12345);
-
 #define THRESH_FILTER_SIZE 10
+
 
 bool noBug = false;
 int threshCount = 0;
@@ -30,185 +23,6 @@ int threshFilter[THRESH_FILTER_SIZE] = { 0 };
 
 
 
-
-MatND findHistogram(Mat inputImage, int numBins = 256) {
-	MatND hist;
-	MatND histNormal;
-
-
-	/// Establish the number of bins
-	int histSize = numBins;
-	float range[] = { 0, 256 };
-	const float* histRange = { range };
-
-	calcHist(&inputImage, 1, 0, Mat(), hist, 1, &histSize, &histRange, true, false);
-
-#ifdef ShowHistogram
-
-	int hist_w = 512; int hist_h = 400;
-	int bin_w = cvRound((double)hist_w / histSize);
-
-	Mat histImage(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
-
-	/// Normalize the result to [ 0, histImage.rows ]
-	normalize(hist, histNormal, 0, histImage.rows, NORM_MINMAX, -1, Mat());
-
-
-	/// Draw for each channel
-	for (int i = 1; i < histSize; i++)
-	{
-		line(histImage, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
-			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
-			Scalar(255, 255, 255), 1, 8, 0);
-	}
-
-	//for (int i = 0; i < histSize; i++) {
-	//	printf("%i = %f", i, hist.at<float>(i));
-	//	printf("   %i = %f\n", i, histNormal.at<float>(i));
-	//}
-#ifdef DEBUG
-	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
-	imshow("calcHist Demo", histImage);
-#endif // DEBUG
-
-
-#endif // !ShowHistogram
-
-	return hist;
-}
-
-vector<int> movingAverageFilterHistogram(MatND histogramInput, int averageSize = 1) {
-
-	vector<int> movingAverage;
-
-	int averageArraySize = static_cast<int>(histogramInput.total()) - averageSize + 1;
-
-	for (int i = 0; i < averageArraySize; i++) {
-		float sum = 0;
-		for (int j = 0; j < averageSize; j++) {
-			sum += histogramInput.at<float>(i + j);
-		}
-
-		movingAverage.push_back(sum / averageSize);
-	}
-	return movingAverage;
-}
-
-void findPeaksandMins(vector<int> inputHistogram, vector<int>& peaks, vector<int>& mins, int findWidth = 15) {
-
-	int forLoopMin = -findWidth;
-	int forLoopMax = findWidth;
-
-
-
-	for (int i = 0; i < inputHistogram.size(); i++) {
-		if (i < findWidth) {
-			forLoopMin = -i;
-			forLoopMax = findWidth;
-		}
-		else if ((i + findWidth) > inputHistogram.size()) {
-			forLoopMax = inputHistogram.size() - i;
-			forLoopMin = -findWidth;
-		}
-		else {
-			forLoopMin = -findWidth;
-			forLoopMax = findWidth;
-		}
-
-		int currentMin = inputHistogram[i];
-		int currentMax = inputHistogram[i];
-
-		for (int k = forLoopMin; k < forLoopMax; k++) {
-			if (inputHistogram[i + k] < currentMin) {
-				currentMin = inputHistogram[i + k];
-			}
-			if (inputHistogram[i + k] > currentMax) {
-				currentMax = inputHistogram[i + k];
-			}
-		}
-		if (currentMin == inputHistogram[i]) {
-			mins.push_back(i);
-		}
-		if (currentMax == inputHistogram[i] && currentMax != 0) {
-			peaks.push_back(i);
-		}
-	}
-}
-
-int findThresholdByArea(vector<int> inputHistogram, int minArea = 30)
-{
-	int threshSum = 0;
-	int i = 0;
-	for (i = inputHistogram.size()-1; i > 0; i--) {
-		threshSum += inputHistogram[i];
-
-		if (threshSum > minArea)
-		{
-			break;
-		}
-	}
-	return i;
-}
-
-
-
-int findThreshold(Mat inputImage, int previousThreshold) {
-
-	MatND hist = findHistogram(inputImage);
-	vector<int> histMovingAverage = movingAverageFilterHistogram(hist);
-	int areaLoc = findThresholdByArea(histMovingAverage);
-
-	vector<int> peaks;
-	vector<int> mins;
-
-	findPeaksandMins(histMovingAverage, peaks, mins);
-
-	int maxPeak = 0;
-	int maxPeakLoc = 0;
-	for (int i = 0; i < peaks.size(); i++) {
-		if (histMovingAverage[peaks[i]] > maxPeak)
-		{
-			//printf("Max Location is: %i		", peaks[i]);
-			maxPeak = histMovingAverage[peaks[i]];
-			maxPeakLoc = peaks[i];
-		}
-	}
-
-	int peakLoc = peaks[peaks.size() - 1];
-	if ((areaLoc - maxPeakLoc) < 10 || peakLoc < maxPeakLoc) {
-		//printf("Threshold Location is: %i- No bug found\n", previousThreshold);
-		noBug = true;
-		return previousThreshold;
-	}
-
-
-	for (int i = mins.size() - 1; i >= 0; i--) {
-		if (mins[i] < areaLoc && mins[i] > maxPeakLoc) {
-			//printf("Threshold Location is: %i\n", mins[i]);
-			//printf("Width : %i	", (peakLoc - mins[i]));
-			noBug = false;
-			return mins[i];
-		}
-	}
-	return previousThreshold;
-
-
-	// Find the brightest X percentage of pixels in the frame
-	//#define PercentageHistogram
-#ifdef PercentageHistogram
-	int histCount = 0;
-	float histPcentThresh = percentage;
-	double histSum = sum(hist)[0];
-	float thresh = histSum * (histPcentThresh / 100.0);
-
-	for (int i = histSize - 1; i >= 0; i--) {
-		histCount += hist.at<float>(i);
-		if (histCount >= thresh) {
-			return i;
-		}
-	}
-#endif // !PercentageHistogram
-}
 
 KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
@@ -245,7 +59,7 @@ Mat preprocessImage(Mat image) {
 	Mat lum = values[1];
 	//printf("\nimage chan:\t%d\n\n", lum.channels());
 	medianBlur(lum, dst, 1);
-	lumThreshold = findThreshold(dst, lumThreshold);		//Perform Dynamic thresholding on the saturation image
+	lumThreshold = findThreshold(dst, lumThreshold, noBug);		//Perform Dynamic thresholding on the saturation image
 	threshFilter[threshCount++] = lumThreshold;
 	
 	MatND hist;
@@ -352,7 +166,7 @@ int main(int argc, char** argv)
 
 	//IR RREFLEC TESTS:
 	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
-//	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only.avi"); 
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only_Uncompressed_Grayscale.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193006-0000_8bit_uncompressed.avi"); // Princess Beetle and the sparkly dress, Co-Staring Michael
@@ -361,8 +175,8 @@ int main(int argc, char** argv)
 	//DEPTH TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 	
-	//Quick code test, relative path
-	capture.open("../../test.avi");		//File is greyscale
+	// FOR CODE TEST, relative path
+	capture.open("../../test.avi");		//File is greyscale, and NOT square
 
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
@@ -641,8 +455,7 @@ int main(int argc, char** argv)
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
 
-		//wait_period = 50;
-		waitKey(wait_period); // fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
+		waitKey(wait_period); // wall fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
 		printf("\n");
 	}
 

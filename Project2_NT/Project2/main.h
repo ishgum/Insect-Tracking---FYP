@@ -11,6 +11,12 @@
 #include <stdio.h>
 #include <ctype.h>
 
+using namespace cv;
+using namespace std;
+
 #include "fps.h"
+#include "histogram.h"
+
+
 
 #endif
