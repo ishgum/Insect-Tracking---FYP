@@ -362,7 +362,8 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 
 	//DYLANS folder structure:
-	capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
+	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
+	capture.open("C:/Users/Dylan/Documents/FYP/fyp/test.avi");
 
 #ifdef RECORD_SOURCE_W_BOX
 	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
