@@ -13,20 +13,18 @@
 //#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
 #define FIND_DEPTH
 #define THRESH_FILTER_SIZE 10
-
+#define WAIT_PERIOD	10
 
 bool noBug = false;
 int threshCount = 0;
 int threshFilter[THRESH_FILTER_SIZE] = { 0 };
 
-
-
+//void displayFPS(Mat src, Rect ROI){
 
 Mat preprocessImage(Mat image) {
 	Mat values[3]; Mat image_hsl; Mat dst;
 	static int lumThreshold = 0;
-
-
+	
 	// Conversion uses significant processor time,
 	// using point grey camera we should be able to skip this step,
 	// as it proivdes only one 'brightness' channel.
@@ -58,7 +56,6 @@ Mat preprocessImage(Mat image) {
 	/// Normalize the result to [ 0, histImage.rows ]
 	normalize(hist, histNormal, 0, histImage2.rows, NORM_MINMAX, -1, Mat());
 
-
 	/// Draw for each channel
 	for (int i = 1; i < histSize; i++)
 	{
@@ -73,12 +70,9 @@ Mat preprocessImage(Mat image) {
 #endif
 	threshold(dst, dst, lumThreshold, 255, 0);
 
-
-
 #ifdef DEBUG
 	imshow("Luminance", dst);
 #endif // DEBUG
-
 
 	GaussianBlur(dst, dst, Size(11, 11), 2);
 	threshold(dst, dst, 5, 255, 0);
@@ -94,7 +88,6 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 
 Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 	int roiSize = ROI_SIZE * src.rows;
-
 
 	if (noBug == false) {
 
@@ -117,9 +110,7 @@ Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 }
 
 
-
-
-/** @function main */
+/********** @function main ***********/
 int main(int argc, char** argv)
 {
 	const string videoFile[] = {
@@ -177,7 +168,6 @@ int main(int argc, char** argv)
 	vector<Point> targetv, kalmanv;
 #endif
 
-	int wait_period = 10;   /// Waitkey period
 
 #ifdef FPS
 	int frame_num = 1;
@@ -199,100 +189,99 @@ int main(int argc, char** argv)
 	//resize(src, src, Size(), 0.3, 0.3);
 	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
 
-
+/********** WHILE LOOP ***********/
 	while (!src.empty()) {
 
-#if defined(DEBUG) || defined(RECORD_SOURCE_W_BOX)
-		Mat srcBox = src.clone();
-		rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
-#endif
-#ifdef DEBUG
-		imshow("Source w Box", srcBox);
-#endif
-#if defined(RECORD_SOURCE_W_BOX) && ! defined(FPS)
-		outputVideo.write(srcBox); //write output video w/o text
-#endif
+		#if defined(DEBUG) || defined(RECORD_SOURCE_W_BOX)
+			Mat srcBox = src.clone();
+			rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
+		#endif
+		#ifdef DEBUG
+			imshow("Source w Box", srcBox);
+		#endif
+		#if defined(RECORD_SOURCE_W_BOX) && ! defined(FPS)
+			outputVideo.write(srcBox); //write output video w/o text
+		#endif
 
-#ifdef FPS
-		num_frames_proc++;
-		double wall1 = get_wall_time();
-		double cpu1 = get_cpu_time();
-		//cpu_running_total += (cpu1 - cpu0);
+		#ifdef FPS
+			num_frames_proc++;
+			double wall1 = get_wall_time();
+			double cpu1 = get_cpu_time();
+			//cpu_running_total += (cpu1 - cpu0);
 
-		//cpu0 = get_cpu_time();
+			//cpu0 = get_cpu_time();
 
 
-		//printf("\t%f\t%f  ",wall1, wall1 - wall0);
-		if (wall1 >= (wall0 + 1)){ //Check if 1s has elapsed
-			//fps_wall_displayed = num_frames_proc / (wall1 - wall0); //rate displayed
-			fps_wall = num_frames_proc / (wall1 - wall0 - num_frames_proc*0.001*wait_period);
-			fps_cpu = num_frames_proc / (cpu1 - cpu0);// - num_frames_proc*0.001*wait_period);
-			printf("\tFPS:  %f\t", fps_cpu);
-			num_frames_proc = 0;
-			wall0 = get_wall_time();
-			cpu0 = get_cpu_time();
-		}
+			//printf("\t%f\t%f  ",wall1, wall1 - wall0);
+			if (wall1 >= (wall0 + 1)){ //Check if 1s has elapsed
+				//fps_wall_displayed = num_frames_proc / (wall1 - wall0); //rate displayed
+				fps_wall = num_frames_proc / (wall1 - wall0 - num_frames_proc*0.001*WAIT_PERIOD);
+				fps_cpu = num_frames_proc / (cpu1 - cpu0);// - num_frames_proc*0.001*wait_period);
+				printf("\tFPS:  %f\t", fps_cpu);
+				num_frames_proc = 0;
+				wall0 = get_wall_time();
+				cpu0 = get_cpu_time();
+			}
 
-		Mat src_w_text = src.clone();	// so we don't mess up original source
-		rectangle(src_w_text, ROI, Scalar(255, 255, 255), 2, 8, 0);
-		//resize(src_w_text, src_w_text, Size(), 0.3, 0.3);
-		// add fps text to "1. Frame" window
-		// Displayed FPS accounts for the delay we add in waitkey, far, far below.
-		//wall time
-		char fps_wall_c[4];
-		sprintf(fps_wall_c, "wall FPS %.2f", fps_wall);
-		Point fps_wall_text_loc(10, 30);
-		putText(src_w_text, fps_wall_c, fps_wall_text_loc,
+			Mat src_w_text = src.clone();	// so we don't mess up original source
+			rectangle(src_w_text, ROI, Scalar(255, 255, 255), 2, 8, 0);
+			//resize(src_w_text, src_w_text, Size(), 0.3, 0.3);
+			// add fps text to "1. Frame" window
+			// Displayed FPS accounts for the delay we add in waitkey, far, far below.
+			//wall time
+			char fps_wall_c[4];
+			sprintf(fps_wall_c, "wall FPS %.2f", fps_wall);
+			Point fps_wall_text_loc(10, 30);
+			putText(src_w_text, fps_wall_c, fps_wall_text_loc,
+				FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
+
+			//cpu time
+			char fps_cpu_c[4];
+			sprintf(fps_cpu_c, "cpu FPS %.2f", fps_cpu);
+			Point fps_cpu_text_loc(10, 60);
+			putText(src_w_text, fps_cpu_c, fps_cpu_text_loc,
+				FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
+
+			//Frame Number
+			char frame_num_c[5];
+			sprintf(frame_num_c, "Frame #: %5i", frame_num);
+			Point frame_num_text_loc(10, 90);
+			putText(src_w_text, frame_num_c, frame_num_text_loc,
 			FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
+			#ifdef DEBUG
+					imshow("FPS", src_w_text);
+			#endif
+			if ((frame_num % 100) == 0){ //show only every 100th frame
+			}
+			//printf("\nFrame: %i\tCPU total: %f\tCPU FPS: %f", frame_num, cpu_running_total, fps_cpu);
+			frame_num++;
 
-		//cpu time
-		char fps_cpu_c[4];
-		sprintf(fps_cpu_c, "cpu FPS %.2f", fps_cpu);
-		Point fps_cpu_text_loc(10, 60);
-		putText(src_w_text, fps_cpu_c, fps_cpu_text_loc,
-			FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
-
-		//Frame Number
-		char frame_num_c[5];
-		sprintf(frame_num_c, "Frame #: %5i", frame_num);
-		Point frame_num_text_loc(10, 90);
-		putText(src_w_text, frame_num_c, frame_num_text_loc,
-			FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
-#ifdef DEBUG
-		imshow("FPS", src_w_text);
-#endif
-		if ((frame_num % 100) == 0){ //show only every 100th frame
-		//	imshow("FPS", src_w_text);
-		}
-		//printf("\nFrame: %i\tCPU total: %f\tCPU FPS: %f", frame_num, cpu_running_total, fps_cpu);
-		frame_num++;
-
-#ifdef RECORD_SOURCE_W_BOX
-		// write output video w/ text
-		outputVideo.write(src_w_text);
-#endif
-#endif // FPS	
+			#ifdef RECORD_SOURCE_W_BOX
+					// write output video w/ text
+					outputVideo.write(src_w_text);
+			#endif
+		#endif // FPS	
 
 		src_ROI = src(ROI);
 		//resize(srcBox, srcBox, Size(), 0.3, 0.3);
-#ifdef DEBUG
-		imshow("Frame", src_ROI);
-#endif // DEBUG
 
-		//imshow("Frame", src_ROI);
+		#ifdef DEBUG
+			imshow("Frame", src_ROI);
+		#endif // DEBUG
 
 		Mat dst = preprocessImage(src_ROI);
 
-#define FIND_DEPTH
-		int threshSum = 0;
-		for (int p = 0; p < THRESH_FILTER_SIZE; p++) {
-			threshSum += threshFilter[p];
-		}
-		printf("Threshold: %i	", threshSum / THRESH_FILTER_SIZE);
-		printf("Height Bracket: %i	", threshSum / (THRESH_FILTER_SIZE * 20));
-		if (threshCount == THRESH_FILTER_SIZE) 
-			{ threshCount = 0; }
-#endif
+		#ifdef FIND_DEPTH
+			int threshSum = 0;
+			for (int p = 0; p < THRESH_FILTER_SIZE; p++) {
+				threshSum += threshFilter[p];
+			}
+			printf("Threshold: %i	", threshSum / THRESH_FILTER_SIZE);
+			printf("Height Bracket: %i	", threshSum / (THRESH_FILTER_SIZE * 20));
+			if (threshCount == THRESH_FILTER_SIZE) 
+				{ threshCount = 0; }
+		#endif
+
 		/*****		CONTOURS		****/
 		vector<vector<Point> > contours;
 		vector<Vec4i> hierarchy;
@@ -336,75 +325,73 @@ int main(int argc, char** argv)
 			noBug = false;
 		}
 
-#ifdef DEBUG
-		/// Draw contours
-		Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
-		//printf("\nCounter Sizes: ");
-		for (int i = 0; i < useContours.size(); i++)
-		{
-			Scalar color = Scalar(100*i, 100*i, 255);
-			drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
-			//circle(drawing, mc[i], 4, color, -1, 8, 0);
-		}
+		#ifdef DEBUG
+			/// Draw contours
+			Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
+			//printf("\nCounter Sizes: ");
+			for (int i = 0; i < useContours.size(); i++)
+			{
+				Scalar color = Scalar(100*i, 100*i, 255);
+				drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
+				//circle(drawing, mc[i], 4, color, -1, 8, 0);
+			}
 
-		/// Show in a window
+			/// Show in a window
 
-		namedWindow("Contours", CV_WINDOW_AUTOSIZE);
-		imshow("Contours", drawing);
-#endif // DEBUG
-
-
-
-#ifdef KALMAN
-		//Prediction
-		Mat predict = KF.predict();
-		Point xy_loc(predict.at<float>(0), predict.at<float>(1));
-		Point xy_vel(predict.at<float>(2), predict.at<float>(3));
-
-		//Attempt to allow tracking of vanishing target
-		KF.statePre.copyTo(KF.statePost);
-		KF.errorCovPre.copyTo(KF.errorCovPost);
-
-		//Get measurements
-		if (useContours.size() >= 1) {
-			measurement.at<float>(0) = mc[0].x + float(ROI.x);
-			measurement.at<float>(1) = mc[0].y + float(ROI.y);
-		}
-		else {
-			measurement.at<float>(0) = xy_loc.x;
-			measurement.at<float>(1) = xy_loc.y;
-		}
+			namedWindow("Contours", CV_WINDOW_AUTOSIZE);
+			imshow("Contours", drawing);
+		#endif // DEBUG
 
 
-		//Update filter
-		Mat correction = KF.correct(measurement);
-		Point stateLoc(correction.at<float>(0), correction.at<float>(1));
+
+		#ifdef KALMAN
+			//Prediction
+			Mat predict = KF.predict();
+			Point xy_loc(predict.at<float>(0), predict.at<float>(1));
+			Point xy_vel(predict.at<float>(2), predict.at<float>(3));
+
+			//Attempt to allow tracking of vanishing target
+			KF.statePre.copyTo(KF.statePost);
+			KF.errorCovPre.copyTo(KF.errorCovPost);
+
+			//Get measurements
+			if (useContours.size() >= 1) {
+				measurement.at<float>(0) = mc[0].x + float(ROI.x);
+				measurement.at<float>(1) = mc[0].y + float(ROI.y);
+			}
+			else {
+				measurement.at<float>(0) = xy_loc.x;
+				measurement.at<float>(1) = xy_loc.y;
+			}
+
+
+			//Update filter
+			Mat correction = KF.correct(measurement);
+			Point stateLoc(correction.at<float>(0), correction.at<float>(1));
 	
-		Point stateVel(correction.at<float>(2), correction.at<float>(3));
-		Point measLoc(measurement.at<float>(0), measurement.at<float>(1));
-		targetv.push_back(measLoc);
-		kalmanv.push_back(stateLoc);
-#ifdef DEBUG
-		// plot stuff
-		src = Scalar::all(0);
+			Point stateVel(correction.at<float>(2), correction.at<float>(3));
+			Point measLoc(measurement.at<float>(0), measurement.at<float>(1));
+			targetv.push_back(measLoc);
+			kalmanv.push_back(stateLoc);
 
+			#ifdef DEBUG
+				// plot stuff
+				src = Scalar::all(0);
+				drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
+				drawCross(src, measLoc, Scalar(0, 0, 255), 5);
 
-		drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
-		drawCross(src, measLoc, Scalar(0, 0, 255), 5);
+				for (int i = 0; i < targetv.size() - 1; i++)
+					line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
 
-		for (int i = 0; i < targetv.size() - 1; i++)
-			line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
+				for (int i = 0; i < kalmanv.size() - 1; i++)
+					line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
 
-		for (int i = 0; i < kalmanv.size() - 1; i++)
-			line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
-
-		imshow("Frame Kalman", src);
-#endif
-#endif //Kalman
+				imshow("Frame Kalman", src);
+			#endif	//DEBUG
+		#endif //Kalman
 		
 
 		Point contourCentre;
-		
 		Point centreDiff;
 
 		if (noBug == true) {
@@ -434,7 +421,7 @@ int main(int argc, char** argv)
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
 
-		waitKey(wait_period); // wall fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
+		waitKey(WAIT_PERIOD); 
 		printf("\n");
 	}
 
