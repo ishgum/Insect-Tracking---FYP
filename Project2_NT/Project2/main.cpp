@@ -4,80 +4,71 @@
 
 #include "main.h"
 
-#define RGB_SOURCE		// preformance increase when left undefined for a greyscale source (skips HSL conv)
-#define ROI_SIZE .15
-#define DEBUG		//display video output windows
-#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
-#define KALMAN
-#define HEIGHT_OFFSET 10
-//#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
-#define FIND_DEPTH
-#define THRESH_FILTER_SIZE 10
-#define WAIT_PERIOD	10
 
-bool noBug = false;
-int threshCount = 0;
-int threshFilter[THRESH_FILTER_SIZE] = { 0 };
 
 //void displayFPS(Mat src, Rect ROI){
 
-Mat preprocessImage(Mat image) {
-	Mat values[3]; Mat image_hsl; Mat dst;
-	static int lumThreshold = 0;
-	
-	// Conversion uses significant processor time,
-	// using point grey camera we should be able to skip this step,
-	// as it proivdes only one 'brightness' channel.
-#ifdef RGB_SOURCE
-	cvtColor(image, image, CV_BGR2HLS);		// Convert image to HSL
-#endif
-	split(image, values);						// Split into channels
-	//printf("\n\nimage chan:\t%d", image.channels());
-	Mat lum = values[1];
-	//printf("\nimage chan:\t%d\n\n", lum.channels());
-	medianBlur(lum, dst, 1);
-	lumThreshold = findThreshold(dst, lumThreshold, noBug);		//Perform Dynamic thresholding on the saturation image
-	threshFilter[threshCount++] = lumThreshold;
-	
-	MatND hist;
-	MatND histNormal;
-	/// Establish the number of bins
-	int histSize = 256;
-	float range[] = { lumThreshold, 256 };
-	const float* histRange = { range };
+vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours){
+	vector<vector<Point> > contours;
+	vector<Vec4i> hierarchy;
+	static Mat measurement = Mat::zeros(2, 1, CV_32F);
 
-	calcHist(&dst, 1, 0, Mat(), hist, 1, &histSize, &histRange, true, false);
+	findContours(dst, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-	int hist_w = 512; int hist_h = 400;
-	int bin_w = cvRound((double)hist_w / histSize);
-
-	Mat histImage2(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
-
-	/// Normalize the result to [ 0, histImage.rows ]
-	normalize(hist, histNormal, 0, histImage2.rows, NORM_MINMAX, -1, Mat());
-
-	/// Draw for each channel
-	for (int i = 1; i < histSize; i++)
+	/// Get the moments
+	vector<Moments> mu(contours.size());
+	for (int i = 0; i < contours.size(); i++)
 	{
-		line(histImage2, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
-			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
-			Scalar(255, 255, 255), 1, 8, 0);
+		mu[i] = moments(contours[i], false);
 	}
 
-#ifdef DEBUG
-	namedWindow("calcHist Demo2", CV_WINDOW_AUTOSIZE);
-	imshow("calcHist Demo2", histImage2);
-#endif
-	threshold(dst, dst, lumThreshold, 255, 0);
+	///  Get the mass centers:
+	vector<Point2f> mc(contours.size());
+	for (int i = 0; i < contours.size(); i++)
+	{
+		mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
+	}
 
-#ifdef DEBUG
-	imshow("Luminance", dst);
-#endif // DEBUG
 
-	GaussianBlur(dst, dst, Size(11, 11), 2);
-	threshold(dst, dst, 5, 255, 0);
+	//Filter by area
+	int j = 0;
+	vector<vector<Point> > useContours(contours.size());
+	for (int i = 0; i < contours.size(); i++) {
+		if ((mu[i].m00 < 20000) && (mu[i].m00 > 5)) {
+			useContours[j] = vector<Point>(contours[i]);
+			j++;
+			//printf("Area %i: %.1f ", j, mu[i].m00);
+		}
+	}
+	usable_contours = useContours.size();
 
-	return dst;
+	if (j == 0) {
+		noBug = true;
+	}
+	else {
+		noBug = false;
+	}
+
+	#ifdef DEBUG
+		/// Draw contours
+		Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
+		//printf("\nCounter Sizes: ");
+		for (int i = 0; i < useContours.size(); i++)
+		{
+			Scalar color = Scalar(100 * i, 100 * i, 255);
+			drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
+			//circle(drawing, mc[i], 4, color, -1, 8, 0);
+		}
+
+		/// Show in a window
+
+		namedWindow("Contours", CV_WINDOW_AUTOSIZE);
+		imshow("Contours", drawing);
+	#endif // DEBUG
+
+
+
+	return mc;
 }
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
@@ -113,6 +104,9 @@ Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 /********** @function main ***********/
 int main(int argc, char** argv)
 {
+	Mat measurement = Mat::zeros(2, 1, CV_32F);
+	int usable_contours = 0;
+	int threshCount = 0;
 	const string videoFile[] = {
 		"C:/Users/myadmin/Videos/plainLow1.avi"
 		"C:/Users/myadmin/Videos/plainLow2.avi"
@@ -151,34 +145,35 @@ int main(int argc, char** argv)
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
 
-#ifdef RECORD_SOURCE_W_BOX
-	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
-	int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
-	int input_fps = capture.get(CV_CAP_PROP_FPS);
-	input_fps = 25;
-	VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
-#endif
+	#ifdef RECORD_SOURCE_W_BOX
+		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
+		int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
+		int input_fps = capture.get(CV_CAP_PROP_FPS);
+		input_fps = 25;
+		VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
+	#endif
 
-#ifdef KALMAN
-	KalmanFilter KF(4, 2, 0);
-	Mat state(4, 1, CV_32F); //x, y, delta x, delta y
-	Mat processNoise(4, 1, CV_32F);
-	Mat measurement = Mat::zeros(2, 1, CV_32F);
-	KF = setKalmanParameters(KF);
-	vector<Point> targetv, kalmanv;
-#endif
+	#ifdef KALMAN
+		KalmanFilter KF(4, 2, 0);
+		Mat state(4, 1, CV_32F); //x, y, delta x, delta y
+		Mat processNoise(4, 1, CV_32F);
+		KF = setKalmanParameters(KF);
+		vector<Point> targetv, kalmanv;
+		//Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT/2));
+	#endif
+		Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT / 2));
 
 
-#ifdef FPS
-	int frame_num = 1;
-	// Timing functions
-	double wall0 = get_wall_time();
-	double cpu0 = get_cpu_time();
-	int num_frames_proc = -1;
-	float fps_wall, fps_cpu = 0;
-	double cpu_running_total = 0;
+	#ifdef FPS
+		int frame_num = 1;
+		// Timing functions
+		double wall0 = get_wall_time();
+		double cpu0 = get_cpu_time();
+		int num_frames_proc = -1;
+		float fps_wall, fps_cpu = 0;
+		double cpu_running_total = 0;
 
-#endif // FPS
+	#endif // FPS
 
 
 	int kalmanCount = 0;
@@ -200,7 +195,7 @@ int main(int argc, char** argv)
 			imshow("Source w Box", srcBox);
 		#endif
 		#if defined(RECORD_SOURCE_W_BOX) && ! defined(FPS)
-			outputVideo.write(srcBox); //write output video w/o text
+			outputVideo.write(srcBox); //write output video w/o fps text
 		#endif
 
 		#ifdef FPS
@@ -263,13 +258,12 @@ int main(int argc, char** argv)
 		#endif // FPS	
 
 		src_ROI = src(ROI);
-		//resize(srcBox, srcBox, Size(), 0.3, 0.3);
 
 		#ifdef DEBUG
 			imshow("Frame", src_ROI);
 		#endif // DEBUG
 
-		Mat dst = preprocessImage(src_ROI);
+		Mat dst = preprocessImage(src_ROI, noBug, threshCount, threshFilter);
 
 		#ifdef FIND_DEPTH
 			int threshSum = 0;
@@ -288,62 +282,9 @@ int main(int argc, char** argv)
 
 		Canny(dst, dst, 100, 100 * 2, 3);
 
-
-		findContours(dst, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-
-
-		/// Get the moments
-		vector<Moments> mu(contours.size());
-		for (int i = 0; i < contours.size(); i++)
-		{
-			mu[i] = moments(contours[i], false);
-		}
-
-		///  Get the mass centers:
-		vector<Point2f> mc(contours.size());
-		for (int i = 0; i < contours.size(); i++)
-		{
-			mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
-		}
-
-
-		//Filter by area
-		int j = 0;
-		vector<vector<Point> > useContours(contours.size());
-		for (int i = 0; i < contours.size(); i++) {
-			if ((mu[i].m00 < 20000) && (mu[i].m00 > 5)) {
-				useContours[j] = vector<Point>(contours[i]);
-				j++;
-				//printf("Area %i: %.1f ", j, mu[i].m00);
-			}
-		}
-
-		if (j == 0) {
-			noBug = true;
-		}
-		else {
-			noBug = false;
-		}
-
-		#ifdef DEBUG
-			/// Draw contours
-			Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
-			//printf("\nCounter Sizes: ");
-			for (int i = 0; i < useContours.size(); i++)
-			{
-				Scalar color = Scalar(100*i, 100*i, 255);
-				drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
-				//circle(drawing, mc[i], 4, color, -1, 8, 0);
-			}
-
-			/// Show in a window
-
-			namedWindow("Contours", CV_WINDOW_AUTOSIZE);
-			imshow("Contours", drawing);
-		#endif // DEBUG
-
-
-
+		vector<Point2f> mc;
+		mc = contourProcessing(dst, ROI, xy_loc, usable_contours);
+		
 		#ifdef KALMAN
 			//Prediction
 			Mat predict = KF.predict();
@@ -355,7 +296,7 @@ int main(int argc, char** argv)
 			KF.errorCovPre.copyTo(KF.errorCovPost);
 
 			//Get measurements
-			if (useContours.size() >= 1) {
+			if (usable_contours >= 1) {
 				measurement.at<float>(0) = mc[0].x + float(ROI.x);
 				measurement.at<float>(1) = mc[0].y + float(ROI.y);
 			}
@@ -363,7 +304,6 @@ int main(int argc, char** argv)
 				measurement.at<float>(0) = xy_loc.x;
 				measurement.at<float>(1) = xy_loc.y;
 			}
-
 
 			//Update filter
 			Mat correction = KF.correct(measurement);
@@ -433,3 +373,4 @@ int main(int argc, char** argv)
 
 	return(0);
 }
+#endif

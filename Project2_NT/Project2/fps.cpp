@@ -1,4 +1,5 @@
 #include "fps.h"
+
 // Functions for system clock so we can determine runtine FPS
 // copied from http://stackoverflow.com/questions/17432502
 //  Windows

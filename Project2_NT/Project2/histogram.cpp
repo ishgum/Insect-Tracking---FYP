@@ -1,5 +1,5 @@
 #include "histogram.h"
-//
+
 MatND findHistogram(Mat inputImage, int numBins) {
 	MatND hist;
 	MatND histNormal;
@@ -116,8 +116,6 @@ int findThresholdByArea(vector<int> inputHistogram, int minArea)
 	return i;
 }
 
-
-
 int findThreshold(Mat inputImage, int previousThreshold, bool& noBug) {
 
 	MatND hist = findHistogram(inputImage);
@@ -161,17 +159,17 @@ int findThreshold(Mat inputImage, int previousThreshold, bool& noBug) {
 
 	// Find the brightest X percentage of pixels in the frame
 	//#define PercentageHistogram
-#ifdef PercentageHistogram
-	int histCount = 0;
-	float histPcentThresh = percentage;
-	double histSum = sum(hist)[0];
-	float thresh = histSum * (histPcentThresh / 100.0);
+	#ifdef PercentageHistogram
+		int histCount = 0;
+		float histPcentThresh = percentage;
+		double histSum = sum(hist)[0];
+		float thresh = histSum * (histPcentThresh / 100.0);
 
-	for (int i = histSize - 1; i >= 0; i--) {
-		histCount += hist.at<float>(i);
-		if (histCount >= thresh) {
-			return i;
+		for (int i = histSize - 1; i >= 0; i--) {
+			histCount += hist.at<float>(i);
+			if (histCount >= thresh) {
+				return i;
+			}
 		}
-	}
-#endif // !PercentageHistogram
+	#endif // !PercentageHistogram
 }
