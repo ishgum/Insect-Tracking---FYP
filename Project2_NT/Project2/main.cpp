@@ -11,11 +11,7 @@ void sourceDisplayAndRecord(Mat src, Rect ROI, VideoWriter outputVideo){
 
 }
 
-void drawCross(Mat img, Point centre, Scalar colour, int d)
-{
-	line(img, Point(centre.x - d, centre.y - d), Point(centre.x + d, centre.y + d), colour, 2, CV_AA, 0);
-	line(img, Point(centre.x + d, centre.y - d), Point(centre.x - d, centre.y + d), colour, 2, CV_AA, 0);
-}
+
 
 Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 	int roiSize = ROI_SIZE * src.rows;
@@ -43,10 +39,10 @@ Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 /********** @function main ***********/
 int main(int argc, char** argv)
 {
-	Mat measurement = Mat::zeros(2, 1, CV_32F);
-	int usable_contours = 0;
 
 	VideoCapture capture;
+
+	/********** SOURCE VIDEO ************/
 
 	//EARLY TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
@@ -70,6 +66,10 @@ int main(int argc, char** argv)
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
 
+	/********** END SOURCE VIDEO ************/
+
+
+	int usable_contours = 0;
 
 	//#ifdef RECORD_SOURCE_W_BOX
 		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -79,14 +79,14 @@ int main(int argc, char** argv)
 		VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
 	//#endif
 
-	#ifdef KALMAN
+	//#ifdef KALMAN
 		KalmanFilter KF(4, 2, 0);
 		Mat state(4, 1, CV_32F); //x, y, delta x, delta y
 		Mat processNoise(4, 1, CV_32F);
 		KF = setKalmanParameters(KF);
-		vector<Point> targetv, kalmanv;
+		//vector<Point> targetv, kalmanv;
 		//Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT/2));
-	#endif
+	//#endif
 	Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT / 2));
 	
 	int kalmanCount = 0;
@@ -109,51 +109,10 @@ int main(int argc, char** argv)
 		vector<Point2f> mc;
 		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc, usable_contours);
 	
-		#ifdef KALMAN
-			//Prediction
-			Mat predict = KF.predict();
-			Point xy_loc(predict.at<float>(0), predict.at<float>(1));
-			Point xy_vel(predict.at<float>(2), predict.at<float>(3));
-
-			//Attempt to allow tracking of vanishing target
-			KF.statePre.copyTo(KF.statePost);
-			KF.errorCovPre.copyTo(KF.errorCovPost);
-			
-			//Get measurements
-			if (usable_contours >= 1) {	// found contours, use contour centres
-				measurement.at<float>(0) = mc[0].x + float(ROI.x);
-				measurement.at<float>(1) = mc[0].y + float(ROI.y);
-			}
-			else {						//didn't find anything, use prediction
-				measurement.at<float>(0) = xy_loc.x;
-				measurement.at<float>(1) = xy_loc.y;
-			}
-
-			//Update filter
-			Mat correction = KF.correct(measurement);
-			Point stateLoc(correction.at<float>(0), correction.at<float>(1));
-			Point stateVel(correction.at<float>(2), correction.at<float>(3));
-			Point measLoc(measurement.at<float>(0), measurement.at<float>(1));
-			targetv.push_back(measLoc);
-			kalmanv.push_back(stateLoc);
-
-			#ifdef DEBUG
-				// plot stuff
-				src = Scalar::all(0);
-				drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
-				drawCross(src, measLoc, Scalar(0, 0, 255), 5);
-
-				for (int i = 0; i < targetv.size() - 1; i++)
-					line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
-
-				for (int i = 0; i < kalmanv.size() - 1; i++)
-					line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
-
-				imshow("Frame Kalman", src);
-			#endif	//DEBUG
-		#endif //Kalman
-		
-
+		// KALMAN
+		// needs KF, xy_loc
+		useKalmanFilter(KF, xy_loc, usable_contours, src, ROI, mc);
+	
 		Point contourCentre;
 		Point centreDiff;
 
@@ -170,29 +129,22 @@ int main(int argc, char** argv)
 		//printf("Just trying: %i", (value + threshSum / THRESH_FILTER_SIZE));
 		prevCentre = contourCentre;
 
-
 		ROI.x = 0;
 		ROI.y = HEIGHT_OFFSET;		//Strange artifacts in top left hand corner removed
 		ROI.width = src.cols;
 		ROI.height = src.rows-HEIGHT_OFFSET;
 
-		if (kalmanCount++ > 10) {
+		if (kalmanCount++ > 10) { // if bug is lost, wait until we have it for 10 frames before ROI update
 
 			ROI = updateROI(ROI, contourCentre, src);
 		}
-
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
-
 		waitKey(WAIT_PERIOD); 
 		printf("\n");
 	}
-
 	capture.release();
-
-	//while (waitKey(10) < 0) {
-		cout << "Done\n";
-	//}
+	cout << "Done\n";
 
 	return(0);
 }
