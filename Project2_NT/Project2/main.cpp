@@ -105,24 +105,9 @@ int main(int argc, char** argv)
 		cpuFPS = checkFPS(WAIT_PERIOD);
 		displayFPS(src, ROI, cpuFPS);
 
-
-
 		// processFrame
 		vector<Point2f> mc;
 		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc, usable_contours);
-		//src_ROI = src(ROI);
-
-		//#ifdef DEBUG
-		//	imshow("Frame", src_ROI);
-		//#endif // DEBUG
-
-		//Mat dst = preprocessImage(src_ROI, noBug, threshFilter, THRESH_FILTER_SIZE);
-		//
-		//Canny(dst, dst, 100, 100 * 2, 3);
-
-		//vector<Point2f> mc;
-		//mc = contourProcessing(dst, ROI, xy_loc, usable_contours, noBug);
-		// end processFrame
 	
 		#ifdef KALMAN
 			//Prediction
@@ -133,7 +118,7 @@ int main(int argc, char** argv)
 			//Attempt to allow tracking of vanishing target
 			KF.statePre.copyTo(KF.statePost);
 			KF.errorCovPre.copyTo(KF.errorCovPost);
-
+			
 			//Get measurements
 			if (usable_contours >= 1) {	// found contours, use contour centres
 				measurement.at<float>(0) = mc[0].x + float(ROI.x);
@@ -147,7 +132,6 @@ int main(int argc, char** argv)
 			//Update filter
 			Mat correction = KF.correct(measurement);
 			Point stateLoc(correction.at<float>(0), correction.at<float>(1));
-	
 			Point stateVel(correction.at<float>(2), correction.at<float>(3));
 			Point measLoc(measurement.at<float>(0), measurement.at<float>(1));
 			targetv.push_back(measLoc);

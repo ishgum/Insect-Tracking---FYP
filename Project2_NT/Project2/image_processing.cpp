@@ -1,9 +1,9 @@
 #include "image_processing.h"
 
 // Do all improc steps
-// return position, arg is frame
+// return position, arg is frame (& other crap for now)
 vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
-	int thresh_filter_size, Point xy_loc, int usable_contours)
+	int thresh_filter_size, Point xy_loc, int& usable_contours)
 {
 	Mat src_ROI = src(ROI);
 
