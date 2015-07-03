@@ -5,6 +5,8 @@ TODO: check depth works*/
 #define IMAGE_PROCESSING_H
 
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
 #include "histogram.h"
 using namespace cv;
 
@@ -13,5 +15,9 @@ vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_c
 
 vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
 	int thresh_filter_size, Point xy_loc, int& usable_contours);
+
+void sourceDisplayAndRecord(Mat src, Rect ROI, VideoWriter outputVideo);
+
+Rect updateROI(Rect ROI, Point stateLoc, Mat src, float roi_size, bool noBug);
 
 #endif

@@ -3,38 +3,6 @@
 */
 #include "main.h"
 
-void sourceDisplayAndRecord(Mat src, Rect ROI, VideoWriter outputVideo){
-	Mat srcBox = src.clone();
-	rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
-	imshow("Source w Box", srcBox);
-	outputVideo.write(srcBox); //write output video w/o fps text
-
-}
-
-
-
-Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
-	int roiSize = ROI_SIZE * src.rows;
-
-	if (noBug == false) {
-
-		if (stateLoc.x > (roiSize / 2)) {
-			ROI.x = stateLoc.x - roiSize / 2;
-		}
-		if (stateLoc.y > (roiSize / 2)) {
-			ROI.y = stateLoc.y - roiSize / 2;
-		}
-		if (stateLoc.x + roiSize / 2 > src.cols) {
-			ROI.x = src.cols - roiSize;
-		}
-		if (stateLoc.y + roiSize / 2 > src.rows) {
-			ROI.y = src.rows - roiSize;
-		}
-		ROI.width = roiSize;
-		ROI.height = roiSize;
-	}
-	return ROI;
-}
 
 /********** @function main ***********/
 int main(int argc, char** argv)
@@ -79,14 +47,13 @@ int main(int argc, char** argv)
 		VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
 	//#endif
 
-	//#ifdef KALMAN
+	#ifdef KALMAN
 		KalmanFilter KF(4, 2, 0);
 		Mat state(4, 1, CV_32F); //x, y, delta x, delta y
 		Mat processNoise(4, 1, CV_32F);
 		KF = setKalmanParameters(KF);
-		//vector<Point> targetv, kalmanv;
-		//Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT/2));
-	//#endif
+	#endif
+
 	Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT / 2));
 	
 	int kalmanCount = 0;
@@ -110,9 +77,10 @@ int main(int argc, char** argv)
 		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc, usable_contours);
 	
 		// KALMAN
-		// needs KF, xy_loc
-		useKalmanFilter(KF, xy_loc, usable_contours, src, ROI, mc);
-	
+		#ifdef KALMAN
+			useKalmanFilter(KF, xy_loc, usable_contours, src, ROI, mc);
+		#endif
+
 		Point contourCentre;
 		Point centreDiff;
 
@@ -136,7 +104,7 @@ int main(int argc, char** argv)
 
 		if (kalmanCount++ > 10) { // if bug is lost, wait until we have it for 10 frames before ROI update
 
-			ROI = updateROI(ROI, contourCentre, src);
+			ROI = updateROI(ROI, contourCentre, src, ROI_SIZE, noBug);
 		}
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);

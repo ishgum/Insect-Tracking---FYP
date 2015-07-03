@@ -19,6 +19,10 @@ using namespace std;
 #include "kalman.h"
 #include "image_processing.h"
 
+
+// Note that most of these flags will be broken,
+// as we move to use flags in function calls based on these.
+
 #define RGB_SOURCE		// preformance increase when left undefined for a greyscale source (skips HSL conv)
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows

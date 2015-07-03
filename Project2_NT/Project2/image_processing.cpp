@@ -161,3 +161,37 @@ vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_c
 
 	return mc;
 }
+
+
+
+void sourceDisplayAndRecord(Mat src, Rect ROI, VideoWriter outputVideo){
+	Mat srcBox = src.clone();
+	rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
+	imshow("Source w Box", srcBox);
+	outputVideo.write(srcBox); //write output video w/o fps text
+
+}
+
+
+Rect updateROI(Rect ROI, Point stateLoc, Mat src, float roi_size, bool noBug) {
+	int roiSize = roi_size * src.rows;
+
+	if (noBug == false) {
+
+		if (stateLoc.x > (roiSize / 2)) {
+			ROI.x = stateLoc.x - roiSize / 2;
+		}
+		if (stateLoc.y > (roiSize / 2)) {
+			ROI.y = stateLoc.y - roiSize / 2;
+		}
+		if (stateLoc.x + roiSize / 2 > src.cols) {
+			ROI.x = src.cols - roiSize;
+		}
+		if (stateLoc.y + roiSize / 2 > src.rows) {
+			ROI.y = src.rows - roiSize;
+		}
+		ROI.width = roiSize;
+		ROI.height = roiSize;
+	}
+	return ROI;
+}
