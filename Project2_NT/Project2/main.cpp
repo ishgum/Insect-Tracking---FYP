@@ -75,6 +75,15 @@ void displayFPS(Mat src, Rect ROI, float fps_cpu){
 	//#endif
 }
 
+void findDepth(void){
+	int threshSum = 0;
+
+	for (int p = 0; p < THRESH_FILTER_SIZE; p++) {
+		threshSum += threshFilter[p];
+	}
+	printf("Threshold: %i	", threshSum / THRESH_FILTER_SIZE);
+	printf("Height Bracket: %i	", threshSum / (THRESH_FILTER_SIZE * 20));
+}
 
 void sourceDisplayAndRecord(Mat src, Rect ROI, VideoWriter outputVideo){
 	Mat srcBox = src.clone();
@@ -184,7 +193,6 @@ int main(int argc, char** argv)
 {
 	Mat measurement = Mat::zeros(2, 1, CV_32F);
 	int usable_contours = 0;
-	int threshCount = 0;
 
 	const string videoFile[] = {
 		"C:/Users/myadmin/Videos/plainLow1.avi"
@@ -240,9 +248,8 @@ int main(int argc, char** argv)
 		vector<Point> targetv, kalmanv;
 		//Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT/2));
 	#endif
-		Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT / 2));
-
-
+	Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT / 2));
+	
 	int kalmanCount = 0;
 	Mat src; Mat src_ROI;
 	Point prevCentre;
@@ -266,18 +273,9 @@ int main(int argc, char** argv)
 			imshow("Frame", src_ROI);
 		#endif // DEBUG
 
-		Mat dst = preprocessImage(src_ROI, noBug, threshCount, threshFilter);
-
-		#ifdef FIND_DEPTH
-			int threshSum = 0;
-			for (int p = 0; p < THRESH_FILTER_SIZE; p++) {
-				threshSum += threshFilter[p];
-			}
-			printf("Threshold: %i	", threshSum / THRESH_FILTER_SIZE);
-			printf("Height Bracket: %i	", threshSum / (THRESH_FILTER_SIZE * 20));
-			if (threshCount == THRESH_FILTER_SIZE) 
-				{ threshCount = 0; }
-		#endif
+		Mat dst = preprocessImage(src_ROI, noBug, threshFilter, THRESH_FILTER_SIZE);
+		
+		findDepth();
 
 		/*****		CONTOURS		****/
 		vector<vector<Point> > contours;

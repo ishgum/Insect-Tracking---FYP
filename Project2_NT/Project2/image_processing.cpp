@@ -9,7 +9,9 @@
 //void display
 
 
-Mat preprocessImage(Mat image, bool noBug, int& threshCount, int threshFilter[]) {
+Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size) {
+	static int threshCount = 0;
+
 	Mat values[3]; Mat image_hsl; Mat dst;
 	static int lumThreshold = 0;
 
@@ -26,6 +28,10 @@ Mat preprocessImage(Mat image, bool noBug, int& threshCount, int threshFilter[])
 	medianBlur(lum, dst, 1);
 	lumThreshold = findThreshold(dst, lumThreshold, noBug);		//Perform Dynamic thresholding on the saturation image
 	threshFilter[threshCount++] = lumThreshold;
+	if (threshCount == thresh_filter_size)
+	{
+		threshCount = 0;
+	}
 
 	MatND hist;
 	MatND histNormal;

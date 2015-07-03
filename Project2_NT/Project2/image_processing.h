@@ -8,6 +8,6 @@ TODO: check depth works*/
 #include "histogram.h"
 using namespace cv;
 
-Mat preprocessImage(Mat image, bool noBug, int& threshCount, int threshFilter[]);
+Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size); // int& threshCount,
 
 #endif
