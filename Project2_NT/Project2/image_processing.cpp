@@ -3,11 +3,10 @@
 // Do all improc steps
 // return position, arg is frame
 //processFrame(){
-//
-//}
+
+
 
 //void display
-
 
 Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size) {
 	static int threshCount = 0;
@@ -32,6 +31,15 @@ Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter
 	{
 		threshCount = 0;
 	}
+	//MAF and depth binning
+	int threshSum = 0;
+
+	for (int p = 0; p < thresh_filter_size; p++) {
+		threshSum += threshFilter[p];
+	}
+	printf("Threshold: %i	", threshSum / thresh_filter_size);
+	printf("Height Bracket: %i	", threshSum / (thresh_filter_size * 20));
+	// end depth
 
 	MatND hist;
 	MatND histNormal;
@@ -72,4 +80,67 @@ Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter
 	threshold(dst, dst, 5, 255, 0);
 
 	return dst;
+}
+
+vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, int noBug){
+	vector<vector<Point> > contours;
+	vector<Vec4i> hierarchy;
+	static Mat measurement = Mat::zeros(2, 1, CV_32F);
+
+	findContours(dst, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+	/// Get the moments
+	vector<Moments> mu(contours.size());
+	for (int i = 0; i < contours.size(); i++)
+	{
+		mu[i] = moments(contours[i], false);
+	}
+
+	///  Get the mass centers:
+	vector<Point2f> mc(contours.size());
+	for (int i = 0; i < contours.size(); i++)
+	{
+		mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
+	}
+
+
+	//Filter by area
+	int j = 0;
+	vector<vector<Point> > useContours(contours.size());
+	for (int i = 0; i < contours.size(); i++) {
+		if ((mu[i].m00 < 20000) && (mu[i].m00 > 5)) {
+			useContours[j] = vector<Point>(contours[i]);
+			j++;
+			//printf("Area %i: %.1f ", j, mu[i].m00);
+		}
+	}
+	usable_contours = useContours.size();
+
+	if (j == 0) {
+		noBug = true;
+	}
+	else {
+		noBug = false;
+	}
+
+#ifdef DEBUG
+	/// Draw contours
+	Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
+	//printf("\nCounter Sizes: ");
+	for (int i = 0; i < useContours.size(); i++)
+	{
+		Scalar color = Scalar(100 * i, 100 * i, 255);
+		drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
+		//circle(drawing, mc[i], 4, color, -1, 8, 0);
+	}
+
+	/// Show in a window
+
+	namedWindow("Contours", CV_WINDOW_AUTOSIZE);
+	imshow("Contours", drawing);
+#endif // DEBUG
+
+
+
+	return mc;
 }

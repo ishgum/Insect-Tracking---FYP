@@ -9,5 +9,6 @@ TODO: check depth works*/
 using namespace cv;
 
 Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size); // int& threshCount,
+vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, int noBug);
 
 #endif

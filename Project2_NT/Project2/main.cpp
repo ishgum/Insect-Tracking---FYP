@@ -3,87 +3,12 @@
 */
 #include "main.h"
 
-void findDepth(void){
-	int threshSum = 0;
-
-	for (int p = 0; p < THRESH_FILTER_SIZE; p++) {
-		threshSum += threshFilter[p];
-	}
-	printf("Threshold: %i	", threshSum / THRESH_FILTER_SIZE);
-	printf("Height Bracket: %i	", threshSum / (THRESH_FILTER_SIZE * 20));
-}
-
 void sourceDisplayAndRecord(Mat src, Rect ROI, VideoWriter outputVideo){
 	Mat srcBox = src.clone();
 	rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
 	imshow("Source w Box", srcBox);
 	outputVideo.write(srcBox); //write output video w/o fps text
 
-}
-
-//void displayFPS(Mat src, Rect ROI){
-
-vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours){
-	vector<vector<Point> > contours;
-	vector<Vec4i> hierarchy;
-	static Mat measurement = Mat::zeros(2, 1, CV_32F);
-
-	findContours(dst, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-
-	/// Get the moments
-	vector<Moments> mu(contours.size());
-	for (int i = 0; i < contours.size(); i++)
-	{
-		mu[i] = moments(contours[i], false);
-	}
-
-	///  Get the mass centers:
-	vector<Point2f> mc(contours.size());
-	for (int i = 0; i < contours.size(); i++)
-	{
-		mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
-	}
-
-
-	//Filter by area
-	int j = 0;
-	vector<vector<Point> > useContours(contours.size());
-	for (int i = 0; i < contours.size(); i++) {
-		if ((mu[i].m00 < 20000) && (mu[i].m00 > 5)) {
-			useContours[j] = vector<Point>(contours[i]);
-			j++;
-			//printf("Area %i: %.1f ", j, mu[i].m00);
-		}
-	}
-	usable_contours = useContours.size();
-
-	if (j == 0) {
-		noBug = true;
-	}
-	else {
-		noBug = false;
-	}
-
-	#ifdef DEBUG
-		/// Draw contours
-		Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
-		//printf("\nCounter Sizes: ");
-		for (int i = 0; i < useContours.size(); i++)
-		{
-			Scalar color = Scalar(100 * i, 100 * i, 255);
-			drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
-			//circle(drawing, mc[i], 4, color, -1, 8, 0);
-		}
-
-		/// Show in a window
-
-		namedWindow("Contours", CV_WINDOW_AUTOSIZE);
-		imshow("Contours", drawing);
-	#endif // DEBUG
-
-
-
-	return mc;
 }
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
@@ -115,26 +40,11 @@ Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 	return ROI;
 }
 
-
 /********** @function main ***********/
 int main(int argc, char** argv)
 {
 	Mat measurement = Mat::zeros(2, 1, CV_32F);
 	int usable_contours = 0;
-
-	const string videoFile[] = {
-		"C:/Users/myadmin/Videos/plainLow1.avi"
-		"C:/Users/myadmin/Videos/plainLow2.avi"
-		"C:/Users/myadmin/Videos/plainLow3.avi"
-		"C:/Users/myadmin/Videos/plainMed1.avi"
-		"C:/Users/myadmin/Videos/plainMed2.avi"
-		"C:/Users/myadmin/Videos/plainMed3.avi"
-		"C:/Users/myadmin/Videos/plainHigh1.avi"
-		"C:/Users/myadmin/Videos/plainHigh2.avi"
-		"C:/Users/myadmin/Videos/plainHigh3.avi"
-		"C:/Users/myadmin/Videos/retroHigh1.avi"
-		"C:/Users/myadmin/Videos/retroFar1.avi"
-	};
 
 	VideoCapture capture;
 
@@ -154,11 +64,12 @@ int main(int argc, char** argv)
 	//DEPTH TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 	
-	// FOR CODE TEST, relative path
-	capture.open("../../test.avi");		//File is greyscale, and NOT square
+	// FOR BASIC CODE TEST. uses a relative path which is handy, but could break
+	capture.open("../../test.avi");		//File is greyscale, and dim NOT square
 
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
+
 
 	//#ifdef RECORD_SOURCE_W_BOX
 		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -191,11 +102,13 @@ int main(int argc, char** argv)
 	while (!src.empty()) {
 
 		sourceDisplayAndRecord(src, ROI, outputVideo);
-
 		cpuFPS = checkFPS(WAIT_PERIOD);
 		displayFPS(src, ROI, cpuFPS);
 
 
+
+		// processFrame
+		//processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc, usable_contours)
 		src_ROI = src(ROI);
 
 		#ifdef DEBUG
@@ -204,17 +117,12 @@ int main(int argc, char** argv)
 
 		Mat dst = preprocessImage(src_ROI, noBug, threshFilter, THRESH_FILTER_SIZE);
 		
-		findDepth();
-
-		/*****		CONTOURS		****/
-		vector<vector<Point> > contours;
-		vector<Vec4i> hierarchy;
-
 		Canny(dst, dst, 100, 100 * 2, 3);
 
 		vector<Point2f> mc;
-		mc = contourProcessing(dst, ROI, xy_loc, usable_contours);
-		
+		mc = contourProcessing(dst, ROI, xy_loc, usable_contours, noBug);
+		// end processFrame
+	
 		#ifdef KALMAN
 			//Prediction
 			Mat predict = KF.predict();
@@ -226,11 +134,11 @@ int main(int argc, char** argv)
 			KF.errorCovPre.copyTo(KF.errorCovPost);
 
 			//Get measurements
-			if (usable_contours >= 1) {
+			if (usable_contours >= 1) {	// found contours, use contour centres
 				measurement.at<float>(0) = mc[0].x + float(ROI.x);
 				measurement.at<float>(1) = mc[0].y + float(ROI.y);
 			}
-			else {
+			else {						//didn't find anything, use prediction
 				measurement.at<float>(0) = xy_loc.x;
 				measurement.at<float>(1) = xy_loc.y;
 			}
