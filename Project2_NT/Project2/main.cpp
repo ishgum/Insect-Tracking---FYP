@@ -108,19 +108,20 @@ int main(int argc, char** argv)
 
 
 		// processFrame
-		//processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc, usable_contours)
-		src_ROI = src(ROI);
-
-		#ifdef DEBUG
-			imshow("Frame", src_ROI);
-		#endif // DEBUG
-
-		Mat dst = preprocessImage(src_ROI, noBug, threshFilter, THRESH_FILTER_SIZE);
-		
-		Canny(dst, dst, 100, 100 * 2, 3);
-
 		vector<Point2f> mc;
-		mc = contourProcessing(dst, ROI, xy_loc, usable_contours, noBug);
+		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc, usable_contours);
+		//src_ROI = src(ROI);
+
+		//#ifdef DEBUG
+		//	imshow("Frame", src_ROI);
+		//#endif // DEBUG
+
+		//Mat dst = preprocessImage(src_ROI, noBug, threshFilter, THRESH_FILTER_SIZE);
+		//
+		//Canny(dst, dst, 100, 100 * 2, 3);
+
+		//vector<Point2f> mc;
+		//mc = contourProcessing(dst, ROI, xy_loc, usable_contours, noBug);
 		// end processFrame
 	
 		#ifdef KALMAN

@@ -2,7 +2,24 @@
 
 // Do all improc steps
 // return position, arg is frame
-//processFrame(){
+vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
+	int thresh_filter_size, Point xy_loc, int usable_contours)
+{
+	Mat src_ROI = src(ROI);
+
+	#ifdef DEBUG
+		imshow("Frame", src_ROI);
+	#endif // DEBUG
+
+	Mat dst = preprocessImage(src_ROI, noBug, threshFilter, thresh_filter_size);
+
+	Canny(dst, dst, 100, 100 * 2, 3);
+
+	vector<Point2f> mc;
+	mc = contourProcessing(dst, ROI, xy_loc, usable_contours, noBug);
+	return mc;
+}
+
 
 
 

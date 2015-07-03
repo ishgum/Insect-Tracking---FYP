@@ -11,4 +11,7 @@ using namespace cv;
 Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size); // int& threshCount,
 vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, int noBug);
 
+vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
+	int thresh_filter_size, Point xy_loc, int usable_contours);
+
 #endif
