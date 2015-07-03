@@ -1,5 +1,14 @@
 #include "image_processing.h"
 
+// Do all improc steps
+// return position, arg is frame
+//processFrame(){
+//
+//}
+
+//void display
+
+
 Mat preprocessImage(Mat image, bool noBug, int& threshCount, int threshFilter[]) {
 	Mat values[3]; Mat image_hsl; Mat dst;
 	static int lumThreshold = 0;
