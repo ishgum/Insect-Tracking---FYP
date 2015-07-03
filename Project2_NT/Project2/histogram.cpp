@@ -1,6 +1,6 @@
 #include "histogram.h"
 
-MatND findHistogram(Mat inputImage, int numBins) {
+MatND findHistogram(Mat inputImage, int debug_flag, int numBins) {
 	MatND hist;
 	MatND histNormal;
 
@@ -12,33 +12,33 @@ MatND findHistogram(Mat inputImage, int numBins) {
 
 	calcHist(&inputImage, 1, 0, Mat(), hist, 1, &histSize, &histRange, true, false);
 
-#ifdef DEBUG
+	if (debug_flag){
 
-	int hist_w = 512; int hist_h = 400;
-	int bin_w = cvRound((double)hist_w / histSize);
+		int hist_w = 512; int hist_h = 400;
+		int bin_w = cvRound((double)hist_w / histSize);
 
-	Mat histImage(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
+		Mat histImage(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
 
-	/// Normalize the result to [ 0, histImage.rows ]
-	normalize(hist, histNormal, 0, histImage.rows, NORM_MINMAX, -1, Mat());
+		/// Normalize the result to [ 0, histImage.rows ]
+		normalize(hist, histNormal, 0, histImage.rows, NORM_MINMAX, -1, Mat());
 
 
-	/// Draw for each channel
-	for (int i = 1; i < histSize; i++)
-	{
-		line(histImage, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
-			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
-			Scalar(255, 255, 255), 1, 8, 0);
+		/// Draw for each channel
+		for (int i = 1; i < histSize; i++)
+		{
+			line(histImage, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
+				Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
+				Scalar(255, 255, 255), 1, 8, 0);
+		}
+
+		//for (int i = 0; i < histSize; i++) {
+		//	printf("%i = %f", i, hist.at<float>(i));
+		//	printf("   %i = %f\n", i, histNormal.at<float>(i));
+		//}
+
+		namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
+		imshow("calcHist Demo", histImage);
 	}
-
-	//for (int i = 0; i < histSize; i++) {
-	//	printf("%i = %f", i, hist.at<float>(i));
-	//	printf("   %i = %f\n", i, histNormal.at<float>(i));
-	//}
-
-	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
-	imshow("calcHist Demo", histImage);
-#endif // DEBUG
 
 	return hist;
 }
@@ -116,9 +116,9 @@ int findThresholdByArea(vector<int> inputHistogram, int minArea)
 	return i;
 }
 
-int findThreshold(Mat inputImage, int previousThreshold, bool& noBug) {
+int findThreshold(Mat inputImage, int previousThreshold, bool& noBug, int debug_flag) {
 
-	MatND hist = findHistogram(inputImage);
+	MatND hist = findHistogram(inputImage, debug_flag);
 	vector<int> histMovingAverage = movingAverageFilterHistogram(hist);
 	int areaLoc = findThresholdByArea(histMovingAverage);
 

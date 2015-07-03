@@ -25,7 +25,7 @@ KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	return KF;
 }
 
-void useKalmanFilter(KalmanFilter KF, Point& xy_loc, int& usable_contours, Mat src, Rect ROI, vector<Point2f> mc){
+void useKalmanFilter(KalmanFilter KF, Point& xy_loc, int& usable_contours, Mat src, Rect ROI, vector<Point2f> mc, int debug_flag){
 	static Mat measurement = Mat::zeros(2, 1, CV_32F);
 	static vector<Point> targetv, kalmanv;
 	//Prediction
@@ -60,16 +60,18 @@ void useKalmanFilter(KalmanFilter KF, Point& xy_loc, int& usable_contours, Mat s
 
 
 	// plot stuff
-	src = Scalar::all(0); // Creates a frame the size of src, but all black px
-	drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
-	drawCross(src, measLoc, Scalar(0, 0, 255), 5);
+	if (debug_flag){
+		src = Scalar::all(0); // Creates a frame the size of src, but all black px
+		drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
+		drawCross(src, measLoc, Scalar(0, 0, 255), 5);
 
-	for (int i = 0; i < targetv.size() - 1; i++)
-		line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
+		for (int i = 0; i < targetv.size() - 1; i++)
+			line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
 
-	for (int i = 0; i < kalmanv.size() - 1; i++)
-		line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
+		for (int i = 0; i < kalmanv.size() - 1; i++)
+			line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
 
-	imshow("Frame Kalman", src);
+		imshow("Frame Kalman", src);
+	}
 
 }

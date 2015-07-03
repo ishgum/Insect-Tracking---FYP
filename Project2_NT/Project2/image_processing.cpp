@@ -3,20 +3,20 @@
 // Do all improc steps
 // return position, arg is frame (& other crap for now)
 vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
-	int thresh_filter_size, Point xy_loc, int& usable_contours)
+	int thresh_filter_size, Point xy_loc, int& usable_contours, int debug_flag, int rgb_flag)
 {
 	Mat src_ROI = src(ROI);
 
-	#ifdef DEBUG
+	if (debug_flag){
 		imshow("Frame", src_ROI);
-	#endif // DEBUG
+	}
 
-	Mat dst = preprocessImage(src_ROI, noBug, threshFilter, thresh_filter_size);
+	Mat dst = preprocessImage(src_ROI, noBug, threshFilter, thresh_filter_size, debug_flag, rgb_flag);
 
 	Canny(dst, dst, 100, 100 * 2, 3);
 
 	vector<Point2f> mc;
-	mc = contourProcessing(dst, ROI, xy_loc, usable_contours, noBug);
+	mc = contourProcessing(dst, ROI, xy_loc, usable_contours, noBug, debug_flag);
 	return mc;
 }
 
@@ -25,7 +25,7 @@ vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
 
 //void display
 
-Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size) {
+Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size, int debug_flag, int rgb_flag) {
 	static int threshCount = 0;
 
 	Mat values[3]; Mat image_hsl; Mat dst;
@@ -34,15 +34,15 @@ Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter
 	// Conversion uses significant processor time,
 	// using point grey camera we should be able to skip this step,
 	// as it proivdes only one 'brightness' channel.
-	#ifdef RGB_SOURCE
+	if (rgb_flag){
 		cvtColor(image, image, CV_BGR2HLS);		// Convert image to HSL
-	#endif
+	}
 	split(image, values);						// Split into channels
 	//printf("\n\nimage chan:\t%d", image.channels());
 	Mat lum = values[1];
 	//printf("\nimage chan:\t%d\n\n", lum.channels());
 	medianBlur(lum, dst, 1);
-	lumThreshold = findThreshold(dst, lumThreshold, noBug);		//Perform Dynamic thresholding on the saturation image
+	lumThreshold = findThreshold(dst, lumThreshold, noBug, debug_flag);		//Perform Dynamic thresholding on the saturation image
 	threshFilter[threshCount++] = lumThreshold;
 	if (threshCount == thresh_filter_size)
 	{
@@ -83,15 +83,16 @@ Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter
 			Scalar(255, 255, 255), 1, 8, 0);
 	}
 
-	#ifdef DEBUG
+	if (debug_flag){
 		namedWindow("calcHist Demo2", CV_WINDOW_AUTOSIZE);
 		imshow("calcHist Demo2", histImage2);
-	#endif
-		threshold(dst, dst, lumThreshold, 255, 0);
+	}
+	
+	threshold(dst, dst, lumThreshold, 255, 0);
 
-	#ifdef DEBUG
+	if (debug_flag){
 		imshow("Luminance", dst);
-	#endif // DEBUG
+	}
 
 	GaussianBlur(dst, dst, Size(11, 11), 2);
 	threshold(dst, dst, 5, 255, 0);
@@ -99,7 +100,7 @@ Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter
 	return dst;
 }
 
-vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, int noBug){
+vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, int noBug, int debug_flag){
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
 	static Mat measurement = Mat::zeros(2, 1, CV_32F);
@@ -140,22 +141,22 @@ vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_c
 		noBug = false;
 	}
 
-#ifdef DEBUG
-	/// Draw contours
-	Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
-	//printf("\nCounter Sizes: ");
-	for (int i = 0; i < useContours.size(); i++)
-	{
-		Scalar color = Scalar(100 * i, 100 * i, 255);
-		drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
-		//circle(drawing, mc[i], 4, color, -1, 8, 0);
+	if (debug_flag){
+		/// Draw contours
+		Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
+		//printf("\nCounter Sizes: ");
+		for (int i = 0; i < useContours.size(); i++)
+		{
+			Scalar color = Scalar(100 * i, 100 * i, 255);
+			drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
+			//circle(drawing, mc[i], 4, color, -1, 8, 0);
+		}
+
+		/// Show in a window
+
+		namedWindow("Contours", CV_WINDOW_AUTOSIZE);
+		imshow("Contours", drawing);
 	}
-
-	/// Show in a window
-
-	namedWindow("Contours", CV_WINDOW_AUTOSIZE);
-	imshow("Contours", drawing);
-#endif // DEBUG
 
 
 

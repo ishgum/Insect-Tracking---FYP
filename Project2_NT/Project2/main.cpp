@@ -39,13 +39,13 @@ int main(int argc, char** argv)
 
 	int usable_contours = 0;
 
-	//#ifdef RECORD_SOURCE_W_BOX
+	#ifdef RECORD_SOURCE_W_BOX
 		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
 		int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
 		int input_fps = capture.get(CV_CAP_PROP_FPS);
 		input_fps = 25;
 		VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
-	//#endif
+	#endif
 
 	#ifdef KALMAN
 		KalmanFilter KF(4, 2, 0);
@@ -68,17 +68,26 @@ int main(int argc, char** argv)
 /********** WHILE LOOP ***********/
 	while (!src.empty()) {
 
-		sourceDisplayAndRecord(src, ROI, outputVideo);
-		cpuFPS = checkFPS(WAIT_PERIOD);
-		displayFPS(src, ROI, cpuFPS);
+		#ifdef RECORD_SOURCE_W_BOX
+			sourceDisplayAndRecord(src, ROI, outputVideo);
+		#endif
+
+		#ifdef FPS
+			cpuFPS = checkFPS(WAIT_PERIOD);
+		#endif
+
+		#if (DEBUG ==1)
+			displayFPS(src, ROI, cpuFPS);
+		#endif
 
 		// processFrame
 		vector<Point2f> mc;
-		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc, usable_contours);
+		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc,
+			usable_contours, DEBUG, RGB_SOURCE);
 	
 		// KALMAN
 		#ifdef KALMAN
-			useKalmanFilter(KF, xy_loc, usable_contours, src, ROI, mc);
+			useKalmanFilter(KF, xy_loc, usable_contours, src, ROI, mc, DEBUG);
 		#endif
 
 		Point contourCentre;

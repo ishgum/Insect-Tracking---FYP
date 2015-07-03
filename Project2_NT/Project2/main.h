@@ -23,10 +23,10 @@ using namespace std;
 // Note that most of these flags will be broken,
 // as we move to use flags in function calls based on these.
 
-#define RGB_SOURCE		// preformance increase when left undefined for a greyscale source (skips HSL conv)
+#define RGB_SOURCE	1	// Toggle 1/0 . preformance increase when left 0 for a greyscale source (skips HSL conv)
 #define ROI_SIZE .15
-#define DEBUG		//display video output windows
-#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
+#define DEBUG		0	//Toggle 1/0 to display output windows
+//#define FPS
 #define KALMAN
 #define HEIGHT_OFFSET 10
 //#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
