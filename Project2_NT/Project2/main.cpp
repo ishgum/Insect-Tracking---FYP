@@ -28,9 +28,9 @@ Mat preprocessImage(Mat image) {
 	// Conversion uses significant processor time,
 	// using point grey camera we should be able to skip this step,
 	// as it proivdes only one 'brightness' channel.
-#ifdef RGB_SOURCE
-	cvtColor(image, image, CV_BGR2HLS);		// Convert image to HSL
-#endif
+	#ifdef RGB_SOURCE
+		cvtColor(image, image, CV_BGR2HLS);		// Convert image to HSL
+	#endif
 	split(image, values);						// Split into channels
 	//printf("\n\nimage chan:\t%d", image.channels());
 	Mat lum = values[1];
@@ -114,6 +114,10 @@ Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 int main(int argc, char** argv)
 {
 	Beetle beetle;
+	//printf("\nstate:\t%f\n", beetle.state[0]);
+	//beetle.state = { 4, 0, 0, 0, 0, 0 };
+	//printf("\nstate:\t%f\n", beetle.state[0]);
+	//printf("\nstate:\t%f\n", beetle.state[1]);
 
 	const string videoFile[] = {
 		"C:/Users/myadmin/Videos/plainLow1.avi"
