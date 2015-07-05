@@ -10,10 +10,10 @@ TODO: check depth works*/
 #include "histogram.h"
 using namespace cv;
 
-Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size, int debug_flag, int rgb_flag); // int& threshCount,
-vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, int noBug, int debug_flag);
+Mat preprocessImage(Mat image, bool& noBug, int threshFilter[], int thresh_filter_size, int debug_flag, int rgb_flag); // int& threshCount,
+vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, bool& noBug, int debug_flag);
 
-vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
+vector<Point2f> processFrame(Mat src, Rect ROI, bool& noBug, int threshFilter[],
 	int thresh_filter_size, Point xy_loc, int& usable_contours, int debug_flag, int rgb_flag );
 
 void sourceDisplayAndRecord(Mat src, Rect ROI, VideoWriter outputVideo);

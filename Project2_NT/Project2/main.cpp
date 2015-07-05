@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 		int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
 		int input_fps = capture.get(CV_CAP_PROP_FPS);
 		input_fps = 25;
-		VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
+		VideoWriter outputVideo("../../../Output/out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
 	#endif
 
 	#ifdef KALMAN
@@ -64,6 +64,7 @@ int main(int argc, char** argv)
 	//resize(src, src, Size(), 0.3, 0.3);
 	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
 	float cpuFPS = 0;
+	vector<Point2f> mc;
 
 /********** WHILE LOOP ***********/
 	while (!src.empty()) {
@@ -81,7 +82,6 @@ int main(int argc, char** argv)
 		#endif
 
 		// processFrame
-		vector<Point2f> mc;
 		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc,
 			usable_contours, DEBUG, RGB_SOURCE);
 	

@@ -2,7 +2,7 @@
 
 // Do all improc steps
 // return position, arg is frame (& other crap for now)
-vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
+vector<Point2f> processFrame(Mat src, Rect ROI, bool& noBug, int threshFilter[],
 	int thresh_filter_size, Point xy_loc, int& usable_contours, int debug_flag, int rgb_flag)
 {
 	Mat src_ROI = src(ROI);
@@ -25,7 +25,7 @@ vector<Point2f> processFrame(Mat src, Rect ROI, int noBug, int threshFilter[],
 
 //void display
 
-Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter_size, int debug_flag, int rgb_flag) {
+Mat preprocessImage(Mat image, bool& noBug, int threshFilter[], int thresh_filter_size, int debug_flag, int rgb_flag) {
 	static int threshCount = 0;
 
 	Mat values[3]; Mat image_hsl; Mat dst;
@@ -100,7 +100,7 @@ Mat preprocessImage(Mat image, bool noBug, int threshFilter[], int thresh_filter
 	return dst;
 }
 
-vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, int noBug, int debug_flag){
+vector<Point2f> contourProcessing(Mat dst, Rect ROI, Point xy_loc, int& usable_contours, bool& noBug, int debug_flag){
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
 	static Mat measurement = Mat::zeros(2, 1, CV_32F);

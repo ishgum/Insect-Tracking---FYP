@@ -128,9 +128,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Capture.cpp" />
-    <ClCompile Include="histTest.cpp" />
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="fps.cpp" />
+    <ClCompile Include="histogram.cpp" />
+    <ClCompile Include="image_processing.cpp" />
+    <ClCompile Include="kalman.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fps.h" />
+    <ClInclude Include="histogram.h" />
+    <ClInclude Include="image_processing.h" />
+    <ClInclude Include="kalman.h" />
+    <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

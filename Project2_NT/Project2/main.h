@@ -29,7 +29,7 @@ using namespace std;
 //#define FPS
 #define KALMAN
 #define HEIGHT_OFFSET 10
-//#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
+#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
 #define FIND_DEPTH
 #define WAIT_PERIOD	10
 #define THRESH_FILTER_SIZE 10						// size of MAF for depth value
