@@ -22,8 +22,8 @@ using namespace std;
 #define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 //#define KALMAN
-
 #define HEIGHT_OFFSET 10
+#define WAIT_PERIOD		10
 
 KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
@@ -121,35 +121,27 @@ int main(int argc, char** argv)
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
 
-#ifdef RECORD_SOURCE_W_BOX
-	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
-	int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
-	int input_fps = capture.get(CV_CAP_PROP_FPS);
-	input_fps = 25;
-	VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
-#endif
+	#ifdef RECORD_SOURCE_W_BOX
+		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
+		int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
+		int input_fps = capture.get(CV_CAP_PROP_FPS);
+		input_fps = 25;
+		VideoWriter outputVideo("out.avi", CV_FOURCC('M', 'J', 'P', 'G'), input_fps, Size(frame_width, frame_height), true);
+	#endif
 
-#ifdef KALMAN
-	KalmanFilter KF(4, 2, 0);
-	Mat state(4, 1, CV_32F); //x, y, delta x, delta y
-	Mat processNoise(4, 1, CV_32F);
-	Mat measurement = Mat::zeros(2, 1, CV_32F);
-	KF = setKalmanParameters(KF);
-	vector<Point> targetv, kalmanv;
-#endif
+	#ifdef KALMAN
+		KalmanFilter KF(4, 2, 0);
+		Mat state(4, 1, CV_32F); //x, y, delta x, delta y
+		Mat processNoise(4, 1, CV_32F);
+		Mat measurement = Mat::zeros(2, 1, CV_32F);
+		KF = setKalmanParameters(KF);
+		vector<Point> targetv, kalmanv;
+	#endif
 
-	int wait_period = 10;   /// Waitkey period
-
-#ifdef FPS
-	int frame_num = 1;
-	// Timing functions
-	double wall0 = get_wall_time();
-	double cpu0 = get_cpu_time();
-	int num_frames_proc = -1;
-	float fps_wall, fps_cpu = 0;
-	double cpu_running_total = 0;
-
-#endif // FPS
+	#ifdef FPS
+		float fps = 0;
+		fps = checkFPS(WAIT_PERIOD);
+	#endif // FPS
 
 
 	Mat src, src_ROI, values[3], image_hsl, lum;
@@ -159,69 +151,20 @@ int main(int argc, char** argv)
 
 	capture >> src;
 	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
-
+	
+	/********** WHILE LOOP *********/
 	while (!src.empty()) {
 
+		#ifdef FPS
+			fps = checkFPS(WAIT_PERIOD);
+			displayFPS(src, ROI, fps);
+		#endif // FPS
 
-#ifdef FPS
-		num_frames_proc++;
-		double wall1 = get_wall_time();
-		double cpu1 = get_cpu_time();
-		//cpu_running_total += (cpu1 - cpu0);
-
-		//cpu0 = get_cpu_time();
-
-
-		//printf("\t%f\t%f  ",wall1, wall1 - wall0);
-		if (wall1 >= (wall0 + 1)){ //Check if 1s has elapsed
-			//fps_wall_displayed = num_frames_proc / (wall1 - wall0); //rate displayed
-			fps_wall = num_frames_proc / (wall1 - wall0 - num_frames_proc*0.001*wait_period);
-			fps_cpu = num_frames_proc / (cpu1 - cpu0);// - num_frames_proc*0.001*wait_period);
-			printf("\tFPS:  %f\t", fps_cpu);
-			num_frames_proc = 0;
-			wall0 = get_wall_time();
-			cpu0 = get_cpu_time();
-		}
-
-		Mat src_w_text = src.clone();	// so we don't mess up original source
-		rectangle(src_w_text, ROI, Scalar(255, 255, 255), 2, 8, 0);
-		//resize(src_w_text, src_w_text, Size(), 0.3, 0.3);
-		// add fps text to "1. Frame" window
-		// Displayed FPS accounts for the delay we add in waitkey, far, far below.
-		//wall time
-		char fps_wall_c[4];
-		sprintf(fps_wall_c, "wall FPS %.2f", fps_wall);
-		Point fps_wall_text_loc(10, 30);
-		putText(src_w_text, fps_wall_c, fps_wall_text_loc,
-			FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
-
-		//cpu time
-		char fps_cpu_c[4];
-		sprintf(fps_cpu_c, "cpu FPS %.2f", fps_cpu);
-		Point fps_cpu_text_loc(10, 60);
-		putText(src_w_text, fps_cpu_c, fps_cpu_text_loc,
-			FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
-
-		//Frame Number
-		char frame_num_c[5];
-		sprintf(frame_num_c, "Frame #: %5i", frame_num);
-		Point frame_num_text_loc(10, 90);
-		putText(src_w_text, frame_num_c, frame_num_text_loc,
-			FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
-#ifdef DEBUG
-		imshow("FPS", src_w_text);
-#endif
-		if ((frame_num % 100) == 0){ //show only every 100th frame
-		//	imshow("FPS", src_w_text);
-		}
-		//printf("\nFrame: %i\tCPU total: %f\tCPU FPS: %f", frame_num, cpu_running_total, fps_cpu);
-		frame_num++;
-
-#ifdef RECORD_SOURCE_W_BOX
-		// write output video w/ text
-		outputVideo.write(src_w_text);
-#endif
-#endif // FPS	
+		#ifdef RECORD_SOURCE_W_BOX
+				// write output video w/ text
+				outputVideo.write(src_w_text);
+		#endif
+	
 
 		src_ROI = src(ROI);
 		ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
@@ -243,7 +186,7 @@ int main(int argc, char** argv)
 
 				insect.updatePosition(objectCentres[0], ROI);
 
-#ifdef KALMAN
+		#ifdef KALMAN
 				//Prediction
 				Mat predict = KF.predict();
 				Point2f xy_loc(predict.at<float>(0), predict.at<float>(1));
@@ -315,8 +258,8 @@ int main(int argc, char** argv)
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
 
-		//wait_period = 50;
-		waitKey(10); // fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
+		
+		waitKey(WAIT_PERIOD);
 		printf("\n");
 	}
 
