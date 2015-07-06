@@ -19,8 +19,8 @@ using namespace std;
 
 
 #define ROI_SIZE .15
-#define DEBUG		//display video output windows
-#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
+//#define DEBUG		//display video output windows
+//#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 //#define KALMAN
 #define HEIGHT_OFFSET 10
 #define WAIT_PERIOD		10
@@ -52,14 +52,14 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 }
 
 
-Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
+Rect updateROI(Rect ROI, Point2f stateLoc, Mat src) {
 	int roiSize = ROI_SIZE * src.rows;
 
 	if (stateLoc.x > (roiSize / 2)) {
-		ROI.x = stateLoc.x - roiSize / 2;
+		ROI.x = int(stateLoc.x) - roiSize / 2;
 	}
 	if (stateLoc.y > (roiSize / 2)) {
-		ROI.y = stateLoc.y - roiSize / 2;
+		ROI.y = int(stateLoc.y) - roiSize / 2;
 	}
 	if (stateLoc.x + roiSize / 2 > src.cols) {
 		ROI.x = src.cols - roiSize;
@@ -91,6 +91,85 @@ vector<Point2f> findObjects(Mat inputImage) {
 	}
 	return centres;
 }
+
+
+Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
+	Mat values[3], image_hsl, lum;
+
+	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL
+	split(inputImage, values);						// Split into channels
+	lum = values[0];
+
+	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
+
+	if (lumThreshold < 0) {
+		insect.found = false;
+		return insect;
+	}
+
+	threshold(lum, lum, lumThreshold, 255, 0);
+	insect.updateHeight(lumThreshold);
+
+	vector<Point2f> objectCentres = findObjects(lum);
+
+	if (objectCentres.size() == 0) {
+		insect.found = false;
+		return insect;
+	}
+
+	insect.found = true;
+	insect.updatePosition(objectCentres[0], ROI);
+
+#ifdef KALMAN
+	//Prediction
+	Mat predict = KF.predict();
+	Point2f xy_loc(predict.at<float>(0), predict.at<float>(1));
+	Point2f xy_vel(predict.at<float>(2), predict.at<float>(3));
+
+	//Attempt to allow tracking of vanishing target
+	KF.statePre.copyTo(KF.statePost);
+	KF.errorCovPre.copyTo(KF.errorCovPost);
+
+	//Get measurements
+	if (useContours.size() >= 1) {
+		measurement.at<float>(0) = mc[0].x + float(ROI.x);
+		measurement.at<float>(1) = mc[0].y + float(ROI.y);
+	}
+	else {
+		measurement.at<float>(0) = xy_loc.x;
+		measurement.at<float>(1) = xy_loc.y;
+	}
+
+
+	//Update filter
+	Mat correction = KF.correct(measurement);
+	Point2f stateLoc(correction.at<float>(0), correction.at<float>(1));
+
+	Point2f stateVel(correction.at<float>(2), correction.at<float>(3));
+	Point2f measLoc(measurement.at<float>(0), measurement.at<float>(1));
+	targetv.push_back(measLoc);
+	kalmanv.push_back(stateLoc);
+#ifdef DEBUG
+	// plot stuff
+	src = Scalar::all(0);
+
+
+	drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
+	drawCross(src, measLoc, Scalar(0, 0, 255), 5);
+
+	for (int i = 0; i < targetv.size() - 1; i++)
+		line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
+
+	for (int i = 0; i < kalmanv.size() - 1; i++)
+		line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
+
+	imshow("Frame Kalman", src);
+#endif
+#endif //Kalman
+
+	return insect;
+}
+
 
 
 /** @function main */
@@ -144,9 +223,8 @@ int main(int argc, char** argv)
 	#endif // FPS
 
 
-	Mat src, src_ROI, values[3], image_hsl, lum;
+	Mat src, src_ROI;
 	Insect insect;
-
 
 
 	capture >> src;
@@ -155,110 +233,47 @@ int main(int argc, char** argv)
 	/********** WHILE LOOP *********/
 	while (!src.empty()) {
 
-		#ifdef FPS
-			fps = checkFPS(WAIT_PERIOD);
-			displayFPS(src, ROI, fps);
-		#endif // FPS
+#ifdef FPS
+		fps = checkFPS(WAIT_PERIOD);
+		displayFPS(src, ROI, fps);
+#endif // FPS
 
-		#ifdef RECORD_SOURCE_W_BOX
-				// write output video w/ text
-				outputVideo.write(src_w_text);
-		#endif
-	
+#ifdef RECORD_SOURCE_W_BOX
+		// write output video w/ text
+		outputVideo.write(src_w_text);
+#endif
+
 
 		src_ROI = src(ROI);
-		ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
 
+		insect = findInsect(src_ROI, insect, ROI);
 
-		//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL
-		split(src, values);						// Split into channels
-		lum = values[0];
-
-		int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
-
-		if (lumThreshold > 0) {
-
-			threshold(lum, lum, lumThreshold, 255, 0);
-			insect.updateHeight(lumThreshold);
-
-			vector<Point2f> objectCentres = findObjects(lum);
-			if (objectCentres.size() > 0) {
-
-				insect.updatePosition(objectCentres[0], ROI);
-
-		#ifdef KALMAN
-				//Prediction
-				Mat predict = KF.predict();
-				Point2f xy_loc(predict.at<float>(0), predict.at<float>(1));
-				Point2f xy_vel(predict.at<float>(2), predict.at<float>(3));
-
-				//Attempt to allow tracking of vanishing target
-				KF.statePre.copyTo(KF.statePost);
-				KF.errorCovPre.copyTo(KF.errorCovPost);
-
-				//Get measurements
-				if (useContours.size() >= 1) {
-					measurement.at<float>(0) = mc[0].x + float(ROI.x);
-					measurement.at<float>(1) = mc[0].y + float(ROI.y);
-				}
-				else {
-					measurement.at<float>(0) = xy_loc.x;
-					measurement.at<float>(1) = xy_loc.y;
-				}
-
-
-				//Update filter
-				Mat correction = KF.correct(measurement);
-				Point2f stateLoc(correction.at<float>(0), correction.at<float>(1));
-
-				Point2f stateVel(correction.at<float>(2), correction.at<float>(3));
-				Point2f measLoc(measurement.at<float>(0), measurement.at<float>(1));
-				targetv.push_back(measLoc);
-				kalmanv.push_back(stateLoc);
-#ifdef DEBUG
-				// plot stuff
-				src = Scalar::all(0);
-
-
-				drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
-				drawCross(src, measLoc, Scalar(0, 0, 255), 5);
-
-				for (int i = 0; i < targetv.size() - 1; i++)
-					line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
-
-				for (int i = 0; i < kalmanv.size() - 1; i++)
-					line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
-
-				imshow("Frame Kalman", src);
-#endif
-#endif //Kalman
-
-				ROI = updateROI(ROI, insect.position, src);
+		if (insect.found) ROI = updateROI(ROI, insect.position, src);
+		else ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
 
 #ifdef DEBUG
-				Mat srcBox = src.clone();
-				rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
-				imshow("Source w Box", srcBox);
-				imshow("Frame", src_ROI);
-				imshow("Luminance", lum);
-				printf("Height Bracket: %i	", insect.heightBracket);
+		Mat srcBox = src.clone();
+		rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
+		imshow("Source w Box", srcBox);
+		imshow("Frame", src_ROI);
+		//imshow("Luminance", lum);
+		printf("Height Bracket: %i	", insect.heightBracket);
 
-				/// Draw contours
-				Mat contourOutput = Mat::zeros(src_ROI.size(), CV_8UC3);
-				for (int i = 0; i < objectCentres.size(); i++)
-				{
-					circle(contourOutput, objectCentres[i], 4, Scalar(255, 0, 0), -1, 8, 0);
-				}
-				imshow("Contours", contourOutput);
-				printf("Speed: %.1f	", insect.speed);
+		/// Draw contours
+		Mat contourOutput = Mat::zeros(src_ROI.size(), CV_8UC3);
+		//for (int i = 0; i < objectCentres.size(); i++)
+		//{
+		//	circle(contourOutput, objectCentres[i], 4, Scalar(255, 0, 0), -1, 8, 0);
+		//}
+		//imshow("Contours", contourOutput);
+		printf("Speed: %.1f	", insect.speed);
 #endif // DEBUG
-			}
-		}
+
 
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
 
-		
+
 		waitKey(WAIT_PERIOD);
 		printf("\n");
 	}
