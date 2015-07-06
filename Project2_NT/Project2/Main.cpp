@@ -12,6 +12,7 @@
 
 #include "Thresholding.h"
 #include "Insect.h"
+#include "Fps.h"
 
 using namespace cv;
 using namespace std;
@@ -19,63 +20,10 @@ using namespace std;
 
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows
-//#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
+#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 //#define KALMAN
 
 #define HEIGHT_OFFSET 10
-
-
-
-
-// Functions for system clock so we can determine runtine FPS
-// copied from http://stackoverflow.com/questions/17432502
-//  Windows
-#ifdef _WIN32
-#include <Windows.h>
-double get_wall_time(){
-	LARGE_INTEGER time, freq;
-	if (!QueryPerformanceFrequency(&freq)){
-		//  Handle error
-		return 0;
-	}
-	if (!QueryPerformanceCounter(&time)){
-		//  Handle error
-		return 0;
-	}
-	return (double)time.QuadPart / freq.QuadPart;
-}
-double get_cpu_time(){
-	FILETIME a, b, c, d;
-	if (GetProcessTimes(GetCurrentProcess(), &a, &b, &c, &d) != 0){
-		//  Returns total user time.
-		//  Can be tweaked to include kernel times as well.
-		return
-			(double)(d.dwLowDateTime |
-			((unsigned long long)d.dwHighDateTime << 32)) * 0.0000001;
-	}
-	else{
-		//  Handle error
-		return 0;
-	}
-}
-//  Posix/Linux
-#else
-#include <time.h>
-#include <sys/time.h>
-double get_wall_time(){
-	struct timeval time;
-	if (gettimeofday(&time, NULL)){
-		//  Handle error
-		return 0;
-	}
-	return (double)time.tv_sec + (double)time.tv_usec * .000001;
-}
-double get_cpu_time(){
-	return (double)clock() / CLOCKS_PER_SEC;
-}
-#endif
-
-
 
 KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
@@ -145,7 +93,6 @@ vector<Point2f> findObjects(Mat inputImage) {
 }
 
 
-
 /** @function main */
 int main(int argc, char** argv)
 {
@@ -167,6 +114,9 @@ int main(int argc, char** argv)
 
 	//DEPTH TESTS:
 	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+
+	// Relative path to small test file
+	//capture.open("../../test.avi");
 
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
