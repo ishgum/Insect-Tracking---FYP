@@ -8,6 +8,8 @@ though at 115200baud this program should still be able to get a
 sample at least every 5ms.
 Max ADC read rate is ~0.1ms
 Can get ~ 1 sample per ms w/ DIR_MAG
+
+Added UNTESTED functionality to:
 */
 
 #include "RunningAverage.h"
@@ -18,7 +20,7 @@ Can get ~ 1 sample per ms w/ DIR_MAG
 #define RIGHTLED   7
 #define MIDDLELED  8
 #define ARDUINO_PWR_V  5//4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAFSIZE    300//1//300    //400 ok  //500 gives overflow error or similar
+#define MAFSIZE    200// 256 absolute max, 200 probably safe
 #define THRESHOLD  0.1 // V, for max difference between Left and Right considered "the same"
 
 //Display Modes
@@ -83,31 +85,31 @@ void loop() {
   // Note that large serial msg's can a couple of ms at 115200
   // and 10's of ms at 9600 baud
   output = "";
-#ifdef DIR_MAG
- // output = "Strongest:\t";
-  output += dir+"\t";
-  output += mag;
-#endif
-#ifdef CRAPH
-  output += "\t";
-  for (int i = 0; i<mag*10&&i<100; i++){
-    output += ".";
-    if(i==99){
-      output += "+!";
+  #ifdef DIR_MAG
+   // output = "Strongest:\t";
+    output += dir+"\t";
+    output += mag;
+  #endif
+  #ifdef CRAPH
+    output += "\t";
+    for (int i = 0; i<mag*10&&i<100; i++){
+      output += ".";
+      if(i==99){
+        output += "+!";
+      }
     }
-  }
-#endif
-#ifdef RAW
-  output += "\tRAW: L:\t";
-  output += String(average_left);
-#ifdef HIGHLIGHT_PEAK
-  if (average_left>1){
-    Serial.println("\n****\n");
-  }
-#endif
-  output += "\tR:\t";
-  output += String(average_right);
-#endif
+  #endif
+  #ifdef RAW
+    output += "\tRAW: L:\t";
+    output += String(average_left);
+    #ifdef HIGHLIGHT_PEAK
+      if (average_left>1){
+        Serial.println("\n****\n");
+      }
+    #endif
+    output += "\tR:\t";
+    output += String(average_right);
+  #endif
 
   N++;
   if (N >PRINT_EVERY_N){
