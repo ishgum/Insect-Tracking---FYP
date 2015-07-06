@@ -1,3 +1,7 @@
+# Project File #
+#################
+*.vcxproj
+
 # Output videos #
 #################
 *.avi

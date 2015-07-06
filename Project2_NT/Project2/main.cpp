@@ -87,6 +87,7 @@ int main(int argc, char** argv)
 		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc,
 			usable_contours, DEBUG, RGB_SOURCE);
 		
+		// Ideally call bugUpdate here
 
 		// KALMAN
 		#ifdef KALMAN
@@ -124,7 +125,6 @@ int main(int argc, char** argv)
 		}
 		imshow("Line", lineImage);
 		// end display
-
 
 		ROI.x = 0;
 		ROI.y = HEIGHT_OFFSET;		//Strange artifacts in top left hand corner removed
