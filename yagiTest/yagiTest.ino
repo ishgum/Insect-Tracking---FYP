@@ -5,12 +5,12 @@ Should toggle 3 LED's to indicate which ADC signal is strongest.
 Has various display modes to be (un)commented as needed.
 These should be commented out for headless operation for max speed,
 though at 115200baud this program should still be able to get a
-sample every 5ms.
+sample at least every 5ms.
 Max ADC read rate is ~0.1ms
 Can get ~ 1 sample per ms w/ DIR_MAG
 */
 
-#include <RunningAverage.h>
+#include "RunningAverage.h"
 
 #define LEFT       A0
 #define RIGHT      A3
