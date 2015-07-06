@@ -2,7 +2,7 @@
 
 */
 #include "main.h"
-
+#include "Insect.h"
 
 /********** @function main ***********/
 int main(int argc, char** argv)
@@ -11,7 +11,6 @@ int main(int argc, char** argv)
 	VideoCapture capture;
 
 	/********** SOURCE VIDEO ************/
-
 	//EARLY TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2990.MOV"); //runs at ~6fps
@@ -26,17 +25,17 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
 
 	//DEPTH TESTS:
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 	
 	// FOR BASIC CODE TEST. uses a relative path which is handy, but could break
-	capture.open("../../test.avi");		//File is greyscale, and dim NOT square
+	//capture.open("../../test.avi");		//File is greyscale, and dim NOT square
 
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
 
 	/********** END SOURCE VIDEO ************/
 
-
+	Insect insect;
 	int usable_contours = 0;
 
 	#ifdef RECORD_SOURCE_W_BOX
@@ -70,7 +69,10 @@ int main(int argc, char** argv)
 
 /********** WHILE LOOP ***********/
 	while (!src.empty()) {
+
 		Mat lineImage = src.clone();
+
+
 		#ifdef RECORD_SOURCE_W_BOX
 			sourceDisplayAndRecord(src, ROI, outputVideo);
 		#endif
@@ -84,9 +86,14 @@ int main(int argc, char** argv)
 		#endif
 
 		// processFrame
-		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc,
-			usable_contours, DEBUG, RGB_SOURCE);
+		//mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc,
+		//	usable_contours, DEBUG, RGB_SOURCE);
 		
+
+
+
+
+
 		// Ideally call bugUpdate here
 
 		// KALMAN
