@@ -8,33 +8,22 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <iostream>
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
 
-#include <ctype.h>
+
+#include "Thresholding.h"
+#include "Insect.h"
 
 using namespace cv;
 using namespace std;
 
-#define RGB_SOURCE		// preformance increase when left undefined for a greyscale source
+
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows
 //#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
-#define KALMAN
-#define ShowHistogram
+//#define KALMAN
+
 #define HEIGHT_OFFSET 10
-//#define RECORD_SOURCE_W_BOX		//record source footage with ROI overlay
-#define FIND_DEPTH
 
-
-RNG rng(12345);
-
-#define THRESH_FILTER_SIZE 10
-
-bool noBug = false;
-int threshCount = 0;
-int threshFilter[THRESH_FILTER_SIZE] = { 0 };
 
 
 
@@ -88,186 +77,6 @@ double get_cpu_time(){
 
 
 
-
-MatND findHistogram(Mat inputImage, int numBins = 256) {
-	MatND hist;
-	MatND histNormal;
-
-
-	/// Establish the number of bins
-	int histSize = numBins;
-	float range[] = { 0, 256 };
-	const float* histRange = { range };
-
-	calcHist(&inputImage, 1, 0, Mat(), hist, 1, &histSize, &histRange, true, false);
-
-#ifdef ShowHistogram
-
-	int hist_w = 512; int hist_h = 400;
-	int bin_w = cvRound((double)hist_w / histSize);
-
-	Mat histImage(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
-
-	/// Normalize the result to [ 0, histImage.rows ]
-	normalize(hist, histNormal, 0, histImage.rows, NORM_MINMAX, -1, Mat());
-
-
-	/// Draw for each channel
-	for (int i = 1; i < histSize; i++)
-	{
-		line(histImage, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
-			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
-			Scalar(255, 255, 255), 1, 8, 0);
-	}
-
-	//for (int i = 0; i < histSize; i++) {
-	//	printf("%i = %f", i, hist.at<float>(i));
-	//	printf("   %i = %f\n", i, histNormal.at<float>(i));
-	//}
-#ifdef DEBUG
-	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
-	imshow("calcHist Demo", histImage);
-#endif // DEBUG
-
-
-#endif // !ShowHistogram
-
-	return hist;
-}
-
-vector<int> movingAverageFilterHistogram(MatND histogramInput, int averageSize = 1) {
-
-	vector<int> movingAverage;
-
-	int averageArraySize = static_cast<int>(histogramInput.total()) - averageSize + 1;
-
-	for (int i = 0; i < averageArraySize; i++) {
-		float sum = 0;
-		for (int j = 0; j < averageSize; j++) {
-			sum += histogramInput.at<float>(i + j);
-		}
-
-		movingAverage.push_back(sum / averageSize);
-	}
-	return movingAverage;
-}
-
-void findPeaksandMins(vector<int> inputHistogram, vector<int>& peaks, vector<int>& mins, int findWidth = 15) {
-
-	int forLoopMin = -findWidth;
-	int forLoopMax = findWidth;
-
-
-
-	for (int i = 0; i < inputHistogram.size(); i++) {
-		if (i < findWidth) {
-			forLoopMin = -i;
-			forLoopMax = findWidth;
-		}
-		else if ((i + findWidth) > inputHistogram.size()) {
-			forLoopMax = inputHistogram.size() - i;
-			forLoopMin = -findWidth;
-		}
-		else {
-			forLoopMin = -findWidth;
-			forLoopMax = findWidth;
-		}
-
-		int currentMin = inputHistogram[i];
-		int currentMax = inputHistogram[i];
-
-		for (int k = forLoopMin; k < forLoopMax; k++) {
-			if (inputHistogram[i + k] < currentMin) {
-				currentMin = inputHistogram[i + k];
-			}
-			if (inputHistogram[i + k] > currentMax) {
-				currentMax = inputHistogram[i + k];
-			}
-		}
-		if (currentMin == inputHistogram[i]) {
-			mins.push_back(i);
-		}
-		if (currentMax == inputHistogram[i] && currentMax != 0) {
-			peaks.push_back(i);
-		}
-	}
-}
-
-int findThresholdByArea(vector<int> inputHistogram, int minArea = 30)
-{
-	int threshSum = 0;
-	int i = 0;
-	for (i = inputHistogram.size()-1; i > 0; i--) {
-		threshSum += inputHistogram[i];
-
-		if (threshSum > minArea)
-		{
-			break;
-		}
-	}
-	return i;
-}
-
-
-
-int findThreshold(Mat inputImage, int previousThreshold) {
-
-	MatND hist = findHistogram(inputImage);
-	vector<int> histMovingAverage = movingAverageFilterHistogram(hist);
-	int areaLoc = findThresholdByArea(histMovingAverage);
-
-	vector<int> peaks;
-	vector<int> mins;
-
-	findPeaksandMins(histMovingAverage, peaks, mins);
-
-	int maxPeak = 0;
-	int maxPeakLoc = 0;
-	for (int i = 0; i < peaks.size(); i++) {
-		if (histMovingAverage[peaks[i]] > maxPeak)
-		{
-			//printf("Max Location is: %i		", peaks[i]);
-			maxPeak = histMovingAverage[peaks[i]];
-			maxPeakLoc = peaks[i];
-		}
-	}
-
-	int peakLoc = peaks[peaks.size() - 1];
-	if ((areaLoc - maxPeakLoc) < 10 || peakLoc < maxPeakLoc) {
-		//printf("Threshold Location is: %i- No bug found\n", previousThreshold);
-		noBug = true;
-		return previousThreshold;
-	}
-
-
-	for (int i = mins.size() - 1; i >= 0; i--) {
-		if (mins[i] < areaLoc && mins[i] > maxPeakLoc) {
-			//printf("Threshold Location is: %i\n", mins[i]);
-			//printf("Width : %i	", (peakLoc - mins[i]));
-			noBug = false;
-			return mins[i];
-		}
-	}
-	return previousThreshold;
-
-
-	// Find the brightest X percentage of pixels in the frame
-	//#define PercentageHistogram
-#ifdef PercentageHistogram
-	int histCount = 0;
-	float histPcentThresh = percentage;
-	double histSum = sum(hist)[0];
-	float thresh = histSum * (histPcentThresh / 100.0);
-
-	for (int i = histSize - 1; i >= 0; i--) {
-		histCount += hist.at<float>(i);
-		if (histCount >= thresh) {
-			return i;
-		}
-	}
-#endif // !PercentageHistogram
-}
-
 KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
 		0, 1, 0, 10,
@@ -287,69 +96,6 @@ KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	return KF;
 }
 
-Mat preprocessImage(Mat image) {
-	Mat values[3]; Mat image_hsl; Mat dst;
-	static int lumThreshold = 0;
-
-
-	// Conversion uses significant processor time,
-	// using point grey camera we should be able to skip this step,
-	// as it proivdes only one 'brightness' channel.
-#ifdef RGB_SOURCE
-	cvtColor(image, image, CV_BGR2HLS);		// Convert image to HSL
-#endif
-	split(image, values);						// Split into channels
-	//printf("\n\nimage chan:\t%d", image.channels());
-	Mat lum = values[1];
-	//printf("\nimage chan:\t%d\n\n", lum.channels());
-	medianBlur(lum, dst, 1);
-	lumThreshold = findThreshold(dst, lumThreshold);		//Perform Dynamic thresholding on the saturation image
-	threshFilter[threshCount++] = lumThreshold;
-	
-	MatND hist;
-	MatND histNormal;
-	/// Establish the number of bins
-	int histSize = 256;
-	float range[] = { lumThreshold, 256 };
-	const float* histRange = { range };
-
-	calcHist(&dst, 1, 0, Mat(), hist, 1, &histSize, &histRange, true, false);
-
-	int hist_w = 512; int hist_h = 400;
-	int bin_w = cvRound((double)hist_w / histSize);
-
-	Mat histImage2(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
-
-	/// Normalize the result to [ 0, histImage.rows ]
-	normalize(hist, histNormal, 0, histImage2.rows, NORM_MINMAX, -1, Mat());
-
-
-	/// Draw for each channel
-	for (int i = 1; i < histSize; i++)
-	{
-		line(histImage2, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
-			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
-			Scalar(255, 255, 255), 1, 8, 0);
-	}
-
-#ifdef DEBUG
-	namedWindow("calcHist Demo2", CV_WINDOW_AUTOSIZE);
-	imshow("calcHist Demo2", histImage2);
-#endif
-	threshold(dst, dst, lumThreshold, 255, 0);
-
-
-
-#ifdef DEBUG
-	imshow("Luminance", dst);
-#endif // DEBUG
-
-
-	GaussianBlur(dst, dst, Size(11, 11), 2);
-	threshold(dst, dst, 5, 255, 0);
-
-	return dst;
-}
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
 {
@@ -357,49 +103,52 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 	line(img, Point(centre.x + d, centre.y - d), Point(centre.x - d, centre.y + d), colour, 2, CV_AA, 0);
 }
 
+
 Rect updateROI(Rect ROI, Point stateLoc, Mat src) {
 	int roiSize = ROI_SIZE * src.rows;
 
-
-	if (noBug == false) {
-
-		if (stateLoc.x > (roiSize / 2)) {
-			ROI.x = stateLoc.x - roiSize / 2;
-		}
-		if (stateLoc.y > (roiSize / 2)) {
-			ROI.y = stateLoc.y - roiSize / 2;
-		}
-		if (stateLoc.x + roiSize / 2 > src.cols) {
-			ROI.x = src.cols - roiSize;
-		}
-		if (stateLoc.y + roiSize / 2 > src.rows) {
-			ROI.y = src.rows - roiSize;
-		}
-		ROI.width = roiSize;
-		ROI.height = roiSize;
+	if (stateLoc.x > (roiSize / 2)) {
+		ROI.x = stateLoc.x - roiSize / 2;
 	}
+	if (stateLoc.y > (roiSize / 2)) {
+		ROI.y = stateLoc.y - roiSize / 2;
+	}
+	if (stateLoc.x + roiSize / 2 > src.cols) {
+		ROI.x = src.cols - roiSize;
+	}
+	if (stateLoc.y + roiSize / 2 > src.rows) {
+		ROI.y = src.rows - roiSize;
+	}
+	ROI.width = roiSize;
+	ROI.height = roiSize;
 	return ROI;
 }
 
+
+vector<Point2f> findObjects(Mat inputImage) {
+	vector<vector<Point> > contours;
+	vector<Point2f> centres;
+	vector<Vec4i> hierarchy;
+	Mat contourEdges;
+
+	Canny(inputImage, contourEdges, 100, 100 * 2, 3);
+	findContours(contourEdges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	
+	for (int i = 0; i < contours.size(); i++)
+	{
+		Moments conMom = (moments(contours[i], false));
+		if ((conMom.m00 < 500) && (conMom.m00 > 5)) {
+			centres.push_back(Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00));
+		}
+	}
+	return centres;
+}
 
 
 
 /** @function main */
 int main(int argc, char** argv)
 {
-	const string videoFile[] = {
-		"C:/Users/myadmin/Videos/plainLow1.avi"
-		"C:/Users/myadmin/Videos/plainLow2.avi"
-		"C:/Users/myadmin/Videos/plainLow3.avi"
-		"C:/Users/myadmin/Videos/plainMed1.avi"
-		"C:/Users/myadmin/Videos/plainMed2.avi"
-		"C:/Users/myadmin/Videos/plainMed3.avi"
-		"C:/Users/myadmin/Videos/plainHigh1.avi"
-		"C:/Users/myadmin/Videos/plainHigh2.avi"
-		"C:/Users/myadmin/Videos/plainHigh3.avi"
-		"C:/Users/myadmin/Videos/retroHigh1.avi"
-		"C:/Users/myadmin/Videos/retroFar1.avi"
-	};
 
 	VideoCapture capture;
 
@@ -417,10 +166,10 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
 
 	//DEPTH TESTS:
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 
 	//DYLANS folder structure:
-	capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
+	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
 
 #ifdef RECORD_SOURCE_W_BOX
 	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -453,27 +202,16 @@ int main(int argc, char** argv)
 #endif // FPS
 
 
-	int kalmanCount = 0;
-	Mat src; Mat src_ROI;
-	Point prevCentre;
+	Mat src, src_ROI, values[3], image_hsl, lum;
+	Insect insect;
+
+
 
 	capture >> src;
-	//resize(src, src, Size(), 0.3, 0.3);
 	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
-
 
 	while (!src.empty()) {
 
-#if defined(DEBUG) || defined(RECORD_SOURCE_W_BOX)
-		Mat srcBox = src.clone();
-		rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
-#endif
-#ifdef DEBUG
-		imshow("Source w Box", srcBox);
-#endif
-#if defined(RECORD_SOURCE_W_BOX) && ! defined(FPS)
-		outputVideo.write(srcBox); //write output video w/o text
-#endif
 
 #ifdef FPS
 		num_frames_proc++;
@@ -536,168 +274,99 @@ int main(int argc, char** argv)
 #endif // FPS	
 
 		src_ROI = src(ROI);
-		//resize(srcBox, srcBox, Size(), 0.3, 0.3);
-#ifdef DEBUG
-		imshow("Frame", src_ROI);
-#endif // DEBUG
-
-		//imshow("Frame", src_ROI);
-
-		Mat dst = preprocessImage(src_ROI);
-
-#define FIND_DEPTH
-		int threshSum = 0;
-		for (int p = 0; p < THRESH_FILTER_SIZE; p++) {
-			threshSum += threshFilter[p];
-		}
-		printf("Threshold: %i	", threshSum / THRESH_FILTER_SIZE);
-		printf("Height Bracket: %i	", threshSum / (THRESH_FILTER_SIZE * 20));
-		if (threshCount == THRESH_FILTER_SIZE) 
-			{ threshCount = 0; }
-#endif
-		/*****		CONTOURS		****/
-		vector<vector<Point> > contours;
-		vector<Vec4i> hierarchy;
-
-		Canny(dst, dst, 100, 100 * 2, 3);
+		ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
 
 
-		findContours(dst, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+		//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL
+		split(src, values);						// Split into channels
+		lum = values[0];
 
+		int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
 
-		/// Get the moments
-		vector<Moments> mu(contours.size());
-		for (int i = 0; i < contours.size(); i++)
-		{
-			mu[i] = moments(contours[i], false);
-		}
+		if (lumThreshold > 0) {
 
-		///  Get the mass centers:
-		vector<Point2f> mc(contours.size());
-		for (int i = 0; i < contours.size(); i++)
-		{
-			mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
-		}
+			threshold(lum, lum, lumThreshold, 255, 0);
+			insect.updateHeight(lumThreshold);
 
+			vector<Point2f> objectCentres = findObjects(lum);
+			if (objectCentres.size() > 0) {
 
-		//Filter by area
-		int j = 0;
-		vector<vector<Point> > useContours(contours.size());
-		for (int i = 0; i < contours.size(); i++) {
-			if ((mu[i].m00 < 20000) && (mu[i].m00 > 5)) {
-				useContours[j] = vector<Point>(contours[i]);
-				j++;
-				//printf("Area %i: %.1f ", j, mu[i].m00);
-			}
-		}
-
-		if (j == 0) {
-			noBug = true;
-		}
-		else {
-			noBug = false;
-		}
-
-#ifdef DEBUG
-		/// Draw contours
-		Mat drawing = Mat::zeros(dst.size(), CV_8UC3);
-		//printf("\nCounter Sizes: ");
-		for (int i = 0; i < useContours.size(); i++)
-		{
-			Scalar color = Scalar(100*i, 100*i, 255);
-			drawContours(drawing, useContours, i, color, 1, 8, hierarchy, 0, Point());
-			//circle(drawing, mc[i], 4, color, -1, 8, 0);
-		}
-
-		/// Show in a window
-
-		namedWindow("Contours", CV_WINDOW_AUTOSIZE);
-		imshow("Contours", drawing);
-#endif // DEBUG
-
-
+				insect.updatePosition(objectCentres[0], ROI);
 
 #ifdef KALMAN
-		//Prediction
-		Mat predict = KF.predict();
-		Point xy_loc(predict.at<float>(0), predict.at<float>(1));
-		Point xy_vel(predict.at<float>(2), predict.at<float>(3));
+				//Prediction
+				Mat predict = KF.predict();
+				Point2f xy_loc(predict.at<float>(0), predict.at<float>(1));
+				Point2f xy_vel(predict.at<float>(2), predict.at<float>(3));
 
-		//Attempt to allow tracking of vanishing target
-		KF.statePre.copyTo(KF.statePost);
-		KF.errorCovPre.copyTo(KF.errorCovPost);
+				//Attempt to allow tracking of vanishing target
+				KF.statePre.copyTo(KF.statePost);
+				KF.errorCovPre.copyTo(KF.errorCovPost);
 
-		//Get measurements
-		if (useContours.size() >= 1) {
-			measurement.at<float>(0) = mc[0].x + float(ROI.x);
-			measurement.at<float>(1) = mc[0].y + float(ROI.y);
-		}
-		else {
-			measurement.at<float>(0) = xy_loc.x;
-			measurement.at<float>(1) = xy_loc.y;
-		}
+				//Get measurements
+				if (useContours.size() >= 1) {
+					measurement.at<float>(0) = mc[0].x + float(ROI.x);
+					measurement.at<float>(1) = mc[0].y + float(ROI.y);
+				}
+				else {
+					measurement.at<float>(0) = xy_loc.x;
+					measurement.at<float>(1) = xy_loc.y;
+				}
 
 
-		//Update filter
-		Mat correction = KF.correct(measurement);
-		Point stateLoc(correction.at<float>(0), correction.at<float>(1));
-	
-		Point stateVel(correction.at<float>(2), correction.at<float>(3));
-		Point measLoc(measurement.at<float>(0), measurement.at<float>(1));
-		targetv.push_back(measLoc);
-		kalmanv.push_back(stateLoc);
+				//Update filter
+				Mat correction = KF.correct(measurement);
+				Point2f stateLoc(correction.at<float>(0), correction.at<float>(1));
+
+				Point2f stateVel(correction.at<float>(2), correction.at<float>(3));
+				Point2f measLoc(measurement.at<float>(0), measurement.at<float>(1));
+				targetv.push_back(measLoc);
+				kalmanv.push_back(stateLoc);
 #ifdef DEBUG
-		// plot stuff
-		src = Scalar::all(0);
+				// plot stuff
+				src = Scalar::all(0);
 
 
-		drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
-		drawCross(src, measLoc, Scalar(0, 0, 255), 5);
+				drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
+				drawCross(src, measLoc, Scalar(0, 0, 255), 5);
 
-		for (int i = 0; i < targetv.size() - 1; i++)
-			line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
+				for (int i = 0; i < targetv.size() - 1; i++)
+					line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
 
-		for (int i = 0; i < kalmanv.size() - 1; i++)
-			line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
+				for (int i = 0; i < kalmanv.size() - 1; i++)
+					line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
 
-		imshow("Frame Kalman", src);
+				imshow("Frame Kalman", src);
 #endif
 #endif //Kalman
-		
 
-		Point contourCentre;
-		
-		Point centreDiff;
+				ROI = updateROI(ROI, insect.position, src);
 
-		if (noBug == true) {
-			kalmanCount = 0;
-		}
-		else {
-			contourCentre = Point(mc[0].x + ROI.x, mc[0].y + ROI.y);
-		}
+#ifdef DEBUG
+				Mat srcBox = src.clone();
+				rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
+				imshow("Source w Box", srcBox);
+				imshow("Frame", src_ROI);
+				imshow("Luminance", lum);
+				printf("Height Bracket: %i	", insect.heightBracket);
 
-		centreDiff = contourCentre - prevCentre;
-		float value = norm(centreDiff);
-		printf("Speed: %.1f	", value);
-		//printf("Just trying: %i", (value + threshSum / THRESH_FILTER_SIZE));
-		prevCentre = contourCentre;
-
-
-		ROI.x = 0;
-		ROI.y = HEIGHT_OFFSET;		//Strange artifacts in top left hand corner removed
-		ROI.width = src.cols;
-		ROI.height = src.rows-HEIGHT_OFFSET;
-
-		if (kalmanCount++ > 10) {
-
-			ROI = updateROI(ROI, contourCentre, src);
+				/// Draw contours
+				Mat contourOutput = Mat::zeros(src_ROI.size(), CV_8UC3);
+				for (int i = 0; i < objectCentres.size(); i++)
+				{
+					circle(contourOutput, objectCentres[i], 4, Scalar(255, 0, 0), -1, 8, 0);
+				}
+				imshow("Contours", contourOutput);
+				printf("Speed: %.1f	", insect.speed);
+#endif // DEBUG
+			}
 		}
 
 		capture >> src;
 		//resize(src, src, Size(), 0.3, 0.3);
 
 		//wait_period = 50;
-		waitKey(wait_period); // fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
+		waitKey(10); // fps won't be accurate unless this period is defined as wait_period (variable shared with fps counter).
 		printf("\n");
 	}
 
@@ -709,60 +378,4 @@ int main(int argc, char** argv)
 
 	return(0);
 }
-
-
-
-/*
-Mat image;
-image = imread("C:/Users/myadmin/Documents/Image/TestImageInfraRed.jpg", 1);
-
-
-Mat gray_image;
-cvtColor(image, gray_image, CV_BGR2GRAY);
-
-Mat small_image(image, Range::all(), Range(1, 500));
-
-namedWindow("Pointless", CV_WINDOW_AUTOSIZE);
-namedWindow("Gray image", CV_WINDOW_AUTOSIZE);
-namedWindow("Small image", CV_WINDOW_AUTOSIZE);
-
-
-imshow("Pointless", image);
-imshow("Gray image", gray_image);
-imshow("Small image", small_image);
-Z*/
-
-
-/*
-
-int alpha = 0; // Simple contrast control
-int beta = 1;
-
-void contrast(void) {
-namedWindow("Contrast", CV_WINDOW_AUTOSIZE);
-
-createTrackbar("Alpha:", "Contrast", &alpha, 3);
-createTrackbar("Beta:", "Contrast", &beta, 100);
-/// Load source image and convert it to gray
-
-Mat src_2 = Mat::zeros(src.size(), src.type());
-
-for (int y = 0; y < src.rows; y++)
-{
-for (int x = 0; x < src.cols; x++)
-{
-for (int c = 0; c < 3; c++)
-{
-src_2.at<Vec3b>(y, x)[c] =
-saturate_cast<uchar>(alpha*(src.at<Vec3b>(y, x)[c]) + beta);
-}
-}
-}
-
-imshow("Contrast", src_2);
-}
-*/
-
-
-
-
+#endif RUN
