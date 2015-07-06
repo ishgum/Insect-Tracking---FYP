@@ -56,11 +56,13 @@ int main(int argc, char** argv)
 
 	Point xy_loc(capture.get(CV_CAP_PROP_FRAME_WIDTH) / 2, capture.get(CV_CAP_PROP_FRAME_HEIGHT / 2));
 	
-	int kalmanCount = 0;
 	Mat src; Mat src_ROI;
 	Point prevCentre;
+	int kalmanCount = 0;
 
 	capture >> src;
+
+	Point frameCentre(src.cols / 2, src.rows / 2);
 	//resize(src, src, Size(), 0.3, 0.3);
 	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
 	float cpuFPS = 0;
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
 
 /********** WHILE LOOP ***********/
 	while (!src.empty()) {
-
+		Mat lineImage = src.clone();
 		#ifdef RECORD_SOURCE_W_BOX
 			sourceDisplayAndRecord(src, ROI, outputVideo);
 		#endif
@@ -84,7 +86,8 @@ int main(int argc, char** argv)
 		// processFrame
 		mc = processFrame(src, ROI, noBug, threshFilter, THRESH_FILTER_SIZE, xy_loc,
 			usable_contours, DEBUG, RGB_SOURCE);
-	
+		
+
 		// KALMAN
 		#ifdef KALMAN
 			useKalmanFilter(KF, xy_loc, usable_contours, src, ROI, mc, DEBUG);
@@ -105,6 +108,23 @@ int main(int argc, char** argv)
 		printf("Speed: %.1f	", value);
 		//printf("Just trying: %i", (value + threshSum / THRESH_FILTER_SIZE));
 		prevCentre = contourCentre;
+
+		// Display bug vector from origin
+		Point distance;
+		distance = contourCentre - frameCentre;
+		int length = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
+		float angle = atan(distance.y / (distance.x + 0.0000001)) * 180 / CV_PI;
+		printf("Length: %i	", length);
+		printf("Angle: %f	", angle);
+		if (noBug){			// check for graceful fail
+			line(lineImage, frameCentre, frameCentre, Scalar(255, 0, 0), 2, 8);
+		}
+		else{
+			line(lineImage, frameCentre, contourCentre, Scalar(255, 0, 0), 2, 8);
+		}
+		imshow("Line", lineImage);
+		// end display
+
 
 		ROI.x = 0;
 		ROI.y = HEIGHT_OFFSET;		//Strange artifacts in top left hand corner removed
