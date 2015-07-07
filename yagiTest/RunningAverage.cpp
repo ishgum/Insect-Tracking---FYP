@@ -76,6 +76,6 @@ addValue(value);
 }
 
 int RunningAverage::getIndex(void){
-  return _idx
+  return _idx;
 }
 // END OF FILE

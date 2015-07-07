@@ -23,6 +23,7 @@ possibly trim rising & falling edges to increase accuracy (if >3 samples achieve
 #define ARDUINO_PWR_V  5//4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAFSIZE    200// 256 absolute max, 200 probably safe
 #define THRESHOLD  0.1 // V, for max difference between Left and Right considered "the same"
+#define PULSE_THRESHOLD  20 // 20*5V/1024 ~=0.1V
 
 //Display Modes
 #define PRINT_EVERY_N  800//1//800
@@ -38,7 +39,7 @@ possibly trim rising & falling edges to increase accuracy (if >3 samples achieve
 #define RIGHTLED   7
 #define MIDDLELED  8
 
-enum pulse_status_t {NO, YES};
+enum pulse_status_t {NO, YES, FALLING_EDGE};
 
 void setup() {
   Serial.begin(115200);    //for speed!
@@ -88,6 +89,8 @@ void pulse(void){
   int pulse_start = 0;
   int pulse_end = 0;
   int pulse_sample_num = 0;  //number of samples of pulse
+  int pulse_left_av, pulse_right_av, pulse_left_sum, pulse_right_sum =0;
+  bool left_over_thresh, right_over_thresh = false;
   pulse_status_t pulse_status = NO;
 
   //wait until bufffer is full
@@ -99,7 +102,7 @@ void pulse(void){
   while(1){
     //Sample
     current_left = analogRead(LEFT_PIN);
-    current_right = (analogRead(RIGHT_PIN);
+    current_right = analogRead(RIGHT_PIN);
     left_b.addValue(current_left);
     right_b.addValue(current_right);
     
@@ -116,7 +119,7 @@ void pulse(void){
         if (left_over_thresh || right_over_thresh){  //if pulse on either channel detected
           pulse_start = left_b.getIndex();
           pulse_end = left_b.getIndex();
-          pulse_status = YES
+          pulse_status = YES;
         }
         break;
       case YES:  // pulse was detected on last sample 
@@ -131,25 +134,25 @@ void pulse(void){
       if (pulse_status == FALLING_EDGE){    // Pulse ended, determine averages for pulse window
         pulse_sample_num = 0;
         if (pulse_end < pulse_start){ // pulse wrapped around in buffer
-          for (int i = pulse_start; i<= MAFSIZE; i++;){
+          for (int i = pulse_start; i<= MAFSIZE; i++){
             pulse_left_sum += left_b.getElement(i);
             pulse_right_sum += left_b.getElement(i);
             pulse_sample_num++;
           }
-          for (int i = 0; i<= pulse_end; i++;){
+          for (int i = 0; i<= pulse_end; i++){
             pulse_left_sum += left_b.getElement(i);
             pulse_right_sum += left_b.getElement(i);
             pulse_sample_num++;
           }
         }else{
-          for (int i = pulse_start; i<= pulse_end; i++;){
+          for (int i = pulse_start; i<= pulse_end; i++){
             pulse_left_sum += left_b.getElement(i);
             pulse_right_sum += left_b.getElement(i);
             pulse_sample_num++;
           }
         }
         pulse_left_av = pulse_left_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
-        pulse_right_av = pulse_right_sum*ARDUINO_PWR_V/(pulse_sample_num*1023;
+        pulse_right_av = pulse_right_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
         display_data(pulse_left_av, pulse_right_av);
       }
       pulse_status = NO;
@@ -162,7 +165,7 @@ void pulse(void){
 
 void display_data(float average_left, float average_right){
   float diff =  average_left-average_right;
-  float = abs(diff);
+  float mag = abs(diff);
   if (diff>THRESHOLD){
     dir = "Left";
     digitalWrite(LEFTLED, HIGH);
@@ -210,13 +213,15 @@ void display_data(float average_left, float average_right){
     output += String(average_right);
   #endif
   
-  if defined(PULSE_MODE){
+  #if defined(PULSE_MODE)
     Serial.println(output);
-  }else{
+  #else
     N++;
     if (N >PRINT_EVERY_N){
         N =0;
         Serial.println(output);
     }
-  }
+  #endif
 }
+
+void loop(){}
