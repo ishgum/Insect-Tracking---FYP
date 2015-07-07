@@ -20,7 +20,7 @@ floats use 4 bytes
 
 yagiTest uses int from ADC reading but RunningAverage lib stores an array of floats.
 this buffer is easily the largest structure.
-max size of MAF is roughly 2048/(2channels*4bytes) = 256
+max size of MAF is therefore less than 2048/(2channels*4bytes) = 256
 
 Solutions:
 Use something w/ more SRAM

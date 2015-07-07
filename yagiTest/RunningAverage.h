@@ -13,6 +13,9 @@
 // clr() clear()
 // add(x) addValue(x)
 // avg() getAverage()
+// Modified by Dylan Mackie 2015
+// make current index public
+
 #define RUNNINGAVERAGE_LIB_VERSION "0.2.04"
 #include "Arduino.h"
 class RunningAverage
@@ -28,6 +31,7 @@ float getAverage();
 float getElement(uint8_t idx);
 uint8_t getSize() { return _size; }
 uint8_t getCount() { return _cnt; }
+int getIndex(void);  //Dylans adition
 protected:
 uint8_t _size;
 uint8_t _cnt;
