@@ -1,36 +1,49 @@
-/* Just reading & comparing two ADC's
+/* ENEL400 Insect Tracking FYP
+  Dylan Mackie, Michael Jones,
+  2015
+
+Just reading & comparing two ADC's
 has provision to implement a Moving average filter,
 just change MAFSIZE #define to size of MA buffer.
-Should toggle 3 LED's to indicate which ADC signal is strongest.
+Toggles 3 LED's to indicate which ADC signal is strongest.
 Has various display modes to be (un)commented as needed.
 These should be commented out for headless operation for max speed,
 though at 115200baud this program should still be able to get a
 sample at least every 5ms.
+
 Max ADC read rate is ~0.1ms
-Can get ~ 1 sample per ms w/ DIR_MAG
+Can get ~ 1 sample per ms w/ DIR_MAG.
+digitalWrite typ takes <20us so can do this every loop
 
 Added UNTESTED functionality to:
-detect & compare pulses
+>detect & compare pulses
 
 TODO:
-possibly trim rising & falling edges to increase accuracy (if >3 samples achieved)
+>possibly trim rising & falling edges of pulse detect
+      to increase accuracy (if >3 samples achieved)
+>Have some overall gain information
+  >scale comparison based on this gain information
+>remove known pulse values from averaging buffer for noise floor
+  calculation
+> remove old HIGHLIGHT_PEAK function
 */
 
 #include "RunningAverage.h"
 
 // Settings
-#define PULSE_MODE //otherwise continuous
+//#define PULSE_MODE //otherwise continuous
 #define ARDUINO_PWR_V  5//4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAFSIZE    200// 256 absolute max, 200 probably safe
+#define MAFSIZE    100// 256 absolute max, 200 probably safe
 #define THRESHOLD  0.1 // V, for max difference between Left and Right considered "the same"
 #define PULSE_THRESHOLD  20 // 20*5V/1024 ~=0.1V
 
 //Display Modes
-#define PRINT_EVERY_N  800//1//800
-#define DIR_MAG      //display strongest dir & mag
-#define RAW         //display raw values on RHS
-#define CRAPH          //display mag with .'s
-//#define HIGHLIGHT_PEAK //for LEFT A0 only , only active when RAW is defined
+#define PRINT_EVERY_N  800  //1//800
+#define DIR_MAG             //display strongest dir & mag
+#define RAW                 //display raw values
+#define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
+//#define HIGHLIGHT_PEAK
+//for LEFT A0 only , only active when RAW is defined
 
 // Pin dfns
 #define LEFT_PIN       A0
@@ -52,6 +65,8 @@ void setup() {
   digitalWrite(RIGHTLED, LOW);
   digitalWrite(MIDDLELED, LOW);
   Serial.println("STRONGEST:\tMAGNITUDE:");
+  
+  // Select mode based on PULSE_MODE #define
   #ifdef PULSE_MODE
     pulse();
   #else
@@ -69,6 +84,16 @@ float mag = 0;
 String dir = "uninitialised";
 int N = 0;
 
+/*  Continuous Mode loop:
+    Sample two channels as fast as possible (+ 100us delay), 
+    Add each sample to one of two RollingAverage buffers,
+    and find the average.
+    If the average for one buffer is greater than the other (within some tolerance THRESHOLD),
+    Then that channel is said to have a greater RSSI, which is indicated by the LED's,
+    and Serial output if there are suitable display defines.
+    LED's updated every sample.
+    Serial updated every PRINT_EVERY_N sample to slow down display.
+    */
 void continuous(void){
   while(1){
     //Sample
@@ -83,6 +108,25 @@ void continuous(void){
   }
 }
 
+/*  Pulse Mode Loop:
+    Sample two channels as fast as possible (+ 100us delay), 
+    Add each sample to one of two RollingAverage buffers,
+    and find the average.
+    The noise floor is defined as these averages.
+    If the average for one buffer is greater than noise floor + PULSE_THRESHOLD,
+    Then a pulse is said to be occuring.
+    pulse_state is set to YES (pulse occuring).
+    when pulse no longer occurs pulse_state becomes FALLING,
+    the average amplitude of the pulse is then determined for both channels,
+    then pulse_state = NO.
+    
+    The average amplitude for each channel during the pulse is then compared (with THRESHOLD again),
+    if one is greater then,
+    that channel is said to have a greater RSSI, which is indicated by the LED's,
+    and Serial output if there are suitable display defines.
+    LED's updated every pulse.
+    Serial updated every pulse.
+    */
 void pulse(void){
   int current_left = 0;
   int current_right = 0;
@@ -106,7 +150,6 @@ void pulse(void){
     left_b.addValue(current_left);
     right_b.addValue(current_right);
     
-    // Compare raw adc
     average_left = left_b.getAverage();
     average_right = right_b.getAverage();
     
@@ -130,8 +173,8 @@ void pulse(void){
           pulse_status = FALLING_EDGE;
         }
         break;
-  
-      if (pulse_status == FALLING_EDGE){    // Pulse ended, determine averages for pulse window
+ 
+      case FALLING_EDGE:   // Pulse ended, determine averages for pulse window
         pulse_sample_num = 0;
         if (pulse_end < pulse_start){ // pulse wrapped around in buffer
           for (int i = pulse_start; i<= MAFSIZE; i++){
@@ -154,9 +197,9 @@ void pulse(void){
         pulse_left_av = pulse_left_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
         pulse_right_av = pulse_right_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
         display_data(pulse_left_av, pulse_right_av);
+        pulse_status = NO;
+        break;
       }
-      pulse_status = NO;
-      break;
     }
     //delay(00);
     delayMicroseconds(100); //max ADC speed given as 100us
