@@ -26,7 +26,8 @@ bool irCamInit(void) {
 
 	cout << camInfo.vendorName << " "
 		 << camInfo.modelName << " "
-		 << camInfo.serialNumber << endl;
+		 << camInfo.serialNumber << " "
+		 << camInfo.sensorResolution << endl;
 
 	camError = camera.StartCapture();
 	if (camError == PGRERROR_ISOCH_BANDWIDTH_EXCEEDED)
