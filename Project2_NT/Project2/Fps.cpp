@@ -97,15 +97,13 @@ void displayFPS(Mat src, Rect ROI, float fps_cpu){
 	char fps_cpu_c[14];
 	sprintf(fps_cpu_c, "cpu FPS %4.2f", fps_cpu);
 	Point fps_cpu_text_loc(10, 60);
-	putText(src_w_text, fps_cpu_c, fps_cpu_text_loc,
-		FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
+	putText(src_w_text, fps_cpu_c, fps_cpu_text_loc, FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
 
 	//Frame Number
 	char frame_num_c[15];
 	sprintf(frame_num_c, "Frame #: %5i", frame_num);
 	Point frame_num_text_loc(10, 90);
-	putText(src_w_text, frame_num_c, frame_num_text_loc,
-		FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
+	putText(src_w_text, frame_num_c, frame_num_text_loc, FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
 	imshow("FPS", src_w_text);
 
 	//printf("\nFrame: %i\tCPU total: %f\tCPU FPS: %f", frame_num, cpu_running_total, fps_cpu);

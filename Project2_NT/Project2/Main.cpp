@@ -1,29 +1,25 @@
-
-#define RUN
-#ifdef RUN
-
-
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <iostream>
 
-
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
 
+#include "FlyCapture2.h"
+
 using namespace cv;
 using namespace std;
-
+using namespace FlyCapture2;
 
 #define ROI_SIZE .15
 //#define DEBUG		//display video output windows
 //#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 //#define KALMAN
 #define HEIGHT_OFFSET 10
-#define WAIT_PERIOD		10
+#define WAIT_PERIOD	10
 
 KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
@@ -171,34 +167,46 @@ Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
 }
 
 
-
 /** @function main */
 int main(int argc, char** argv)
 {
+	Error error;
+	Camera camera;
+	CameraInfo camInfo;
 
-	VideoCapture capture;
+	// Connect the camera
+	error = camera.Connect(0);
+	if (error.operator!=(PGRERROR_OK))
+	{
+		std::cout << "Failed to connect to camera" << std::endl;
+		return false;
+	}
 
-	//EARLY TESTS:
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2990.MOV"); //runs at ~6fps
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2987.MOV");
+	// Get the camera info and print it out
+	error = camera.GetCameraInfo(&camInfo);
+	if (error.operator!=(PGRERROR_OK))
+	{
+		std::cout << "Failed to get camera info from camera" << std::endl;
+		return false;
+	}
+	std::cout << camInfo.vendorName << " "
+		<< camInfo.modelName << " "
+		<< camInfo.serialNumber << std::endl;
 
-	//IR RREFLEC TESTS:
-	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
-//	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only.avi"); 
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only_Uncompressed_Grayscale.avi");
-	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193006-0000_8bit_uncompressed.avi"); // Princess Beetle and the sparkly dress, Co-Staring Michael
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
+	error = camera.StartCapture();
+	if (error == PGRERROR_ISOCH_BANDWIDTH_EXCEEDED)
+	{
+		std::cout << "Bandwidth exceeded" << std::endl;     
+		return false;
+	}
+	else if (error.operator!=(PGRERROR_OK))
+	{
+		std::cout << "Failed to start image capture" << std::endl;     
+		return false;
+	}
 
-	//DEPTH TESTS:
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+	cout << "\n RUNNING \n";
 
-	// Relative path to small test file
-	//capture.open("../../test.avi");
-
-	//DYLANS folder structure:
-	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
 
 	#ifdef RECORD_SOURCE_W_BOX
 		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -225,14 +233,55 @@ int main(int argc, char** argv)
 
 	Mat src, src_ROI;
 	Insect insect;
-
-
-	capture >> src;
-	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
 	
+	// Get the image
+	Image rawImage;
+	error = camera.RetrieveBuffer(&rawImage);
+	if (error.operator!=(PGRERROR_OK))
+	{
+		std::cout << "capture error" << std::endl;
+		return -1;
+	}
+
+	// convert to rgb
+	Image rgbImage;
+	rawImage.Convert(PIXEL_FORMAT_BGR, &rgbImage);
+
+	// convert to OpenCV Mat
+	unsigned int rowBytes = (double)rgbImage.GetReceivedDataSize() / (double)rgbImage.GetRows();
+	src = Mat(rgbImage.GetRows(), rgbImage.GetCols(), CV_8UC3, rgbImage.GetData(), rowBytes);
+	
+
+	/*while (1) {
+		// Get the image
+		Image rawImage;
+		error = camera.RetrieveBuffer(&rawImage);
+		if (error.operator!=(PGRERROR_OK))
+		{
+			std::cout << "capture error" << std::endl;
+			return -1;
+		}
+
+		// convert to rgb
+		Image rgbImage;
+		rawImage.Convert(PIXEL_FORMAT_BGR, &rgbImage);
+
+		// convert to OpenCV Mat
+		unsigned int rowBytes = (double)rgbImage.GetReceivedDataSize() / (double)rgbImage.GetRows();
+		src = Mat(rgbImage.GetRows(), rgbImage.GetCols(), CV_8UC3, rgbImage.GetData(), rowBytes);
+		cout << "\nGOT IMAGE\n";
+		imshow("Source", src);
+		waitKey(50);
+	}
+	return 0;*/
+
+
+
+	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
+
+
 	/********** WHILE LOOP *********/
 	while (!src.empty()) {
-
 #ifdef FPS
 		fps = checkFPS(WAIT_PERIOD);
 		displayFPS(src, ROI, fps);
@@ -248,8 +297,12 @@ int main(int argc, char** argv)
 
 		insect = findInsect(src_ROI, insect, ROI);
 
-		if (insect.found) ROI = updateROI(ROI, insect.position, src);
-		else ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
+		if (insect.found) {
+			ROI = updateROI(ROI, insect.position, src);
+		}
+		else {
+			ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
+		}
 
 #ifdef DEBUG
 		Mat srcBox = src.clone();
@@ -270,20 +323,36 @@ int main(int argc, char** argv)
 #endif // DEBUG
 
 
-		capture >> src;
-		//resize(src, src, Size(), 0.3, 0.3);
+		// Get the image
+		error = camera.RetrieveBuffer(&rawImage);
+		if (error.operator!=(PGRERROR_OK))
+		{
+			std::cout << "capture error" << std::endl;
+			return -1;
+		}
 
+		// convert to rgb
+		rawImage.Convert(PIXEL_FORMAT_BGR, &rgbImage);
+
+		// convert to OpenCV Mat
+		unsigned int rowBytes = (double)rgbImage.GetReceivedDataSize() / (double)rgbImage.GetRows();
+		src = Mat(rgbImage.GetRows(), rgbImage.GetCols(), CV_8UC3, rgbImage.GetData(), rowBytes);
+		//resize(src, src, Size(), 0.3, 0.3);
 
 		waitKey(WAIT_PERIOD);
 		printf("\n");
 	}
 
-	capture.release();
+	error = camera.StopCapture();
+	if (error.operator!=(PGRERROR_OK))
+	{
+		// This may fail when the camera was removed, so don't show 
+		// an error message
+	}
 
-	//while (waitKey(10) < 0) {
-		cout << "Done\n";
-	//}
+	camera.Disconnect();
+
+	cout << "Done\n";
 
 	return(0);
 }
-#endif RUN
