@@ -7,15 +7,13 @@
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
-
-#include "FlyCapture2.h"
+#include "IrCam.h"
 
 using namespace cv;
 using namespace std;
-using namespace FlyCapture2;
 
 #define ROI_SIZE .15
-//#define DEBUG		//display video output windows
+#define DEBUG		//display video output windows
 //#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 //#define KALMAN
 #define HEIGHT_OFFSET 10
@@ -170,43 +168,11 @@ Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
 /** @function main */
 int main(int argc, char** argv)
 {
-	Error error;
-	Camera camera;
-	CameraInfo camInfo;
 
-	// Connect the camera
-	error = camera.Connect(0);
-	if (error.operator!=(PGRERROR_OK))
-	{
-		std::cout << "Failed to connect to camera" << std::endl;
-		return false;
+	if(!irCamInit()) {
+		cout << "\nFailed to connect to camera. Aborting.\n";
+		return -1;
 	}
-
-	// Get the camera info and print it out
-	error = camera.GetCameraInfo(&camInfo);
-	if (error.operator!=(PGRERROR_OK))
-	{
-		std::cout << "Failed to get camera info from camera" << std::endl;
-		return false;
-	}
-	std::cout << camInfo.vendorName << " "
-		<< camInfo.modelName << " "
-		<< camInfo.serialNumber << std::endl;
-
-	error = camera.StartCapture();
-	if (error == PGRERROR_ISOCH_BANDWIDTH_EXCEEDED)
-	{
-		std::cout << "Bandwidth exceeded" << std::endl;     
-		return false;
-	}
-	else if (error.operator!=(PGRERROR_OK))
-	{
-		std::cout << "Failed to start image capture" << std::endl;     
-		return false;
-	}
-
-	cout << "\n RUNNING \n";
-
 
 	#ifdef RECORD_SOURCE_W_BOX
 		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -233,49 +199,8 @@ int main(int argc, char** argv)
 
 	Mat src, src_ROI;
 	Insect insect;
-	
-	// Get the image
-	Image rawImage;
-	error = camera.RetrieveBuffer(&rawImage);
-	if (error.operator!=(PGRERROR_OK))
-	{
-		std::cout << "capture error" << std::endl;
-		return -1;
-	}
 
-	// convert to rgb
-	Image rgbImage;
-	rawImage.Convert(PIXEL_FORMAT_BGR, &rgbImage);
-
-	// convert to OpenCV Mat
-	unsigned int rowBytes = (double)rgbImage.GetReceivedDataSize() / (double)rgbImage.GetRows();
-	src = Mat(rgbImage.GetRows(), rgbImage.GetCols(), CV_8UC3, rgbImage.GetData(), rowBytes);
-	
-
-	/*while (1) {
-		// Get the image
-		Image rawImage;
-		error = camera.RetrieveBuffer(&rawImage);
-		if (error.operator!=(PGRERROR_OK))
-		{
-			std::cout << "capture error" << std::endl;
-			return -1;
-		}
-
-		// convert to rgb
-		Image rgbImage;
-		rawImage.Convert(PIXEL_FORMAT_BGR, &rgbImage);
-
-		// convert to OpenCV Mat
-		unsigned int rowBytes = (double)rgbImage.GetReceivedDataSize() / (double)rgbImage.GetRows();
-		src = Mat(rgbImage.GetRows(), rgbImage.GetCols(), CV_8UC3, rgbImage.GetData(), rowBytes);
-		cout << "\nGOT IMAGE\n";
-		imshow("Source", src);
-		waitKey(50);
-	}
-	return 0;*/
-
-
+	src = irGetImage();
 
 	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
 
@@ -291,7 +216,6 @@ int main(int argc, char** argv)
 		// write output video w/ text
 		outputVideo.write(src_w_text);
 #endif
-
 
 		src_ROI = src(ROI);
 
@@ -322,37 +246,17 @@ int main(int argc, char** argv)
 		printf("Speed: %.1f	", insect.speed);
 #endif // DEBUG
 
-
-		// Get the image
-		error = camera.RetrieveBuffer(&rawImage);
-		if (error.operator!=(PGRERROR_OK))
-		{
-			std::cout << "capture error" << std::endl;
-			return -1;
-		}
-
-		// convert to rgb
-		rawImage.Convert(PIXEL_FORMAT_BGR, &rgbImage);
-
-		// convert to OpenCV Mat
-		unsigned int rowBytes = (double)rgbImage.GetReceivedDataSize() / (double)rgbImage.GetRows();
-		src = Mat(rgbImage.GetRows(), rgbImage.GetCols(), CV_8UC3, rgbImage.GetData(), rowBytes);
+		src = irGetImage();
 		//resize(src, src, Size(), 0.3, 0.3);
 
 		waitKey(WAIT_PERIOD);
 		printf("\n");
 	}
 
-	error = camera.StopCapture();
-	if (error.operator!=(PGRERROR_OK))
-	{
-		// This may fail when the camera was removed, so don't show 
-		// an error message
-	}
-
-	camera.Disconnect();
-
 	cout << "Done\n";
+	while (1) {}
+
+	irReleaseCam();
 
 	return(0);
 }
