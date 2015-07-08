@@ -1,21 +1,25 @@
-#include <opencv2/video/tracking.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <iostream>
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
+#ifndef INSECT
+#define INSECT
 
-using namespace std;
+#include <opencv2/core/core.hpp>
+#include <numeric> 
+
 using namespace cv;
-
+using namespace std;
 
 class Insect {
-	bool found;
-	int threshold;
-	Point position, prevPosition;
+	vector<int> heightMA;
+	Point2f prevPosition;
+
 public:
-	void updatePosition(Point);
+	int heightBracket;
+	double speed;
+	Point2f position;
+	bool found;
+
 	Insect();
+	void updateHeight(int);
+	void updatePosition(Point2f, Rect);
 };
+
+#endif // !INSECT
