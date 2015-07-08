@@ -69,7 +69,7 @@ float checkFPS(int wait_period){
 		//fps_wall_displayed = num_frames_proc / (wall1 - wall0); //rate displayed
 		fps_wall = num_frames_proc / (wall1 - wall0 - num_frames_proc*0.001*wait_period);
 		fps_cpu = num_frames_proc / (cpu1 - cpu0);// - num_frames_proc*0.001*wait_period);
-		printf("\tFPS:  %f\t", fps_cpu);
+		printf("\tFPS:  %f\tWALL:\t%f\t", fps_cpu, fps_wall);
 		num_frames_proc = 0;
 		wall0 = get_wall_time();
 		cpu0 = get_cpu_time();
@@ -87,20 +87,20 @@ void displayFPS(Mat src, Rect ROI, float fps_cpu){
 	// Displayed FPS accounts for the delay we add in waitkey, far, far below.
 
 	//wall time
-	/*char fps_wall_c[4];
+	/*char fps_wall_c[400];
 	sprintf(fps_wall_c, "wall FPS %.2f", fps_wall);
 	Point fps_wall_text_loc(10, 30);
 	putText(src_w_text, fps_wall_c, fps_wall_text_loc,
 	FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);*/
 
 	//cpu time
-	char fps_cpu_c[14];
+	char fps_cpu_c[140];
 	sprintf(fps_cpu_c, "cpu FPS %4.2f", fps_cpu);
 	Point fps_cpu_text_loc(10, 60);
 	putText(src_w_text, fps_cpu_c, fps_cpu_text_loc, FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
 
 	//Frame Number
-	char frame_num_c[15];
+	char frame_num_c[150];
 	sprintf(frame_num_c, "Frame #: %5i", frame_num);
 	Point frame_num_text_loc(10, 90);
 	putText(src_w_text, frame_num_c, frame_num_text_loc, FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);

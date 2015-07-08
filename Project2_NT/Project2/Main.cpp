@@ -14,10 +14,12 @@ using namespace std;
 
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows
-//#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
+#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 //#define KALMAN
 #define HEIGHT_OFFSET 10
 #define WAIT_PERIOD	10
+#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
+
 
 KalmanFilter setKalmanParameters(KalmanFilter KF) {
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
@@ -168,11 +170,38 @@ Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
 /** @function main */
 int main(int argc, char** argv)
 {
-
+	VideoCapture capture;
+#ifdef USE_CAM
 	if(!irCamInit()) {
 		cout << "\nFailed to connect to camera. Aborting.\n";
 		return -1;
 	}
+
+#else
+	
+
+	//EARLY TESTS:
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2990.MOV"); //runs at ~6fps
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2987.MOV");
+
+	//IR RREFLEC TESTS:
+	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only.avi"); 
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only_Uncompressed_Grayscale.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193006-0000_8bit_uncompressed.avi"); // Princess Beetle and the sparkly dress, Co-Staring Michael
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
+
+	//DEPTH TESTS:
+	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+
+	// Relative path to small test file
+	//capture.open("../../test.avi");
+
+	//DYLANS folder structure:
+	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
+#endif
 
 	#ifdef RECORD_SOURCE_W_BOX
 		int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -200,7 +229,11 @@ int main(int argc, char** argv)
 	Mat src, src_ROI;
 	Insect insect;
 
+#ifdef USE_CAM
 	src = irGetImage();
+#else
+	capture >> src;
+#endif
 
 	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
 
@@ -246,7 +279,11 @@ int main(int argc, char** argv)
 		printf("Speed: %.1f	", insect.speed);
 #endif // DEBUG
 
+#ifdef USE_CAM
 		src = irGetImage();
+#else
+		capture >> src;
+#endif
 		//resize(src, src, Size(), 0.3, 0.3);
 
 		waitKey(WAIT_PERIOD);
@@ -254,9 +291,12 @@ int main(int argc, char** argv)
 	}
 
 	cout << "Done\n";
-	while (1) {}
 
+#ifdef USE_CAM
 	irReleaseCam();
+#else
+	capture.release();
+#endif
 
 	return(0);
 }

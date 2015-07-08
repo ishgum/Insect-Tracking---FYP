@@ -143,7 +143,7 @@ int findThreshold(Mat inputImage) {
 	hist.findPeaksandMins();
 	hist.findThresholdByArea();
 
-	printf("Threshold: %i", hist.threshold);
+	printf("Threshold: %i ", hist.threshold);
 	return hist.threshold;
 
 }
