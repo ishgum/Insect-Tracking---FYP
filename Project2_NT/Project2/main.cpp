@@ -179,7 +179,6 @@ int main(int argc, char** argv)
 
 #else
 	
-
 	//EARLY TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2990.MOV"); //runs at ~6fps

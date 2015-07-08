@@ -9,6 +9,7 @@ using namespace cv;
 #ifdef _WIN32
 #include <Windows.h>
 #else
+// UNIX support
 #include <time.h>
 #include <sys/time.h>
 #endif

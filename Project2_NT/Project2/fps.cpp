@@ -94,13 +94,13 @@ void displayFPS(Mat src, Rect ROI, float fps_cpu){
 	FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);*/
 
 	//cpu time
-	char fps_cpu_c[140];
+	char fps_cpu_c[30];  // Needs to be large enough to avoid corrupting stack
 	sprintf(fps_cpu_c, "cpu FPS %4.2f", fps_cpu);
 	Point fps_cpu_text_loc(10, 60);
 	putText(src_w_text, fps_cpu_c, fps_cpu_text_loc, FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
 
 	//Frame Number
-	char frame_num_c[150];
+	char frame_num_c[30]; // Needs to be large enough to avoid corrupting stack
 	sprintf(frame_num_c, "Frame #: %5i", frame_num);
 	Point frame_num_text_loc(10, 90);
 	putText(src_w_text, frame_num_c, frame_num_text_loc, FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);

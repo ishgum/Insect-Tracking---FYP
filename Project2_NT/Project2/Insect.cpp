@@ -4,7 +4,7 @@
 #define HEIGHT_BRACKET 20
 
 Insect::Insect() {
-	found = true;
+	found = false;
 	heightMA = vector<int>(HEIGHT_FILTER_SIZE, 0);
 	position = Point(0, 0);
 	prevPosition = position;
