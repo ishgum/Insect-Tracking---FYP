@@ -15,10 +15,10 @@ Max ADC read rate is ~0.1ms
 Can get ~ 1 sample per ms w/ DIR_MAG.
 digitalWrite typ takes <20us so can do this every loop
 
-Added UNTESTED functionality to:
->detect & compare pulses
+Has basic detect & compare pulses
 
 TODO:
+> fix  pulse averaging
 >possibly trim rising & falling edges of pulse detect
       to increase accuracy (if >3 samples achieved)
 >Have some overall gain information
@@ -31,14 +31,15 @@ TODO:
 #include "RunningAverage.h"
 
 // Settings
-#define PULSE_MODE //otherwise continuous
-#define ARDUINO_PWR_V  5//4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAFSIZE    100// 256 absolute max, 200 probably safe
-#define DIFFERENCE_THRESHOLD  0.1 // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
-#define PULSE_THRESHOLD  30 // 20*5V/1024 ~=0.1V (0 to 1023 valid)
+#define PULSE_MODE     //otherwise continuous
+#define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
+#define MAFSIZE                100    // 256 absolute max, 200 probably safe
+#define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
+#define PULSE_THRESHOLD        0.1     // V, the amount the RSSI amplitude has to be greater than the averaged
+                                              // amplitude to detect a pulse (0 to 5 valid)
 
 //Display Modes
-#define PRINT_EVERY_N  1  //1//800
+#define PRINT_EVERY_N  800  // 800
 #define DIR_MAG             //display strongest dir & mag
 #define RAW                 //display raw values
 #define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
@@ -48,9 +49,9 @@ TODO:
 // Pin dfns
 #define LEFT_PIN       A0
 #define RIGHT_PIN      A3
-#define LEFTLED    9
-#define RIGHTLED   7
-#define MIDDLELED  8
+#define LEFTLED        9
+#define RIGHTLED       7
+#define MIDDLELED      8
 
 enum pulse_status_t {NO, YES, FALLING_EDGE};
 
@@ -128,26 +129,26 @@ void continuous(void){
     Serial updated every pulse.
     */
 void pulse(void){
-  int current_left = 0;
-  int current_right = 0;
+  float current_left = 0;
+  float current_right = 0;
   int pulse_start = 0;
   int pulse_end = 0;
   int pulse_sample_num = 0;  //number of samples of pulse
-  int pulse_left_av, pulse_right_av, pulse_left_sum, pulse_right_sum =0;
+  float pulse_left_av, pulse_right_av, pulse_left_sum, pulse_right_sum =0;
   bool left_over_thresh, right_over_thresh = false;
   pulse_status_t pulse_status = NO;
   Serial.println("filling buffer\n");
   //wait until bufffer is full
   while(left_b.getCount() < MAFSIZE){
-    left_b.addValue(analogRead(LEFT_PIN));
-    right_b.addValue(analogRead(RIGHT_PIN));
+    left_b.addValue(analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0);
+    right_b.addValue(analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0);
   }
   //int pulse_sample_num = 0;
   Serial.println("Buffer full\n");
   while(1){
     //Sample
-    current_left = analogRead(LEFT_PIN);
-    current_right = analogRead(RIGHT_PIN);
+    current_left = analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0;
+    current_right = analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0;
     left_b.addValue(current_left);
     right_b.addValue(current_right);
     
@@ -160,7 +161,7 @@ void pulse(void){
       if (pulse_sample_num < 4){ //if one of first 4 pulses on rising edge; ignore
         pulse_sample_num++;
       }else{
-      display_data(current_left*ARDUINO_PWR_V/1023.0, current_right*ARDUINO_PWR_V/1023.0);
+      display_data(current_left, current_right);
       
       delay(20);
       digitalWrite(LEFTLED, LOW);
@@ -223,8 +224,8 @@ void pulse(void){
       Serial.print("\t");
       Serial.println(pulse_right_sum);
 
-        pulse_left_av = pulse_left_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
-        pulse_right_av = pulse_right_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
+        pulse_left_av = pulse_left_sum/(pulse_sample_num);
+        pulse_right_av = pulse_right_sum/(pulse_sample_num);
         display_data(pulse_left_av, pulse_right_av);
         pulse_status = NO;
         break;
