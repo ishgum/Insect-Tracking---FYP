@@ -30,6 +30,9 @@
     <ClCompile Include="IrCam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Kalman.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Thresholding.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IrCam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Kalman.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

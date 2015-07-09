@@ -132,6 +132,7 @@
     <ClCompile Include="Fps.cpp" />
     <ClCompile Include="Insect.cpp" />
     <ClCompile Include="IrCam.cpp" />
+    <ClCompile Include="Kalman.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Thresholding.cpp" />
   </ItemGroup>
@@ -139,6 +140,7 @@
     <ClInclude Include="Fps.h" />
     <ClInclude Include="Insect.h" />
     <ClInclude Include="IrCam.h" />
+    <ClInclude Include="Kalman.h" />
     <ClInclude Include="Thresholding.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
