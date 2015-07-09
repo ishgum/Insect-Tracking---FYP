@@ -16,7 +16,7 @@ using namespace std;
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
-#define KALMAN
+//#define KALMAN
 #define HEIGHT_OFFSET 10
 #define WAIT_PERIOD	10
 //#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
@@ -30,6 +30,7 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 
 
 Rect updateROI(Rect ROI, Point2f stateLoc, Mat src) {
+	// Updates the size and location of the region of interest
 	int roiSize = ROI_SIZE * src.rows;
 
 	if (stateLoc.x > (roiSize / 2)) {
@@ -73,7 +74,7 @@ vector<Point2f> findObjects(Mat inputImage) {
 Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
 	Mat values[3], image_hsl, lum;
 
-	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL
+	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
 	split(inputImage, values);						// Split into channels
 	lum = values[0];
 
