@@ -18,6 +18,8 @@ digitalWrite typ takes <20us so can do this every loop
 Has basic detect & compare pulses
 
 TODO:
+> create pulse test code
+> check time display
 > fix  pulse averaging
 >possibly trim rising & falling edges of pulse detect
       to increase accuracy (if >3 samples achieved)
@@ -25,7 +27,6 @@ TODO:
   >scale comparison based on this gain information
 >remove known pulse values from averaging buffer for noise floor
   calculation
-> remove old HIGHLIGHT_PEAK function
 */
 
 #include "RunningAverage.h"
@@ -39,12 +40,11 @@ TODO:
                                               // amplitude to detect a pulse (0 to 5 valid)
 
 //Display Modes
-#define PRINT_EVERY_N  800  // 800
+#define PRINT_EVERY_N  800  // PULSE_MODE always prints / updates every pulse
 #define DIR_MAG             //display strongest dir & mag
-#define RAW                 //display raw values
+#define RAW                 //display raw V values
 #define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
-#define HIGHLIGHT_PEAK
-//for LEFT A0 only , only active when RAW is defined
+#define DISP_MILLIS          // display rough time elasped since while loop beginning in millisec
 
 // Pin dfns
 #define LEFT_PIN       A0
@@ -84,6 +84,7 @@ float diff =0;
 float mag = 0;
 String dir = "uninitialised";
 int N = 0;
+unsigned long current_time, start_time = 0; //50 days before rollover
 
 /*  Continuous Mode loop:
     Sample two channels as fast as possible (+ 100us delay), 
@@ -104,6 +105,7 @@ void continuous(void){
     //Compare
     average_left = left_b.getAverage()*ARDUINO_PWR_V/1023;
     average_right = right_b.getAverage()*ARDUINO_PWR_V/1023;
+    current_time = millis()-start_time;
     display_data(average_left, average_right);
     delayMicroseconds(100); //max ADC speed given as 100us
   }
@@ -145,6 +147,9 @@ void pulse(void){
   }
   //int pulse_sample_num = 0;
   Serial.println("Buffer full\n");
+  
+  start_time = millis();
+  
   while(1){
     //Sample
     current_left = analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0;
@@ -161,13 +166,13 @@ void pulse(void){
       if (pulse_sample_num < 4){ //if one of first 4 pulses on rising edge; ignore
         pulse_sample_num++;
       }else{
-      display_data(current_left, current_right);
-      
-      delay(20);
-      digitalWrite(LEFTLED, LOW);
-      digitalWrite(RIGHTLED, LOW);
-      digitalWrite(MIDDLELED, LOW);
-      pulse_sample_num = 0;
+        current_time = millis()-start_time;
+        display_data(current_left, current_right);
+        delay(20);
+        digitalWrite(LEFTLED, LOW);
+        digitalWrite(RIGHTLED, LOW);
+        digitalWrite(MIDDLELED, LOW);
+        pulse_sample_num = 0;
       }
     }
      // Serial.println(right_over_thresh);
@@ -260,6 +265,10 @@ void display_data(float average_left, float average_right){
   // Note that large serial msg's can a couple of ms at 115200
   // and 10's of ms at 9600 baud
   output = "";
+  #ifdef DISP_MILLIS
+    output += current_time;
+    output += "\t";
+  #endif
   #ifdef DIR_MAG
    // output = "Strongest:\t";
     output += dir+"\t";
@@ -277,11 +286,6 @@ void display_data(float average_left, float average_right){
   #ifdef RAW
     output += "\tRAW: L:\t";
     output += String(average_left);
-    #ifdef HIGHLIGHT_PEAK
-      if (average_left>1){
-        Serial.println("\n****\n");
-      }
-    #endif
     output += "\tR:\t";
     output += String(average_right);
   #endif
