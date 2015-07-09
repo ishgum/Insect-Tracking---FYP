@@ -8,6 +8,7 @@
 #include "Insect.h"
 #include "Fps.h"
 #include "IrCam.h"
+#include "Kalman.h"
 
 using namespace cv;
 using namespace std;
@@ -19,29 +20,6 @@ using namespace std;
 #define HEIGHT_OFFSET 10
 #define WAIT_PERIOD	10
 //#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
-
-
-KalmanFilter setKalmanParameters() {
-	KalmanFilter KF;
-	Mat state(4, 1, CV_32F); //x, y, delta x, delta y
-	Mat processNoise(4, 1, CV_32F);
-	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
-		0, 1, 0, 10,
-		0, 0, 1, 0,
-		0, 0, 0, 1);
-
-	KF.statePre.at<float>(0) = 0;
-	KF.statePre.at<float>(1) = 0;
-	KF.statePre.at<float>(2) = 0;
-	KF.statePre.at<float>(3) = 0;
-
-	setIdentity(KF.measurementMatrix);
-	setIdentity(KF.processNoiseCov, Scalar::all(1e-5));
-	setIdentity(KF.measurementNoiseCov, Scalar::all(1e-3));
-	setIdentity(KF.errorCovPost, Scalar::all(1));
-	setIdentity(KF.errorCovPre, Scalar::all(1));
-	return KF;
-}
 
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
@@ -131,10 +109,7 @@ int main(int argc, char** argv)
 		cout << "\nFailed to connect to camera. Aborting.\n";
 		return -1;
 	}
-
 #else
-	
-
 	//EARLY TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2990.MOV"); //runs at ~6fps
@@ -167,16 +142,16 @@ int main(int argc, char** argv)
 	#endif
 
 	#ifdef KALMAN
-		KalmanFilter KF = setKalmanParameters();
-		Mat measurement = Mat::zeros(2, 1, CV_32F);
-		vector<Point> targetv, kalmanv;
-	#endif
+		KalmanFilter KF = kalmanInit();
+		#ifdef DEBUG
+			vector<Point> targetv, kalmanv;
+		#endif //DEBUG
+	#endif    // KALMAN
 
 	#ifdef FPS
 		float fps = 0;
 		fps = checkFPS(WAIT_PERIOD);
 	#endif // FPS
-
 
 	Mat src, src_ROI;
 	Insect insect;
@@ -233,38 +208,16 @@ int main(int argc, char** argv)
 
 
 #ifdef KALMAN
-		//Prediction
-		Mat predict = KF.predict();
-		Point2f xy_loc(predict.at<float>(0), predict.at<float>(1));
-		Point2f xy_vel(predict.at<float>(2), predict.at<float>(3));
+		kalmanProcess(&KF, &insect);	
+	#ifdef DEBUG
+		// Plot Kalman info
+		Point2f stateLoc = kalmanGetStateLoc();
+		Point2f measLoc = kalmanGetMeasLoc();
 
-		//Attempt to allow tracking of vanishing target
-		KF.statePre.copyTo(KF.statePost);
-		KF.errorCovPre.copyTo(KF.errorCovPost);
-
-		//Get measurements
-		if (insect.found) {
-			measurement.at<float>(0) = insect.position.x;
-			measurement.at<float>(1) = insect.position.y;
-		}
-		else {
-			measurement.at<float>(0) = xy_loc.x;
-			measurement.at<float>(1) = xy_loc.y;
-		}
-
-
-		//Update filter
-		Mat correction = KF.correct(measurement);
-		Point2f stateLoc(correction.at<float>(0), correction.at<float>(1));
-
-		Point2f stateVel(correction.at<float>(2), correction.at<float>(3));
-		Point2f measLoc(measurement.at<float>(0), measurement.at<float>(1));
+		// Only run in debug mode to avoid consuming a large amount of memory
 		targetv.push_back(measLoc);
 		kalmanv.push_back(stateLoc);
-#ifdef DEBUG
-		// plot stuff
 		src = Scalar::all(0);
-
 
 		drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
 		drawCross(src, measLoc, Scalar(0, 0, 255), 5);
@@ -276,8 +229,8 @@ int main(int argc, char** argv)
 			line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
 
 		imshow("Frame Kalman", src);
-#endif
-#endif //Kalman
+	#endif //DEBUG
+#endif //KALMAN
 
 #ifdef USE_CAM
 		src = irGetImage();
