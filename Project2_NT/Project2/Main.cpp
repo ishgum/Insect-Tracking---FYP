@@ -13,11 +13,9 @@
 using namespace cv;
 using namespace std;
 
-#define ROI_SIZE .15
-#define DEBUG		//display video output windows
+//#define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
 //#define KALMAN
-#define HEIGHT_OFFSET 10
 #define WAIT_PERIOD	10
 //#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
 
@@ -28,27 +26,6 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 	line(img, Point(centre.x + d, centre.y - d), Point(centre.x - d, centre.y + d), colour, 2, CV_AA, 0);
 }
 
-
-Rect updateROI(Rect ROI, Point2f stateLoc, Mat src) {
-	// Updates the size and location of the region of interest
-	int roiSize = ROI_SIZE * src.rows;
-
-	if (stateLoc.x > (roiSize / 2)) {
-		ROI.x = int(stateLoc.x) - roiSize / 2;
-	}
-	if (stateLoc.y > (roiSize / 2)) {
-		ROI.y = int(stateLoc.y) - roiSize / 2;
-	}
-	if (stateLoc.x + roiSize / 2 > src.cols) {
-		ROI.x = src.cols - roiSize;
-	}
-	if (stateLoc.y + roiSize / 2 > src.rows) {
-		ROI.y = src.rows - roiSize;
-	}
-	ROI.width = roiSize;
-	ROI.height = roiSize;
-	return ROI;
-}
 
 
 vector<Point2f> findObjects(Mat inputImage) {
@@ -71,7 +48,7 @@ vector<Point2f> findObjects(Mat inputImage) {
 }
 
 
-Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
+Insect findInsect(Insect insect, Mat inputImage) {
 	Mat values[3], image_hsl, lum;
 
 	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
@@ -96,7 +73,7 @@ Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
 	}
 
 	insect.found = true;
-	insect.updatePosition(objectCentres[0], ROI);
+	insect.updatePosition(objectCentres[0]);
 	return insect;
 }
 
@@ -125,10 +102,10 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
 
 	//DEPTH TESTS:
-	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 
 	// Relative path to small test file
-	capture.open("../../test.avi");
+	//capture.open("../../test.avi");
 
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
@@ -155,22 +132,21 @@ int main(int argc, char** argv)
 	#endif // FPS
 
 	Mat src, src_ROI;
-	Insect insect;
+	
 
 #ifdef USE_CAM
 	src = irGetImage();
 #else
 	capture >> src;
 #endif
-
-	Rect ROI(0, 0, src.cols, src.rows); // Set ROI to whole image for first frame
-
+	
+	Insect insect(src);
 
 	/********** WHILE LOOP *********/
 	while (!src.empty()) {
 #ifdef FPS
 		fps = checkFPS(WAIT_PERIOD);
-		displayFPS(src, ROI, fps);
+		displayFPS(src, insect.ROI, fps);
 #endif // FPS
 
 #ifdef RECORD_SOURCE_W_BOX
@@ -178,20 +154,14 @@ int main(int argc, char** argv)
 		outputVideo.write(src_w_text);
 #endif
 
-		src_ROI = src(ROI);
+		src_ROI = src(insect.ROI);
 
-		insect = findInsect(src_ROI, insect, ROI);
-
-		if (insect.found) {
-			ROI = updateROI(ROI, insect.position, src);
-		}
-		else {
-			ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
-		}
+		insect = findInsect(insect, src_ROI);
+		insect.updateROI(src);
 
 #ifdef DEBUG
 		Mat srcBox = src.clone();
-		rectangle(srcBox, ROI, Scalar(255, 255, 255), 2, 8, 0);
+		rectangle(srcBox, insect.ROI, Scalar(255, 255, 255), 2, 8, 0);
 		imshow("Source w Box", srcBox);
 		imshow("Frame", src_ROI);
 		//imshow("Luminance", lum);
@@ -205,6 +175,11 @@ int main(int argc, char** argv)
 		//}
 		//imshow("Contours", contourOutput);
 		printf("Speed: %.1f	", insect.speed);
+		printf("Angle: %.0f", insect.relAngle);
+		Mat insectPosition = src.clone();
+		line(insectPosition, Point(src.cols / 2, src.rows / 2), insect.position, Scalar(255, 0, 0), 3);
+		line(insectPosition, insect.position, insect.position + 5*insect.velocity, Scalar(0, 255, 0), 3);
+		imshow("Insect Position", insectPosition);
 #endif // DEBUG
 
 
