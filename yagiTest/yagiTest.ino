@@ -31,18 +31,18 @@ TODO:
 #include "RunningAverage.h"
 
 // Settings
-//#define PULSE_MODE //otherwise continuous
+#define PULSE_MODE //otherwise continuous
 #define ARDUINO_PWR_V  5//4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAFSIZE    100// 256 absolute max, 200 probably safe
-#define THRESHOLD  0.1 // V, for max difference between Left and Right considered "the same"
-#define PULSE_THRESHOLD  20 // 20*5V/1024 ~=0.1V
+#define DIFFERENCE_THRESHOLD  0.1 // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
+#define PULSE_THRESHOLD  30 // 20*5V/1024 ~=0.1V (0 to 1023 valid)
 
 //Display Modes
-#define PRINT_EVERY_N  800  //1//800
+#define PRINT_EVERY_N  1  //1//800
 #define DIR_MAG             //display strongest dir & mag
 #define RAW                 //display raw values
 #define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
-//#define HIGHLIGHT_PEAK
+#define HIGHLIGHT_PEAK
 //for LEFT A0 only , only active when RAW is defined
 
 // Pin dfns
@@ -88,7 +88,7 @@ int N = 0;
     Sample two channels as fast as possible (+ 100us delay), 
     Add each sample to one of two RollingAverage buffers,
     and find the average.
-    If the average for one buffer is greater than the other (within some tolerance THRESHOLD),
+    If the average for one buffer is greater than the other (within some tolerance DIFFERENCE_THRESHOLD),
     Then that channel is said to have a greater RSSI, which is indicated by the LED's,
     and Serial output if there are suitable display defines.
     LED's updated every sample.
@@ -120,7 +120,7 @@ void continuous(void){
     the average amplitude of the pulse is then determined for both channels,
     then pulse_state = NO.
     
-    The average amplitude for each channel during the pulse is then compared (with THRESHOLD again),
+    The average amplitude for each channel during the pulse is then compared (with DIFFERENCE_THRESHOLD again),
     if one is greater then,
     that channel is said to have a greater RSSI, which is indicated by the LED's,
     and Serial output if there are suitable display defines.
@@ -136,13 +136,14 @@ void pulse(void){
   int pulse_left_av, pulse_right_av, pulse_left_sum, pulse_right_sum =0;
   bool left_over_thresh, right_over_thresh = false;
   pulse_status_t pulse_status = NO;
-
+  Serial.println("filling buffer\n");
   //wait until bufffer is full
   while(left_b.getCount() < MAFSIZE){
     left_b.addValue(analogRead(LEFT_PIN));
     right_b.addValue(analogRead(RIGHT_PIN));
   }
-  
+  //int pulse_sample_num = 0;
+  Serial.println("Buffer full\n");
   while(1){
     //Sample
     current_left = analogRead(LEFT_PIN);
@@ -152,13 +153,31 @@ void pulse(void){
     
     average_left = left_b.getAverage();
     average_right = right_b.getAverage();
-    
-    switch (pulse_status){
-       // Find if reading exceeds noise floor     
-      left_over_thresh = current_left >= average_left + PULSE_THRESHOLD;
-      right_over_thresh = current_left >= average_left + PULSE_THRESHOLD;
+  // Find if reading exceeds noise floor     
+    left_over_thresh = current_left >= average_left + PULSE_THRESHOLD;
+    right_over_thresh = current_right >= average_right + PULSE_THRESHOLD;
+    if ((left_over_thresh || right_over_thresh)){
+      if (pulse_sample_num < 4){ //if one of first 4 pulses on rising edge; ignore
+        pulse_sample_num++;
+      }else{
+      display_data(current_left*ARDUINO_PWR_V/1023.0, current_right*ARDUINO_PWR_V/1023.0);
+      
+      delay(20);
+      digitalWrite(LEFTLED, LOW);
+      digitalWrite(RIGHTLED, LOW);
+      digitalWrite(MIDDLELED, LOW);
+      pulse_sample_num = 0;
+      }
+    }
+     // Serial.println(right_over_thresh);
+      //Serial.print("\t");
+      //Serial.println(current_right-average_right-PULSE_THRESHOLD);
+    /*switch (pulse_status){
       
       case NO:  // see if pulse starts on current sample
+        //Serial.println(average_right);
+        //Serial.print("\t");
+        
         if (left_over_thresh || right_over_thresh){  //if pulse on either channel detected
           pulse_start = left_b.getIndex();
           pulse_end = left_b.getIndex();
@@ -166,6 +185,7 @@ void pulse(void){
         }
         break;
       case YES:  // pulse was detected on last sample 
+        //Serial.println("YES\n");
         if (left_over_thresh || right_over_thresh){  //if pulse on either channel detected
           pulse_end = left_b.getIndex();
           pulse_status = YES;
@@ -175,32 +195,41 @@ void pulse(void){
         break;
  
       case FALLING_EDGE:   // Pulse ended, determine averages for pulse window
+        Serial.println("FALLING\n");
         pulse_sample_num = 0;
         if (pulse_end < pulse_start){ // pulse wrapped around in buffer
           for (int i = pulse_start; i<= MAFSIZE; i++){
             pulse_left_sum += left_b.getElement(i);
-            pulse_right_sum += left_b.getElement(i);
+            pulse_right_sum += right_b.getElement(i);
             pulse_sample_num++;
           }
           for (int i = 0; i<= pulse_end; i++){
             pulse_left_sum += left_b.getElement(i);
-            pulse_right_sum += left_b.getElement(i);
+            pulse_right_sum += right_b.getElement(i);
             pulse_sample_num++;
           }
         }else{
           for (int i = pulse_start; i<= pulse_end; i++){
             pulse_left_sum += left_b.getElement(i);
-            pulse_right_sum += left_b.getElement(i);
+            pulse_right_sum += right_b.getElement(i);
             pulse_sample_num++;
           }
         }
+       Serial.print(pulse_start);
+      Serial.print("\t");
+      Serial.print(pulse_end);
+      Serial.print("\t");
+      Serial.print(pulse_left_sum);
+      Serial.print("\t");
+      Serial.println(pulse_right_sum);
+
         pulse_left_av = pulse_left_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
         pulse_right_av = pulse_right_sum*ARDUINO_PWR_V/(pulse_sample_num*1023);
         display_data(pulse_left_av, pulse_right_av);
         pulse_status = NO;
         break;
       }
-    }
+    */
     //delay(00);
     delayMicroseconds(100); //max ADC speed given as 100us
   }
@@ -209,12 +238,12 @@ void pulse(void){
 void display_data(float average_left, float average_right){
   float diff =  average_left-average_right;
   float mag = abs(diff);
-  if (diff>THRESHOLD){
+  if (diff>DIFFERENCE_THRESHOLD){
     dir = "Left";
     digitalWrite(LEFTLED, HIGH);
     digitalWrite(RIGHTLED, LOW);
     digitalWrite(MIDDLELED, LOW);
-  }else if (diff < -THRESHOLD){
+  }else if (diff < -DIFFERENCE_THRESHOLD){
     dir = "Right";
     digitalWrite(LEFTLED, LOW);
     digitalWrite(RIGHTLED, HIGH);
