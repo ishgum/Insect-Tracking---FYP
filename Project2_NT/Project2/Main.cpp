@@ -15,13 +15,16 @@ using namespace std;
 #define ROI_SIZE .15
 #define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
-//#define KALMAN
+#define KALMAN
 #define HEIGHT_OFFSET 10
 #define WAIT_PERIOD	10
-#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
+//#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
 
 
-KalmanFilter setKalmanParameters(KalmanFilter KF) {
+KalmanFilter setKalmanParameters() {
+	KalmanFilter KF;
+	Mat state(4, 1, CV_32F); //x, y, delta x, delta y
+	Mat processNoise(4, 1, CV_32F);
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 10, 0,
 		0, 1, 0, 10,
 		0, 0, 1, 0,
@@ -115,54 +118,6 @@ Insect findInsect(Mat inputImage, Insect insect, Rect ROI) {
 
 	insect.found = true;
 	insect.updatePosition(objectCentres[0], ROI);
-
-#ifdef KALMAN
-	//Prediction
-	Mat predict = KF.predict();
-	Point2f xy_loc(predict.at<float>(0), predict.at<float>(1));
-	Point2f xy_vel(predict.at<float>(2), predict.at<float>(3));
-
-	//Attempt to allow tracking of vanishing target
-	KF.statePre.copyTo(KF.statePost);
-	KF.errorCovPre.copyTo(KF.errorCovPost);
-
-	//Get measurements
-	if (useContours.size() >= 1) {
-		measurement.at<float>(0) = mc[0].x + float(ROI.x);
-		measurement.at<float>(1) = mc[0].y + float(ROI.y);
-	}
-	else {
-		measurement.at<float>(0) = xy_loc.x;
-		measurement.at<float>(1) = xy_loc.y;
-	}
-
-
-	//Update filter
-	Mat correction = KF.correct(measurement);
-	Point2f stateLoc(correction.at<float>(0), correction.at<float>(1));
-
-	Point2f stateVel(correction.at<float>(2), correction.at<float>(3));
-	Point2f measLoc(measurement.at<float>(0), measurement.at<float>(1));
-	targetv.push_back(measLoc);
-	kalmanv.push_back(stateLoc);
-#ifdef DEBUG
-	// plot stuff
-	src = Scalar::all(0);
-
-
-	drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
-	drawCross(src, measLoc, Scalar(0, 0, 255), 5);
-
-	for (int i = 0; i < targetv.size() - 1; i++)
-		line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
-
-	for (int i = 0; i < kalmanv.size() - 1; i++)
-		line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
-
-	imshow("Frame Kalman", src);
-#endif
-#endif //Kalman
-
 	return insect;
 }
 
@@ -194,10 +149,10 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
 
 	//DEPTH TESTS:
-	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 
 	// Relative path to small test file
-	//capture.open("../../test.avi");
+	capture.open("../../test.avi");
 
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
@@ -212,11 +167,8 @@ int main(int argc, char** argv)
 	#endif
 
 	#ifdef KALMAN
-		KalmanFilter KF(4, 2, 0);
-		Mat state(4, 1, CV_32F); //x, y, delta x, delta y
-		Mat processNoise(4, 1, CV_32F);
+		KalmanFilter KF = setKalmanParameters();
 		Mat measurement = Mat::zeros(2, 1, CV_32F);
-		KF = setKalmanParameters(KF);
 		vector<Point> targetv, kalmanv;
 	#endif
 
@@ -278,6 +230,54 @@ int main(int argc, char** argv)
 		//imshow("Contours", contourOutput);
 		printf("Speed: %.1f	", insect.speed);
 #endif // DEBUG
+
+
+#ifdef KALMAN
+		//Prediction
+		Mat predict = KF.predict();
+		Point2f xy_loc(predict.at<float>(0), predict.at<float>(1));
+		Point2f xy_vel(predict.at<float>(2), predict.at<float>(3));
+
+		//Attempt to allow tracking of vanishing target
+		KF.statePre.copyTo(KF.statePost);
+		KF.errorCovPre.copyTo(KF.errorCovPost);
+
+		//Get measurements
+		if (insect.found) {
+			measurement.at<float>(0) = insect.position.x;
+			measurement.at<float>(1) = insect.position.y;
+		}
+		else {
+			measurement.at<float>(0) = xy_loc.x;
+			measurement.at<float>(1) = xy_loc.y;
+		}
+
+
+		//Update filter
+		Mat correction = KF.correct(measurement);
+		Point2f stateLoc(correction.at<float>(0), correction.at<float>(1));
+
+		Point2f stateVel(correction.at<float>(2), correction.at<float>(3));
+		Point2f measLoc(measurement.at<float>(0), measurement.at<float>(1));
+		targetv.push_back(measLoc);
+		kalmanv.push_back(stateLoc);
+#ifdef DEBUG
+		// plot stuff
+		src = Scalar::all(0);
+
+
+		drawCross(src, stateLoc, Scalar(255, 255, 255), 5);
+		drawCross(src, measLoc, Scalar(0, 0, 255), 5);
+
+		for (int i = 0; i < targetv.size() - 1; i++)
+			line(src, targetv[i], targetv[i + 1], Scalar(255, 255, 0), 1);
+
+		for (int i = 0; i < kalmanv.size() - 1; i++)
+			line(src, kalmanv[i], kalmanv[i + 1], Scalar(0, 155, 255), 1);
+
+		imshow("Frame Kalman", src);
+#endif
+#endif //Kalman
 
 #ifdef USE_CAM
 		src = irGetImage();
