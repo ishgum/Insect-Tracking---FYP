@@ -7,7 +7,6 @@
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
-#include "IrCam.h"
 #include "Kalman.h"
 
 using namespace cv;

@@ -27,9 +27,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IrCam.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Kalman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -42,9 +39,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Fps.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IrCam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Kalman.h">
