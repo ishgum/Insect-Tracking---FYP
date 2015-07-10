@@ -127,8 +127,7 @@ int main(int argc, char** argv)
 	#endif    // KALMAN
 
 	#ifdef FPS
-		float fps = 0;
-		fps = checkFPS(WAIT_PERIOD);
+	Fps fps(WAIT_PERIOD, fps_mode_t::WALL); // set what displays by changing mode to WALL, CPU, or BOTH
 	#endif // FPS
 
 	Mat src, src_ROI;
@@ -143,11 +142,9 @@ int main(int argc, char** argv)
 	Insect insect(src);
 
 	/********** WHILE LOOP *********/
+
+
 	while (!src.empty()) {
-#ifdef FPS
-		fps = checkFPS(WAIT_PERIOD);
-		displayFPS(src, insect.ROI, fps);
-#endif // FPS
 
 #ifdef RECORD_SOURCE_W_BOX
 		// write output video w/ text
@@ -208,6 +205,11 @@ int main(int argc, char** argv)
 	#endif //DEBUG
 #endif //KALMAN
 
+#ifdef FPS
+		fps.checkFPS();
+		fps.displayFPS(src, insect.ROI);
+#endif // FPS
+
 #ifdef USE_CAM
 		src = irGetImage();
 #else
@@ -218,7 +220,6 @@ int main(int argc, char** argv)
 		waitKey(WAIT_PERIOD);
 		printf("\n");
 	}
-
 	cout << "Done\n";
 
 #ifdef USE_CAM
