@@ -3,14 +3,14 @@
 #define HEIGHT_FILTER_SIZE 10
 #define HEIGHT_BRACKET 20
 
-Insect::Insect(Mat src) {
+Insect::Insect(Mat* src) {
 	found = false;
 	heightMA = vector<int>(HEIGHT_FILTER_SIZE, 0);
 	position = Point(0, 0);
 	prevPosition = position;
 	speed = 0.0;
-	ROI = Rect(0, 0, src.cols, src.rows);
-	frameCentre = Point(src.cols / 2, src.rows / 2);
+	ROI = Rect(0, 0, src->cols, src->rows);
+	frameCentre = Point(src->cols / 2, src->rows / 2);
 }
 
 
@@ -37,10 +37,10 @@ void Insect::updatePosition(Point2f centre) {
 }
 
 
-void Insect::updateROI(Mat src) {
+void Insect::updateROI(Mat* src) {
 	if (found) {
 		// Updates the size and location of the region of interest
-		int roiSize = ROI_SIZE * src.rows;
+		int roiSize = ROI_SIZE * src->rows;
 
 		if (position.x > (roiSize / 2)) {
 			ROI.x = int(position.x) - roiSize / 2;
@@ -48,17 +48,17 @@ void Insect::updateROI(Mat src) {
 		if (position.y > (roiSize / 2)) {
 			ROI.y = int(position.y) - roiSize / 2;
 		}
-		if (position.x + roiSize / 2 > src.cols) {
-			ROI.x = src.cols - roiSize;
+		if (position.x + roiSize / 2 > src->cols) {
+			ROI.x = src->cols - roiSize;
 		}
-		if (position.y + roiSize / 2 > src.rows) {
-			ROI.y = src.rows - roiSize;
+		if (position.y + roiSize / 2 > src->rows) {
+			ROI.y = src->rows - roiSize;
 		}
 		ROI.width = roiSize;
 		ROI.height = roiSize;
 	}
 	else {
-		ROI = Rect(0, HEIGHT_OFFSET, src.cols, src.rows - HEIGHT_OFFSET); //Reset ROI
+		ROI = Rect(0, HEIGHT_OFFSET, src->cols, src->rows - HEIGHT_OFFSET); //Reset ROI
 	}
 }
 

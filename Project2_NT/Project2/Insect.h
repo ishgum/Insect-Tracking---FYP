@@ -29,10 +29,10 @@ public:
 	bool found;
 	Rect ROI;
 
-	Insect(Mat);
+	Insect(Mat*);
 	void updateHeight(int);
 	void updatePosition(Point2f);
-	void updateROI(Mat);
+	void updateROI(Mat*);
 };
 
 #endif // !INSECT

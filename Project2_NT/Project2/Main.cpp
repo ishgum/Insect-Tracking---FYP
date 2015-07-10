@@ -14,7 +14,7 @@ using namespace cv;
 using namespace std;
 
 //#define DEBUG		//display video output windows
-#define FPS //wall breaks (==0) on release mode. !When FPS defined && DEBUG undefined release mode breaks
+#define FPS //wall breaks (==0) on release mode.
 //#define KALMAN
 #define WAIT_PERIOD	10
 //#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
@@ -48,11 +48,11 @@ vector<Point2f> findObjects(Mat inputImage) {
 }
 
 
-Insect findInsect(Insect insect, Mat inputImage) {
+Insect findInsect(Insect insect, Mat* inputImage) {
 	Mat values[3], image_hsl, lum;
 
 	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
-	split(inputImage, values);						// Split into channels
+	split(*inputImage, values);						// Split into channels
 	lum = values[0];
 
 	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 	capture >> src;
 #endif
 	
-	Insect insect(src);
+	Insect insect(&src);
 
 	/********** WHILE LOOP *********/
 
@@ -153,8 +153,8 @@ int main(int argc, char** argv)
 
 		src_ROI = src(insect.ROI);
 
-		insect = findInsect(insect, src_ROI);
-		insect.updateROI(src);
+		insect = findInsect(insect, &src_ROI);
+		insect.updateROI(&src);
 
 #ifdef DEBUG
 		Mat srcBox = src.clone();
