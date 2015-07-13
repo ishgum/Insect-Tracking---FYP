@@ -5,41 +5,66 @@ static CameraInfo camInfo;
 static Error camError;
 static Image rawImage;
 static Image rgbImage;
+static Format7ImageSettings fmt7ImageSettings;
+
+bool irSetRoi(int offX, int offY, int scale) {
+
+	fmt7ImageSettings.offsetX = offX;
+	fmt7ImageSettings.offsetY = offY;
+	fmt7ImageSettings.width = (unsigned int)2048 / scale;
+	fmt7ImageSettings.height = (unsigned int)2048 / scale;
+
+	bool valid;
+	Format7PacketInfo fmt7PacketInfo;
+
+	// Validate the settings to make sure that they are valid
+	camError = camera.ValidateFormat7Settings(
+		&fmt7ImageSettings,
+		&valid,
+		&fmt7PacketInfo);
+	if (camError != PGRERROR_OK)
+	{
+		return false;
+	}
+
+	// Set the settings to the camera
+	camError = camera.SetFormat7Configuration(
+		&fmt7ImageSettings,
+		fmt7PacketInfo.recommendedBytesPerPacket);
+	if (camError != PGRERROR_OK)
+	{
+		return false;
+	}
+
+	return true;
+}
 
 bool irCamInit(void) {
-
-	// Connect the camera
+	// Connect to a camera
 	camError = camera.Connect(0);
-	if (camError.operator!=(PGRERROR_OK))
+	if (camError != PGRERROR_OK)
 	{
-		cout << "Failed to connect to camera" << endl;
 		return false;
 	}
 
-	// Get the camera info and print it out
+	// Get the camera information
 	camError = camera.GetCameraInfo(&camInfo);
-	if (camError.operator!=(PGRERROR_OK))
+	if (camError != PGRERROR_OK)
 	{
-		cout << "Failed to get camera info from camera" << endl;
 		return false;
 	}
 
-	cout << camInfo.vendorName << " "
-		 << camInfo.modelName << " "
-		 << camInfo.serialNumber << " "
-		 << camInfo.sensorResolution << endl;
+	if (!irSetRoi(0, 0, 1)) {
+		return false;
+	}
 
+	// Start capturing images
 	camError = camera.StartCapture();
-	if (camError == PGRERROR_ISOCH_BANDWIDTH_EXCEEDED)
+	if (camError != PGRERROR_OK)
 	{
-		cout << "Bandwidth exceeded" << endl;
 		return false;
 	}
-	else if (camError.operator!=(PGRERROR_OK))
-	{
-		cout << "Failed to start image capture" << endl;
-		return false;
-	}
+
 	return true;
 }
 

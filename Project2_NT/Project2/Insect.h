@@ -8,7 +8,7 @@ using namespace cv;
 using namespace std;
 
 
-#define ROI_SIZE .5
+#define ROI_SIZE .15
 #define HEIGHT_OFFSET 10
 
 class Insect {

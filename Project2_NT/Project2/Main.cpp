@@ -13,7 +13,7 @@
 using namespace cv;
 using namespace std;
 
-//#define DEBUG		//display video output windows
+#define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode.
 //#define KALMAN
 #define WAIT_PERIOD	10
@@ -140,6 +140,9 @@ int main(int argc, char** argv)
 #endif
 	
 	Insect insect(&src);
+
+
+
 
 	/********** WHILE LOOP *********/
 
