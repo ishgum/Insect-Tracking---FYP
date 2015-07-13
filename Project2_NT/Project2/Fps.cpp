@@ -139,7 +139,6 @@ void Fps::displayFPS(Mat src, Rect ROI){
 	imshow("FPS", src_w_text);
 
 	//printf("\nFrame: %i\tCPU total: %f\tCPU FPS: %f", frame_num, cpu_running_total, fps_cpu);
-	frame_num++;
 
 	//#ifdef RECORD_SOURCE_W_BOX
 	//		// write output video w/ text

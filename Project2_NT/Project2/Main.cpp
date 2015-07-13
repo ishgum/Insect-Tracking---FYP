@@ -17,7 +17,7 @@ using namespace std;
 #define FPS //wall breaks (==0) on release mode.
 //#define KALMAN
 #define WAIT_PERIOD	10
-//#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
+#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
 
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
