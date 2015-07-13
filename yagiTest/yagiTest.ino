@@ -33,10 +33,12 @@ TODO:
 
 // Settings
 #define PULSE_MODE     //otherwise continuous
+#define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
+                         //otherwise use a more complicated mode that averages all samples during the pulse.
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAFSIZE                100    // 256 absolute max, 200 probably safe
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
-#define PULSE_THRESHOLD        0.1     // V, the amount the RSSI amplitude has to be greater than the averaged
+#define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
                                               // amplitude to detect a pulse (0 to 5 valid)
 
 //Display Modes
@@ -162,6 +164,8 @@ void pulse(void){
   // Find if reading exceeds noise floor     
     left_over_thresh = current_left >= average_left + PULSE_THRESHOLD;
     right_over_thresh = current_right >= average_right + PULSE_THRESHOLD;
+    
+    #ifdef SIMPLE_PULSE
     if ((left_over_thresh || right_over_thresh)){
       if (pulse_sample_num < 4){ //if one of first 4 pulses on rising edge; ignore
         pulse_sample_num++;
@@ -175,10 +179,8 @@ void pulse(void){
         pulse_sample_num = 0;
       }
     }
-     // Serial.println(right_over_thresh);
-      //Serial.print("\t");
-      //Serial.println(current_right-average_right-PULSE_THRESHOLD);
-    /*switch (pulse_status){
+    #else
+    switch (pulse_status){
       
       case NO:  // see if pulse starts on current sample
         //Serial.println(average_right);
@@ -235,10 +237,14 @@ void pulse(void){
         pulse_status = NO;
         break;
       }
-    */
+    #endif
     //delay(00);
     delayMicroseconds(100); //max ADC speed given as 100us
   }
+      // Serial.println(right_over_thresh);
+      //Serial.print("\t");
+      //Serial.println(current_right-average_right-PULSE_THRESHOLD);
+
 }
 
 void display_data(float average_left, float average_right){
