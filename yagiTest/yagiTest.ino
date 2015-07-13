@@ -15,7 +15,10 @@ Max ADC read rate is ~0.1ms
 Can get ~ 1 sample per ms w/ DIR_MAG.
 digitalWrite typ takes <20us so can do this every loop
 
-Has basic detect & compare pulses
+Has basic detect & compare pulses functionality
+When no pulses are being detected the state can be queried by sending one character
+to the serial port. Send a msg by selecting CR or NL in serial monitor window, 
+and hit enter in the msg window.
 
 TODO:
 > create pulse test code
@@ -107,7 +110,6 @@ void continuous(void){
     //Compare
     average_left = left_b.getAverage()*ARDUINO_PWR_V/1023;
     average_right = right_b.getAverage()*ARDUINO_PWR_V/1023;
-    current_time = millis()-start_time;
     display_data(average_left, average_right);
     delayMicroseconds(100); //max ADC speed given as 100us
   }
@@ -170,7 +172,6 @@ void pulse(void){
       if (pulse_sample_num < 4){ //if one of first 4 pulses on rising edge; ignore
         pulse_sample_num++;
       }else{
-        current_time = millis()-start_time;
         display_data(current_left, current_right);
         delay(20);
         digitalWrite(LEFTLED, LOW);
@@ -240,6 +241,17 @@ void pulse(void){
     #endif
     //delay(00);
     delayMicroseconds(100); //max ADC speed given as 100us
+    
+    // Check for incoming serial messages, and print status if we get anything
+      // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
+    if (Serial.available() > 0) {
+      int incomingByte = Serial.read();    // required to clear receive buffer
+      Serial.println("\nSerial Msg received, Display averages:");
+      display_data(average_left, average_right);
+      Serial.print("\nDisplay current:\n");
+      display_data(current_left, current_right);
+    }
+
   }
       // Serial.println(right_over_thresh);
       //Serial.print("\t");
@@ -272,6 +284,7 @@ void display_data(float average_left, float average_right){
   // and 10's of ms at 9600 baud
   output = "";
   #ifdef DISP_MILLIS
+    current_time = millis()-start_time;
     output += current_time;
     output += "\t";
   #endif
