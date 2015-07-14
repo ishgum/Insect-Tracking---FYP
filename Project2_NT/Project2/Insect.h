@@ -14,10 +14,11 @@ using namespace std;
 class Insect {
 	vector<int> heightMA;
 	Point2f prevPosition;
-	Point2f frameCentre;
+	
 
 	void humanReadableOutput(void);
 public:
+	Point2f frameCentre;
 	int heightBracket;
 	Point2f velocity;
 	float speed;
@@ -32,7 +33,7 @@ public:
 	Insect(Mat*);
 	void updateHeight(int);
 	void updatePosition(Point2f);
-	void updateROI(Mat*);
+	void updateROI(void);
 };
 
 #endif // !INSECT

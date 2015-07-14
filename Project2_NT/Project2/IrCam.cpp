@@ -7,13 +7,26 @@ static Image rawImage;
 static Image rgbImage;
 static Format7ImageSettings fmt7ImageSettings;
 
-bool irSetRoi(int offX, int offY, int scale) {
+void PrintError(Error error)
+{
+	error.PrintErrorTrace();
+}
 
-	fmt7ImageSettings.offsetX = offX;
-	fmt7ImageSettings.offsetY = offY;
-	fmt7ImageSettings.width = (unsigned int)2048 / scale;
-	fmt7ImageSettings.height = (unsigned int)2048 / scale;
+bool irSetROI(Rect ROI) {
+	
+	camError = camera.StopCapture();
+	if (camError != PGRERROR_OK)
+	{
+		PrintError(camError);
+		return false;
+	}
 
+	
+	fmt7ImageSettings.offsetX = unsigned int (ROI.x);
+	fmt7ImageSettings.offsetY = unsigned int (ROI.y);
+	fmt7ImageSettings.width = unsigned int (ROI.width);
+	fmt7ImageSettings.height = unsigned int (ROI.height);
+	
 	bool valid;
 	Format7PacketInfo fmt7PacketInfo;
 
@@ -31,6 +44,13 @@ bool irSetRoi(int offX, int offY, int scale) {
 	camError = camera.SetFormat7Configuration(
 		&fmt7ImageSettings,
 		fmt7PacketInfo.recommendedBytesPerPacket);
+	if (camError != PGRERROR_OK)
+	{
+		PrintError(camError);
+		return false;
+	}
+
+	camError = camera.StartCapture();
 	if (camError != PGRERROR_OK)
 	{
 		return false;
@@ -54,14 +74,14 @@ bool irCamInit(void) {
 		return false;
 	}
 
-	if (!irSetRoi(0, 0, 1)) {
-		return false;
-	}
-
 	// Start capturing images
 	camError = camera.StartCapture();
 	if (camError != PGRERROR_OK)
 	{
+		return false;
+	}
+
+	if (!irSetROI(Rect(0, 0, 2048, 2048))) {
 		return false;
 	}
 

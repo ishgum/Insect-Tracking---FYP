@@ -37,10 +37,11 @@ void Insect::updatePosition(Point2f centre) {
 }
 
 
-void Insect::updateROI(Mat* src) {
+void Insect::updateROI(void ) {
+	int srcSize = 2048;
 	if (found) {
 		// Updates the size and location of the region of interest
-		int roiSize = ROI_SIZE * src->rows;
+		int roiSize = srcSize / 8;
 
 		if (position.x > (roiSize / 2)) {
 			ROI.x = int(position.x) - roiSize / 2;
@@ -48,17 +49,20 @@ void Insect::updateROI(Mat* src) {
 		if (position.y > (roiSize / 2)) {
 			ROI.y = int(position.y) - roiSize / 2;
 		}
-		if (position.x + roiSize / 2 > src->cols) {
-			ROI.x = src->cols - roiSize;
+		if (position.x + roiSize / 2 > srcSize) {
+			ROI.x = srcSize - roiSize - 1 ;
 		}
-		if (position.y + roiSize / 2 > src->rows) {
-			ROI.y = src->rows - roiSize;
+		if (position.y + roiSize / 2 > srcSize) {
+			ROI.y = srcSize - roiSize - 1;
 		}
+		if (ROI.x % 2) { ROI.x -= 1; }
+		if (ROI.y % 2) { ROI.y -= 1; }
+
 		ROI.width = roiSize;
 		ROI.height = roiSize;
 	}
 	else {
-		ROI = Rect(0, HEIGHT_OFFSET, src->cols, src->rows - HEIGHT_OFFSET); //Reset ROI
+		ROI = Rect(0, 0, srcSize, srcSize); //Reset ROI
 	}
 }
 

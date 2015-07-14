@@ -14,7 +14,7 @@ using namespace cv;
 using namespace std;
 
 #define DEBUG		//display video output windows
-#define FPS //wall breaks (==0) on release mode.
+//#define FPS //wall breaks (==0) on release mode.
 //#define KALMAN
 #define WAIT_PERIOD	10
 #define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
@@ -40,7 +40,7 @@ vector<Point2f> findObjects(Mat inputImage) {
 	for (int i = 0; i < contours.size(); i++)
 	{
 		Moments conMom = (moments(contours[i], false));
-		if ((conMom.m00 < 500) && (conMom.m00 > 5)) {
+		if ((conMom.m00 > 5)) {
 			centres.push_back(Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00));
 		}
 	}
@@ -154,21 +154,22 @@ int main(int argc, char** argv)
 		outputVideo.write(src_w_text);
 #endif
 
-		src_ROI = src(insect.ROI);
+		//src_ROI = src(insect.ROI);
 
-		insect = findInsect(insect, &src_ROI);
-		insect.updateROI(&src);
+		insect = findInsect(insect, &src);
+		insect.updateROI();
+		irSetROI(insect.ROI);
 
 #ifdef DEBUG
 		Mat srcBox = src.clone();
 		rectangle(srcBox, insect.ROI, Scalar(255, 255, 255), 2, 8, 0);
 		imshow("Source w Box", srcBox);
-		imshow("Frame", src_ROI);
+		//imshow("Frame", src_ROI);
 		//imshow("Luminance", lum);
 		printf("Height Bracket: %i	", insect.heightBracket);
 
 		/// Draw contours
-		Mat contourOutput = Mat::zeros(src_ROI.size(), CV_8UC3);
+		Mat contourOutput = Mat::zeros(src.size(), CV_8UC3);
 		//for (int i = 0; i < objectCentres.size(); i++)
 		//{
 		//	circle(contourOutput, objectCentres[i], 4, Scalar(255, 0, 0), -1, 8, 0);

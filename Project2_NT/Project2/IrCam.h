@@ -19,6 +19,6 @@ Mat irGetImage(void);
 
 void irReleaseCam(void);
 
-bool irSetRoi(int offX, int offY, int scale);
+bool irSetROI(Rect ROI);
 
 #endif
