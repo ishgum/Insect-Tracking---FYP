@@ -39,7 +39,7 @@ TODO:
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                          //otherwise use a more complicated mode that averages all samples during the pulse.
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAFSIZE                100    // 256 absolute max, 200 probably safe
+#define MAFSIZE                10    // 256 absolute max, 200 probably safe
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
                                               // amplitude to detect a pulse (0 to 5 valid)
@@ -59,6 +59,8 @@ TODO:
 #define MIDDLELED      8
 
 enum pulse_status_t {NO, YES, FALLING_EDGE};
+float test_array_l[MAFSIZE];
+float test_array_r[MAFSIZE];
 
 void setup() {
   Serial.begin(115200);    //for speed!
@@ -71,6 +73,9 @@ void setup() {
   digitalWrite(RIGHTLED, LOW);
   digitalWrite(MIDDLELED, LOW);
   Serial.println("STRONGEST:\tMAGNITUDE:");
+  
+  // fill test array
+  init_test_arrays();
   
   // Select mode based on PULSE_MODE #define
   #ifdef PULSE_MODE
@@ -135,6 +140,7 @@ void continuous(void){
     Serial updated every pulse.
     */
 void pulse(void){
+  int test_indx = 0;  // for debugging using a fixed test array
   float current_left = 0;
   float current_right = 0;
   int pulse_start = 0;
@@ -158,11 +164,22 @@ void pulse(void){
     //Sample
     current_left = analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0;
     current_right = analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0;
+
+    // use test array
+    current_left = test_array_l[test_indx];
+    current_right = test_array_r[test_indx++];
+    if (test_indx >MAFSIZE){
+      test_indx = 0;
+    }
+    // end debug test
+    
     left_b.addValue(current_left);
     right_b.addValue(current_right);
     
     average_left = left_b.getAverage();
     average_right = right_b.getAverage();
+    
+    
   // Find if reading exceeds noise floor     
     left_over_thresh = current_left >= average_left + PULSE_THRESHOLD;
     right_over_thresh = current_right >= average_right + PULSE_THRESHOLD;
@@ -332,7 +349,21 @@ void print_buffers(void){
     buffer_output += left_b.getElement(i);
     buffer_output += "\tL:\t";
     buffer_output += right_b.getElement(i);
+    buffer_output += "\tTest array:\t";
+    buffer_output += test_array_l[i];
     Serial.println(buffer_output);
   }
 }
+
+void init_test_arrays(void){
+  for (int i = 0; i < MAFSIZE-5; i++){
+    test_array_l[i] = 0.0;
+  }
+  test_array_l[MAFSIZE-5] = 0.3;
+  test_array_l[MAFSIZE-4] = 1.0;
+  test_array_l[MAFSIZE-3] = 1.0;
+  test_array_l[MAFSIZE-2] = 1.0;
+  test_array_l[MAFSIZE-1] = 0.3;
+}
+
 void loop(){}
