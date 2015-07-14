@@ -246,6 +246,7 @@ void pulse(void){
       // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
     if (Serial.available() > 0) {
       int incomingByte = Serial.read();    // required to clear receive buffer
+      print_buffers();
       Serial.println("\nSerial Msg received, Display averages:");
       display_data(average_left, average_right);
       Serial.print("\nDisplay current:\n");
@@ -320,4 +321,18 @@ void display_data(float average_left, float average_right){
   #endif
 }
 
+//print buffer contents for debugging
+void print_buffers(void){
+  Serial.print("Display buffer contents:\n");
+  String buffer_output = "";
+  for (int i = 0; i < MAFSIZE; i++){
+    buffer_output = "";
+    buffer_output += i;
+    buffer_output += "\tR:\t";
+    buffer_output += left_b.getElement(i);
+    buffer_output += "\tL:\t";
+    buffer_output += right_b.getElement(i);
+    Serial.println(buffer_output);
+  }
+}
 void loop(){}
