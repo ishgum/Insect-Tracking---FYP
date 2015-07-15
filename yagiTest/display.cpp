@@ -4,9 +4,8 @@
 
 #include "display.h"
 
+
 void init_LEDs(void){
-	pinMode(LEFT_PIN, INPUT);
-	pinMode(RIGHT_PIN, INPUT);
 	pinMode(LEFTLED, OUTPUT);
 	pinMode(RIGHTLED, OUTPUT);
 	pinMode(MIDDLELED, OUTPUT);
@@ -16,33 +15,26 @@ void init_LEDs(void){
 }
 
 //print buffer contents for debugging
-void print_buffers(void) {
+void print_buffers(int _size, RunningAverage& _left_b, RunningAverage& _right_b, float *_test) {
 	Serial.print("Display buffer contents:\n");
 	String buffer_output = "";
-	for (int i = 0; i < MAFSIZE; i++) {
+	for (int i = 0; i < _size; i++) {
 		buffer_output = "";
 		buffer_output += i;
 		buffer_output += "\tR:\t";
-		buffer_output += left_b.getElement(i);
+		buffer_output += _left_b.getElement(i);
 		buffer_output += "\tL:\t";
-		buffer_output += right_b.getElement(i);
+		buffer_output += _right_b.getElement(i);
 		buffer_output += "\tTest array:\t";
-		buffer_output += test_array_l[i];
+		buffer_output += _test[i];
 		Serial.println(buffer_output);
 	}
 }
 
-void serial_response(float cur_left = -1, float cur_right = -1,
-	float ave_left = -1, float ave_right = -1){
-	int incomingByte = Serial.read();    // required to clear receive buffer
-	print_buffers();
-	Serial.println("\nSerial Msg received, Display averages:");
-	display_data(ave_left, ave_right);
-	Serial.print("\nDisplay current:\n");
-	display_data(cur_left, cur_right);
-}
+
 
 void display_data(float average_left, float average_right) {
+	static int N = 0;
 	float diff = average_left - average_right;
 	float mag = abs(diff);
 	if (diff > DIFFERENCE_THRESHOLD) {
@@ -105,3 +97,14 @@ void display_data(float average_left, float average_right) {
 #endif
 }
 
+void serial_response(int _size, RunningAverage& _left_b, RunningAverage& _right_b, float *_test,
+		float cur_left, float cur_right,
+			float ave_left, float ave_right){
+
+	int incomingByte = Serial.read();    // required to clear receive buffer
+	print_buffers(_size, _left_b, _right_b, _test);
+	Serial.println("\nSerial Msg received, Display averages:");
+	display_data(ave_left, ave_right);
+	Serial.print("\nDisplay current:\n");
+	display_data(cur_left, cur_right);
+}

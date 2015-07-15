@@ -44,18 +44,13 @@ TODO:
 #define TEST_MODE                      //Use test array not ADC readings
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAFSIZE                50    // 256 absolute max, 200 probably safe
-#define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
                                         // amplitude to detect a pulse (0 to 5 valid)
-
-
 
 // Pin dfns
 #define LEFT_PIN       A0
 #define RIGHT_PIN      A3
-#define LEFTLED        9
-#define RIGHTLED       7
-#define MIDDLELED      8
+
 
 enum pulse_status_t {NO, YES, FALLING_EDGE};
 float test_array_l[MAFSIZE];
@@ -63,6 +58,8 @@ float test_array_r[MAFSIZE];
 
 void setup() {
   Serial.begin(115200);    //for speed!
+  pinMode(LEFT_PIN, INPUT);
+  pinMode(RIGHT_PIN, INPUT);
   init_LEDs();
   Serial.println("STRONGEST:\tMAGNITUDE:");
 
@@ -85,9 +82,6 @@ float average_left = 0;
 float average_right = 0;
 float diff = 0;
 float mag = 0;
-String dir = "uninitialised";
-int N = 0;
-
 
 void init_test_arrays(void) {
   for (int i = 0; i < MAFSIZE - 5; i++) {
@@ -161,7 +155,7 @@ void continuous(void) {
     // Check for incoming serial messages, and print status if we get anything
     // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
     if (Serial.available() > 0) {
-      serial_response(current_left, current_right, average_left, average_right);
+		serial_response(MAFSIZE, left_b, right_b, test_array_l, current_left, current_right, average_left, average_right);
     }
   }
 }
@@ -311,7 +305,7 @@ void pulse(void) {
     // Check for incoming serial messages, and print status if we get anything
     // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
     if (Serial.available() > 0) {
-      serial_response(current_left, current_right, average_left, average_right);
+		serial_response(MAFSIZE, left_b, right_b, test_array_l, current_left, current_right, average_left, average_right);
     }
 
   }
