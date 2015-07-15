@@ -44,8 +44,8 @@ TODO:
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
                                               // amplitude to detect a pulse (0 to 5 valid)
-#define STANDOFF_DISTANCE      30    //m, ideal insect distance 
-const int distance_lookup[][3] = { {2.1,2.1,10}, {1.9,2.0,20}, {1.7,1.6,30}, {1.3,1.4,50}, {1.1,1,3,70}, {0.85,1.0,90}, {0.5,0.75,150} };
+
+
 
 //Display Modes
 #define PRINT_EVERY_N  800  // PULSE_MODE always prints / updates every pulse
