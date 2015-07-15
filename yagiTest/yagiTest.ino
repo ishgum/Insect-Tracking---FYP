@@ -17,7 +17,7 @@ digitalWrite typ takes <20us so can do this every loop
 
 Has basic detect & compare pulses functionality
 When no pulses are being detected the state can be queried by sending one character
-to the serial port. Send a msg by selecting CR or NL in serial monitor window, 
+to the serial port. Send a msg by selecting CR or NL in serial monitor window,
 and hit enter in the msg window.
 
 TODO:
@@ -36,23 +36,50 @@ TODO:
 #include "RunningAverage.h"
 
 // Settings
-//#define PULSE_MODE     //otherwise continuous
+#define MODE                   0 // 0 = pulse, 1 = continuous (with MAF), 2 = super simple continuous
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
-                         //otherwise use a more complicated mode that averages all samples during the pulse.
+                          //otherwise use a more complicated mode that averages all samples during the pulse.
+#define TEST_MODE                      //Use test array not ADC readings
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAFSIZE                50    // 256 absolute max, 200 probably safe
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
-                                              // amplitude to detect a pulse (0 to 5 valid)
+                                        // amplitude to detect a pulse (0 to 5 valid)
+#define STANDOFF_DISTANCE      20    //m, ideal insect distance 
+
+#define LUT_SIZE               4      //number of entries in lookup table
+const float distance_lut_middle[LUT_SIZE]  = {1.3, 1.9, 2.1, 2.3};
+const int distance_lut_out[LUT_SIZE]       = {50,  20,  10,  0  };
+
+/* Returns the minimum distance to the bug based on LUT
+ note: the in array should have increasing values
+ Modified from http://playground.arduino.cc/Main/MultiMap*/
+float lookup_distance(float val, float * _in, int * _out, uint8_t size)
+{
+  // take care the value is within range
+  // val = constrain(val, _in[0], _in[size-1]);
+  if (val <= _in[0]) return _out[0];
+  if (val >= _in[size - 1]) return _out[size - 1];
+
+  // search right interval
+  uint8_t pos = 1;  // _in[0] already tested
+  while (val > _in[pos]) pos++;
+
+  // this will handle all exact "points" in the _in array
+  if (val == _in[pos]) return _out[pos];
+
+  // return minimum distance away. e.g if 15m away, return 10
+  return _out[pos];
+}
 
 
 
 //Display Modes
-#define PRINT_EVERY_N  800  // PULSE_MODE always prints / updates every pulse
+#define PRINT_EVERY_N  800  // PULSE mode always prints / updates every pulse
 #define DIR_MAG             //display strongest dir & mag
 #define RAW                 //display raw V values
 //#define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
-#define DISP_MILLIS          // display rough time elasped since while loop beginning in millisec
+#define DISP_MILLIS         // display rough time elasped since while loop beginning in millisec
 
 // Pin dfns
 #define LEFT_PIN       A0
@@ -76,15 +103,17 @@ void setup() {
   digitalWrite(RIGHTLED, LOW);
   digitalWrite(MIDDLELED, LOW);
   Serial.println("STRONGEST:\tMAGNITUDE:");
-  
+
   // fill test array
   init_test_arrays();
-  
-  // Select mode based on PULSE_MODE #define
-  #ifdef PULSE_MODE
+
+  // Select mode based on MODE #define
+  #if MODE == 0
     pulse();
-  #else
+  #elif MODE == 1
     continuous();
+  #else
+    simple();
   #endif
 }
 
@@ -93,14 +122,66 @@ RunningAverage right_b(MAFSIZE);
 float average_left = 0;
 float average_right = 0;
 String output = "";
-float diff =0;
+float diff = 0;
 float mag = 0;
 String dir = "uninitialised";
 int N = 0;
 unsigned long current_time, start_time = 0; //50 days before rollover
 
+
+void init_test_arrays(void) {
+  for (int i = 0; i < MAFSIZE - 5; i++) {
+    test_array_l[i] = 0.0;
+  }
+  test_array_l[MAFSIZE - 5] = 0.3;
+  test_array_l[MAFSIZE - 4] = 1.0;
+  test_array_l[MAFSIZE - 3] = 1.0;
+  test_array_l[MAFSIZE - 2] = 1.0;
+  test_array_l[MAFSIZE - 1] = 0.3;
+}
+
+// simple method to return next test_array sample
+float get_test_sample(float * _sample_array, int _size){
+  // Init index
+  static int _idx = 0;
+  //increment index
+  _idx++;
+  // check for index exceeding bounds
+  if (_idx == _size){
+    _idx = 0;
+  }
+  return _sample_array[_idx];
+}
+
+float get_random_sample(void){
+  // return value between 0.5V an 2.5V
+  return random(0,20)/10.0+0.5;
+}
+
+void serial_response(float cur_left = -1, float cur_right = -1,
+                          float ave_left = -1, float ave_right = -1){
+  int incomingByte = Serial.read();    // required to clear receive buffer
+  print_buffers();
+  Serial.println("\nSerial Msg received, Display averages:");
+  display_data(ave_left, ave_right);
+  Serial.print("\nDisplay current:\n");
+  display_data(cur_left, cur_right);
+}
+
+
+// Super simple mode, prints as fast as possible, typ 1 - 2ms
+void simple(void) {
+  while(1){
+    //Serial.print(millis()-start_time);
+    //Serial.print("\t");
+    Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
+    Serial.print("\t");
+    Serial.println((analogRead(RIGHT_PIN))*ARDUINO_PWR_V/1023.0);
+  }
+}
+
 /*  Continuous Mode loop:
-    Sample two channels as fast as possible (+ 100us delay), 
+    Sample two channels as fast as possible (+ 100us delay),
     Add each sample to one of two RollingAverage buffers,
     and find the average.
     If the average for one buffer is greater than the other (within some tolerance DIFFERENCE_THRESHOLD),
@@ -109,27 +190,34 @@ unsigned long current_time, start_time = 0; //50 days before rollover
     LED's updated every sample.
     Serial updated every PRINT_EVERY_N sample to slow down display.
     */
-void continuous(void){
-  while(1){
-    //Serial.print(millis()-start_time);
-    //Serial.print("\t");
-    Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
-    Serial.print("\t");
-    Serial.println((analogRead(RIGHT_PIN))*ARDUINO_PWR_V/1023.0);
-//    //Sample
-//    left_b.addValue(analogRead(LEFT_PIN));
-//    right_b.addValue(analogRead(RIGHT_PIN));
-//    
-//    //Compare
-//    average_left = left_b.getAverage()*ARDUINO_PWR_V/1023;
-//    average_right = right_b.getAverage()*ARDUINO_PWR_V/1023;
-//    display_data(average_left, average_right);
-//    delayMicroseconds(100); //max ADC speed given as 100us
+void continuous(void) {
+  float current_left = 0;
+  float current_right = 0;
+  while (1) {
+    //Sample
+    current_left = analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0;
+    current_right = analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0;
+    left_b.addValue(current_left);
+    right_b.addValue(current_right);
+
+    //Compare
+    average_left = left_b.getAverage();
+    average_right = right_b.getAverage();
+    display_data(average_left, average_right);
+    delayMicroseconds(100); //max ADC speed given as 100us
+    
+    // Check for incoming serial messages, and print status if we get anything
+    // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
+    if (Serial.available() > 0) {
+      serial_response(current_left, current_right, average_left, average_right);
+    }
   }
 }
 
+
+
 /*  Pulse Mode Loop:
-    Sample two channels as fast as possible (+ 100us delay), 
+    Sample two channels as fast as possible (+ 100us delay),
     Add each sample to one of two RollingAverage buffers,
     and find the average.
     The noise floor is defined as these averages.
@@ -139,7 +227,7 @@ void continuous(void){
     when pulse no longer occurs pulse_state becomes FALLING,
     the average amplitude of the pulse is then determined for both channels,
     then pulse_state = NO.
-    
+
     The average amplitude for each channel during the pulse is then compared (with DIFFERENCE_THRESHOLD again),
     if one is greater then,
     that channel is said to have a greater RSSI, which is indicated by the LED's,
@@ -147,210 +235,206 @@ void continuous(void){
     LED's updated every pulse.
     Serial updated every pulse.
     */
-void pulse(void){
+void pulse(void) {
   int test_indx = 0;  // for debugging using a fixed test array
   float current_left = 0;
   float current_right = 0;
   int pulse_start = 0;
   int pulse_end = 0;
   int pulse_sample_num = 0;  //number of samples of pulse
-  float pulse_left_av, pulse_right_av, pulse_left_sum, pulse_right_sum =0;
+  float pulse_left_av, pulse_right_av, pulse_left_sum, pulse_right_sum = 0;
   bool left_over_thresh, right_over_thresh = false;
   pulse_status_t pulse_status = NO;
   Serial.println("filling buffer\n");
   //wait until bufffer is full
-  while(left_b.getCount() < MAFSIZE){
-    left_b.addValue(analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0);
-    right_b.addValue(analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0);
+  while (left_b.getCount() < MAFSIZE) {
+    left_b.addValue(analogRead(LEFT_PIN)*ARDUINO_PWR_V / 1023.0);
+    right_b.addValue(analogRead(RIGHT_PIN)*ARDUINO_PWR_V / 1023.0);
   }
   //int pulse_sample_num = 0;
   Serial.println("Buffer full\n");
-  
+
   start_time = millis();
-  
-  while(1){
+
+  while (1) {
     //Sample
-    current_left = analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0;
-    current_right = analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0;
+    current_left = analogRead(LEFT_PIN) * ARDUINO_PWR_V / 1023.0;
+    current_right = analogRead(RIGHT_PIN) * ARDUINO_PWR_V / 1023.0;
 
     // use test array
-//    current_left = test_array_l[test_indx];
-//    current_right = test_array_r[test_indx++];
-//    if (test_indx >MAFSIZE){
-//      test_indx = 0;
-//    }
+    //    current_left = test_array_l[test_indx];
+    //    current_right = test_array_r[test_indx++];
+    //    if (test_indx >MAFSIZE){
+    //      test_indx = 0;
+    //    }
     // end debug test
-    
+
     left_b.addValue(current_left);
     right_b.addValue(current_right);
-    
+
     average_left = left_b.getAverage();
     average_right = right_b.getAverage();
-    
-    
-  // Find if reading exceeds noise floor     
+
+
+    // Find if reading exceeds noise floor
     left_over_thresh = current_left >= average_left + PULSE_THRESHOLD;
     right_over_thresh = current_right >= average_right + PULSE_THRESHOLD;
-    
-    #ifdef SIMPLE_PULSE
-    if ((left_over_thresh || right_over_thresh)){
-      if (pulse_sample_num < 4){ //if one of first 4 pulses on rising edge; ignore
+
+#ifdef SIMPLE_PULSE
+    if ((left_over_thresh || right_over_thresh)) {
+      if (pulse_sample_num < 4) { //if one of first 4 pulses on rising edge; ignore
         pulse_sample_num++;
-      }else{
+      } else {
         display_data(current_left, current_right);
         delay(20);
         digitalWrite(LEFTLED, LOW);
         digitalWrite(RIGHTLED, LOW);
         digitalWrite(MIDDLELED, LOW);
         pulse_sample_num = 0;
+        if (Serial.available() > 0) Serial.println("buzz");
       }
     }
-    #else
-    switch (pulse_status){
-      
+#else
+    switch (pulse_status) {
+
       case NO:  // see if pulse starts on current sample
         //Serial.println(average_right);
         //Serial.print("\t");
-        
-        if (left_over_thresh || right_over_thresh){  //if pulse on either channel detected
+
+        if (left_over_thresh || right_over_thresh) { //if pulse on either channel detected
           pulse_start = left_b.getIndex();
           pulse_end = left_b.getIndex();
           pulse_status = YES;
         }
         break;
-      case YES:  // pulse was detected on last sample 
+      case YES:  // pulse was detected on last sample
         //Serial.println("YES\n");
-        if (left_over_thresh || right_over_thresh){  //if pulse on either channel detected
+        if (left_over_thresh || right_over_thresh) { //if pulse on either channel detected
           pulse_end = left_b.getIndex();
           pulse_status = YES;
-        }else{
+        } else {
           pulse_status = FALLING_EDGE;
         }
         break;
- 
+
       case FALLING_EDGE:   // Pulse ended, determine averages for pulse window
         Serial.println("FALLING\n");
         pulse_sample_num = 0;
-        if (pulse_end < pulse_start){ // pulse wrapped around in buffer
-          for (int i = pulse_start; i<= MAFSIZE; i++){
+        if (pulse_end < pulse_start) { // pulse wrapped around in buffer
+          for (int i = pulse_start; i <= MAFSIZE; i++) {
             pulse_left_sum += left_b.getElement(i);
             pulse_right_sum += right_b.getElement(i);
             pulse_sample_num++;
           }
-          for (int i = 0; i<= pulse_end; i++){
+          for (int i = 0; i <= pulse_end; i++) {
             pulse_left_sum += left_b.getElement(i);
             pulse_right_sum += right_b.getElement(i);
             pulse_sample_num++;
           }
-        }else{
-          for (int i = pulse_start; i<= pulse_end; i++){
+        } else {
+          for (int i = pulse_start; i <= pulse_end; i++) {
             pulse_left_sum += left_b.getElement(i);
             pulse_right_sum += right_b.getElement(i);
             pulse_sample_num++;
           }
         }
-       Serial.print(pulse_start);
-      Serial.print("\t");
-      Serial.print(pulse_end);
-      Serial.print("\t");
-      Serial.print(pulse_left_sum);
-      Serial.print("\t");
-      Serial.println(pulse_right_sum);
+        Serial.print(pulse_start);
+        Serial.print("\t");
+        Serial.print(pulse_end);
+        Serial.print("\t");
+        Serial.print(pulse_left_sum);
+        Serial.print("\t");
+        Serial.println(pulse_right_sum);
 
-        pulse_left_av = pulse_left_sum/(pulse_sample_num);
-        pulse_right_av = pulse_right_sum/(pulse_sample_num);
+        pulse_left_av = pulse_left_sum / (pulse_sample_num);
+        pulse_right_av = pulse_right_sum / (pulse_sample_num);
         display_data(pulse_left_av, pulse_right_av);
         pulse_status = NO;
         break;
-      }
-    #endif
+    }
+#endif
     //delay(00);
     delayMicroseconds(100); //max ADC speed given as 100us
-    
+
     // Check for incoming serial messages, and print status if we get anything
-      // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
+    // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
     if (Serial.available() > 0) {
-      int incomingByte = Serial.read();    // required to clear receive buffer
-      print_buffers();
-      Serial.println("\nSerial Msg received, Display averages:");
-      display_data(average_left, average_right);
-      Serial.print("\nDisplay current:\n");
-      display_data(current_left, current_right);
+      serial_response(current_left, current_right, average_left, average_right);
     }
 
   }
-      // Serial.println(right_over_thresh);
-      //Serial.print("\t");
-      //Serial.println(current_right-average_right-PULSE_THRESHOLD);
+  // Serial.println(right_over_thresh);
+  //Serial.print("\t");
+  //Serial.println(current_right-average_right-PULSE_THRESHOLD);
 
 }
 
-void display_data(float average_left, float average_right){
-  float diff =  average_left-average_right;
+void display_data(float average_left, float average_right) {
+  float diff =  average_left - average_right;
   float mag = abs(diff);
-  if (diff>DIFFERENCE_THRESHOLD){
+  if (diff > DIFFERENCE_THRESHOLD) {
     dir = "Left";
     digitalWrite(LEFTLED, HIGH);
     digitalWrite(RIGHTLED, LOW);
     digitalWrite(MIDDLELED, LOW);
-  }else if (diff < -DIFFERENCE_THRESHOLD){
+  } else if (diff < -DIFFERENCE_THRESHOLD) {
     dir = "Right";
     digitalWrite(LEFTLED, LOW);
     digitalWrite(RIGHTLED, HIGH);
     digitalWrite(MIDDLELED, LOW);
-  }else{
+  } else {
     dir = "Middle";
     digitalWrite(LEFTLED, LOW);
     digitalWrite(RIGHTLED, LOW);
     digitalWrite(MIDDLELED, HIGH);
   }
-  
+
   //Create Serial output
   // Note that large serial msg's can a couple of ms at 115200
   // and 10's of ms at 9600 baud
   output = "";
-  #ifdef DISP_MILLIS
-    current_time = millis()-start_time;
-    output += current_time;
-    output += "\t";
-  #endif
-  #ifdef DIR_MAG
-   // output = "Strongest:\t";
-    output += dir+"\t";
-    output += mag;
-  #endif
-  #ifdef CRAPH
-    output += "\t";
-    for (int i = 0; i<mag*10&&i<100; i++){
-      output += ".";
-      if(i==99){
-        output += "+!";
-      }
+#ifdef DISP_MILLIS
+  current_time = millis() - start_time;
+  output += current_time;
+  output += "\t";
+#endif
+#ifdef DIR_MAG
+  // output = "Strongest:\t";
+  output += dir + "\t";
+  output += mag;
+#endif
+#ifdef CRAPH
+  output += "\t";
+  for (int i = 0; i < mag * 10 && i < 100; i++) {
+    output += ".";
+    if (i == 99) {
+      output += "+!";
     }
-  #endif
-  #ifdef RAW
-    output += "\tRAW: L:\t";
-    output += String(average_left);
-    output += "\tR:\t";
-    output += String(average_right);
-  #endif
-  
-  #if defined(PULSE_MODE)
+  }
+#endif
+#ifdef RAW
+  output += "\tRAW: L:\t";
+  output += String(average_left);
+  output += "\tR:\t";
+  output += String(average_right);
+#endif
+
+#if defined(PULSE_MODE)
+  Serial.println(output);
+#else
+  N++;
+  if (N > PRINT_EVERY_N) {
+    N = 0;
     Serial.println(output);
-  #else
-    N++;
-    if (N >PRINT_EVERY_N){
-        N =0;
-        Serial.println(output);
-    }
-  #endif
+  }
+#endif
 }
 
 //print buffer contents for debugging
-void print_buffers(void){
+void print_buffers(void) {
   Serial.print("Display buffer contents:\n");
   String buffer_output = "";
-  for (int i = 0; i < MAFSIZE; i++){
+  for (int i = 0; i < MAFSIZE; i++) {
     buffer_output = "";
     buffer_output += i;
     buffer_output += "\tR:\t";
@@ -363,15 +447,5 @@ void print_buffers(void){
   }
 }
 
-void init_test_arrays(void){
-  for (int i = 0; i < MAFSIZE-5; i++){
-    test_array_l[i] = 0.0;
-  }
-  test_array_l[MAFSIZE-5] = 0.3;
-  test_array_l[MAFSIZE-4] = 1.0;
-  test_array_l[MAFSIZE-3] = 1.0;
-  test_array_l[MAFSIZE-2] = 1.0;
-  test_array_l[MAFSIZE-1] = 0.3;
-}
 
-void loop(){}
+void loop() {}
