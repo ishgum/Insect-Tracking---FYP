@@ -21,6 +21,7 @@ to the serial port. Send a msg by selecting CR or NL in serial monitor window,
 and hit enter in the msg window.
 
 TODO:
+> investigate new error when using MAFSIZE = 1
 > create pulse test code
 > check time display
 > fix  pulse averaging
@@ -35,20 +36,22 @@ TODO:
 #include "RunningAverage.h"
 
 // Settings
-#define PULSE_MODE     //otherwise continuous
+//#define PULSE_MODE     //otherwise continuous
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                          //otherwise use a more complicated mode that averages all samples during the pulse.
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAFSIZE                10    // 256 absolute max, 200 probably safe
+#define MAFSIZE                50    // 256 absolute max, 200 probably safe
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
                                               // amplitude to detect a pulse (0 to 5 valid)
+#define STANDOFF_DISTANCE      30    //m, ideal insect distance 
+const int distance_lookup[][3] = { {2.1,2.1,10}, {1.9,2.0,20}, {1.7,1.6,30}, {1.3,1.4,50}, {1.1,1,3,70}, {0.85,1.0,90}, {0.5,0.75,150} };
 
 //Display Modes
 #define PRINT_EVERY_N  800  // PULSE_MODE always prints / updates every pulse
 #define DIR_MAG             //display strongest dir & mag
 #define RAW                 //display raw V values
-#define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
+//#define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
 #define DISP_MILLIS          // display rough time elasped since while loop beginning in millisec
 
 // Pin dfns
@@ -108,15 +111,20 @@ unsigned long current_time, start_time = 0; //50 days before rollover
     */
 void continuous(void){
   while(1){
-    //Sample
-    left_b.addValue(analogRead(LEFT_PIN));
-    right_b.addValue(analogRead(RIGHT_PIN));
-    
-    //Compare
-    average_left = left_b.getAverage()*ARDUINO_PWR_V/1023;
-    average_right = right_b.getAverage()*ARDUINO_PWR_V/1023;
-    display_data(average_left, average_right);
-    delayMicroseconds(100); //max ADC speed given as 100us
+    //Serial.print(millis()-start_time);
+    //Serial.print("\t");
+    Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
+    Serial.print("\t");
+    Serial.println((analogRead(RIGHT_PIN))*ARDUINO_PWR_V/1023.0);
+//    //Sample
+//    left_b.addValue(analogRead(LEFT_PIN));
+//    right_b.addValue(analogRead(RIGHT_PIN));
+//    
+//    //Compare
+//    average_left = left_b.getAverage()*ARDUINO_PWR_V/1023;
+//    average_right = right_b.getAverage()*ARDUINO_PWR_V/1023;
+//    display_data(average_left, average_right);
+//    delayMicroseconds(100); //max ADC speed given as 100us
   }
 }
 
@@ -166,11 +174,11 @@ void pulse(void){
     current_right = analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0;
 
     // use test array
-    current_left = test_array_l[test_indx];
-    current_right = test_array_r[test_indx++];
-    if (test_indx >MAFSIZE){
-      test_indx = 0;
-    }
+//    current_left = test_array_l[test_indx];
+//    current_right = test_array_r[test_indx++];
+//    if (test_indx >MAFSIZE){
+//      test_indx = 0;
+//    }
     // end debug test
     
     left_b.addValue(current_left);
