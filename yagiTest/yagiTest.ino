@@ -33,10 +33,12 @@ TODO:
   calculation
 */
 
+#include "display.h"
+#include "distance.h"
 #include "RunningAverage.h"
 
 // Settings
-#define MODE                   0 // 0 = pulse, 1 = continuous (with MAF), 2 = super simple continuous
+#define MODE                   2 // 0 = pulse, 1 = continuous (with MAF), 2 = super simple continuous
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                           //otherwise use a more complicated mode that averages all samples during the pulse.
 #define TEST_MODE                      //Use test array not ADC readings
@@ -45,41 +47,8 @@ TODO:
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
                                         // amplitude to detect a pulse (0 to 5 valid)
-#define STANDOFF_DISTANCE      20    //m, ideal insect distance 
-
-#define LUT_SIZE               4      //number of entries in lookup table
-const float distance_lut_middle[LUT_SIZE]  = {1.3, 1.9, 2.1, 2.3};
-const int distance_lut_out[LUT_SIZE]       = {50,  20,  10,  0  };
-
-/* Returns the minimum distance to the bug based on LUT
- note: the in array should have increasing values
- Modified from http://playground.arduino.cc/Main/MultiMap*/
-float lookup_distance(float val, float * _in, int * _out, uint8_t size)
-{
-  // take care the value is within range
-  // val = constrain(val, _in[0], _in[size-1]);
-  if (val <= _in[0]) return _out[0];
-  if (val >= _in[size - 1]) return _out[size - 1];
-
-  // search right interval
-  uint8_t pos = 1;  // _in[0] already tested
-  while (val > _in[pos]) pos++;
-
-  // this will handle all exact "points" in the _in array
-  if (val == _in[pos]) return _out[pos];
-
-  // return minimum distance away. e.g if 15m away, return 10
-  return _out[pos];
-}
 
 
-
-//Display Modes
-#define PRINT_EVERY_N  800  // PULSE mode always prints / updates every pulse
-#define DIR_MAG             //display strongest dir & mag
-#define RAW                 //display raw V values
-//#define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
-#define DISP_MILLIS         // display rough time elasped since while loop beginning in millisec
 
 // Pin dfns
 #define LEFT_PIN       A0
@@ -94,14 +63,7 @@ float test_array_r[MAFSIZE];
 
 void setup() {
   Serial.begin(115200);    //for speed!
-  pinMode(LEFT_PIN, INPUT);
-  pinMode(RIGHT_PIN, INPUT);
-  pinMode(LEFTLED, OUTPUT);
-  pinMode(RIGHTLED, OUTPUT);
-  pinMode(MIDDLELED, OUTPUT);
-  digitalWrite(LEFTLED, LOW);
-  digitalWrite(RIGHTLED, LOW);
-  digitalWrite(MIDDLELED, LOW);
+  init_LEDs();
   Serial.println("STRONGEST:\tMAGNITUDE:");
 
   // fill test array
@@ -121,12 +83,10 @@ RunningAverage left_b(MAFSIZE);
 RunningAverage right_b(MAFSIZE);
 float average_left = 0;
 float average_right = 0;
-String output = "";
 float diff = 0;
 float mag = 0;
 String dir = "uninitialised";
 int N = 0;
-unsigned long current_time, start_time = 0; //50 days before rollover
 
 
 void init_test_arrays(void) {
@@ -158,15 +118,7 @@ float get_random_sample(void){
   return random(0,20)/10.0+0.5;
 }
 
-void serial_response(float cur_left = -1, float cur_right = -1,
-                          float ave_left = -1, float ave_right = -1){
-  int incomingByte = Serial.read();    // required to clear receive buffer
-  print_buffers();
-  Serial.println("\nSerial Msg received, Display averages:");
-  display_data(ave_left, ave_right);
-  Serial.print("\nDisplay current:\n");
-  display_data(cur_left, cur_right);
-}
+
 
 
 // Super simple mode, prints as fast as possible, typ 1 - 2ms
@@ -369,83 +321,7 @@ void pulse(void) {
 
 }
 
-void display_data(float average_left, float average_right) {
-  float diff =  average_left - average_right;
-  float mag = abs(diff);
-  if (diff > DIFFERENCE_THRESHOLD) {
-    dir = "Left";
-    digitalWrite(LEFTLED, HIGH);
-    digitalWrite(RIGHTLED, LOW);
-    digitalWrite(MIDDLELED, LOW);
-  } else if (diff < -DIFFERENCE_THRESHOLD) {
-    dir = "Right";
-    digitalWrite(LEFTLED, LOW);
-    digitalWrite(RIGHTLED, HIGH);
-    digitalWrite(MIDDLELED, LOW);
-  } else {
-    dir = "Middle";
-    digitalWrite(LEFTLED, LOW);
-    digitalWrite(RIGHTLED, LOW);
-    digitalWrite(MIDDLELED, HIGH);
-  }
 
-  //Create Serial output
-  // Note that large serial msg's can a couple of ms at 115200
-  // and 10's of ms at 9600 baud
-  output = "";
-#ifdef DISP_MILLIS
-  current_time = millis() - start_time;
-  output += current_time;
-  output += "\t";
-#endif
-#ifdef DIR_MAG
-  // output = "Strongest:\t";
-  output += dir + "\t";
-  output += mag;
-#endif
-#ifdef CRAPH
-  output += "\t";
-  for (int i = 0; i < mag * 10 && i < 100; i++) {
-    output += ".";
-    if (i == 99) {
-      output += "+!";
-    }
-  }
-#endif
-#ifdef RAW
-  output += "\tRAW: L:\t";
-  output += String(average_left);
-  output += "\tR:\t";
-  output += String(average_right);
-#endif
-
-#if defined(PULSE_MODE)
-  Serial.println(output);
-#else
-  N++;
-  if (N > PRINT_EVERY_N) {
-    N = 0;
-    Serial.println(output);
-  }
-#endif
-}
-
-//print buffer contents for debugging
-void print_buffers(void) {
-  Serial.print("Display buffer contents:\n");
-  String buffer_output = "";
-  for (int i = 0; i < MAFSIZE; i++) {
-    buffer_output = "";
-    buffer_output += i;
-    buffer_output += "\tR:\t";
-    buffer_output += left_b.getElement(i);
-    buffer_output += "\tL:\t";
-    buffer_output += right_b.getElement(i);
-    buffer_output += "\tTest array:\t";
-    buffer_output += test_array_l[i];
-    Serial.println(buffer_output);
-  }
-}
 
 
 void loop() {}

@@ -5,6 +5,7 @@ Visual Micro
 # Project File #
 #################
 *.vcxproj
+*.filters
 
 # Output videos #
 #################
