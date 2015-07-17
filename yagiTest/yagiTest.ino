@@ -33,6 +33,7 @@ TODO:
   calculation
 */
 
+#include "Sampling.h"
 #include "display.h"
 #include "distance.h"
 #include "RunningAverage.h"
@@ -141,6 +142,7 @@ void continuous(void) {
   float current_right = 0;
   while (1) {
     //Sample
+
     current_left = analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0;
     current_right = analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0;
     left_b.addValue(current_left);
