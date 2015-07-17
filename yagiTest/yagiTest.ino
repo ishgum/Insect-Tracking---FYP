@@ -21,6 +21,8 @@ to the serial port. Send a msg by selecting CR or NL in serial monitor window,
 and hit enter in the msg window.
 
 TODO:
+> add 20m & 70m threshold
+> add extra LED
 > investigate new error when using MAFSIZE = 1
 > create pulse test code
 > check time display
