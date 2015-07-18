@@ -17,7 +17,7 @@
 // make current index public
 
 #define RUNNINGAVERAGE_LIB_VERSION "0.2.04"
-#include "Arduino.h"
+#include "arduino.h"
 class RunningAverage
 {
 public:

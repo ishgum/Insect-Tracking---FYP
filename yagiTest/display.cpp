@@ -3,6 +3,7 @@
 //	or LEDs
 
 #include "display.h"
+unsigned long current_time, start_time; //50 days before rollover
 
 
 void init_LEDs(void){
@@ -15,26 +16,27 @@ void init_LEDs(void){
 }
 
 //print buffer contents for debugging
-void print_buffers(int _size, RunningAverage& _left_b, RunningAverage& _right_b, float *_test) {
+void print_buffers(void) {
 	Serial.print("Display buffer contents:\n");
 	String buffer_output = "";
-	for (int i = 0; i < _size; i++) {
+	for (int i = 0; i < Sampling._buffer_size; i++){//SamplingClass::RunningAverage.getSize(); i++) {
 		buffer_output = "";
 		buffer_output += i;
 		buffer_output += "\tR:\t";
-		buffer_output += _left_b.getElement(i);
+		buffer_output += Sampling.getElement(i,0); // could use buffer_output += Sampling.buffer_left.getElement(i);
 		buffer_output += "\tL:\t";
-		buffer_output += _right_b.getElement(i);
-		buffer_output += "\tTest array:\t";
-		buffer_output += _test[i];
+		buffer_output += Sampling.getElement(i, 1);
+	//	buffer_output += "\tTest array:\t";
+	//	buffer_output += _test[i];
 		Serial.println(buffer_output);
 	}
 }
 
 
-
-void display_data(float average_left, float average_right) {
+// Shouldn't be making decisions with THRESHOLDS, change in future
+void displayData(float average_left, float average_right) {
 	static int N = 0;
+	String dir = "";
 	float diff = average_left - average_right;
 	float mag = abs(diff);
 	if (diff > DIFFERENCE_THRESHOLD) {
@@ -57,9 +59,9 @@ void display_data(float average_left, float average_right) {
 	}
 
 	//Create Serial output
-	// Note that large serial msg's can a couple of ms at 115200
+	// Note that large serial msg's can take a couple of ms at 115200
 	// and 10's of ms at 9600 baud
-	output = "";
+	String output = "";
 #ifdef DISP_MILLIS
 	current_time = millis() - start_time;
 	output += current_time;
@@ -97,14 +99,12 @@ void display_data(float average_left, float average_right) {
 #endif
 }
 
-void serial_response(int _size, RunningAverage& _left_b, RunningAverage& _right_b, float *_test,
-		float cur_left, float cur_right,
-			float ave_left, float ave_right){
-
-	int incomingByte = Serial.read();    // required to clear receive buffer
-	print_buffers(_size, _left_b, _right_b, _test);
-	Serial.println("\nSerial Msg received, Display averages:");
-	display_data(ave_left, ave_right);
-	Serial.print("\nDisplay current:\n");
-	display_data(cur_left, cur_right);
+void serial_response(void){
+	int incomingByte = Serial.read();    // required to clear serial receive buffer
+	Serial.println("Serial Msg received");
+	print_buffers();
+	Serial.println("\nDisplay averages:");
+	displayData(Sampling.average_left, Sampling.average_right);
+	Serial.println("\nDisplay current:");
+	displayData(Sampling.current_left, Sampling.current_right);
 }

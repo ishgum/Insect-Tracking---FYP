@@ -10,6 +10,8 @@
 #endif
 
 #include "RunningAverage.h"
+#include "Sampling.h"
+//#include "yagiTest.ino"
 
 //Display Modes
 #define PRINT_EVERY_N  800  // PULSE mode always prints / updates every pulse
@@ -26,16 +28,13 @@
 //Other
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 
-unsigned long current_time, start_time = 0; //50 days before rollover
-String output = "";
-String dir = "uninitialised";
+extern SamplingClass Sampling; // Sampling is defined in Sampling.cpp // huhu woulda thunk it
 
 // Function prototypes
 void init_LEDs(void);
-void display_data(float average_left, float average_right);
-void serial_response(int _size, RunningAverage& _left_b, RunningAverage& _right_b, float *_test,
-	float cur_left = -1, float cur_right = -1,
-	float ave_left = -1, float ave_right = -1);
+void displayData(float average_left, float average_right);
+void serialResponse(void);
+//void setLEDs(int led_config)
 
 
 #endif
