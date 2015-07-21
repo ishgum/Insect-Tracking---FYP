@@ -6,12 +6,14 @@
 
 #include "Sampling.h"
 
+SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, int maf_size)
+	:buffer_left(_buffer_size), buffer_right(_buffer_size){
 
-SamplingClass::SamplingClass(int mode)
-	:buffer_left(_buffer_size), buffer_right(_buffer_size)
-{
 	_mode = mode;
-	current_left = 1;
+	_left_pin = left_pin;
+	_right_pin = right_pin;
+	_buffer_size = maf_size;
+
 	// Fill buffer
 	Serial.println("Filling buffer\n");
 	while (buffer_left.getCount() < _buffer_size) { // wait until bufffer is full
@@ -26,10 +28,10 @@ SamplingClass::SamplingClass(int mode)
 
 // Performs a sample without return
 void SamplingClass::getSample(void){
-	current_left = analogRead(LEFT_PIN) * ARDUINO_PWR_V / 1023.0;
-	current_right = analogRead(RIGHT_PIN) * ARDUINO_PWR_V / 1023.0;
-	//if (_mode == signal_mode::CONTINUOUS){
+	current_left = analogRead(_left_pin) * ARDUINO_PWR_V / 1023.0;
+	current_right = analogRead(_right_pin) * ARDUINO_PWR_V / 1023.0;
 }
+
 void SamplingClass::continuousModeUpdate(void){
 	getSample();
 	buffer_left.addValue(current_left);
@@ -120,6 +122,3 @@ float SamplingClass::getElement(int index, int dir){
 		error();
 	}
 }
-
-
-

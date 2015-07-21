@@ -4,7 +4,7 @@
 
 Just reading & comparing two ADC's
 has provision to implement a Moving average filter,
-just change MAFSIZE #define to size of MA buffer.
+just change MAF_SIZE #define to size of MA buffer.
 Toggles 3 LED's to indicate which ADC signal is strongest.
 Has various display modes to be (un)commented as needed.
 These should be commented out for headless operation for max speed,
@@ -21,9 +21,11 @@ to the serial port. Send a msg by selecting CR or NL in serial monitor window,
 and hit enter in the msg window.
 
 TODO:
-> investigate new error when using MAFSIZE = 1
+> investigate new error when using MAF_SIZE = 1
 > create pulse test code
 > check time display
+> Change output to have more states:
+	> clockwise, anticlockwise, forwards, back, stop
 > fix  pulse averaging													done, check
 >possibly trim rising & falling edges of pulse detect					done, check
       to increase accuracy (if >3 samples achieved)						
@@ -42,25 +44,21 @@ TODO:
 enum signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS }; // possible signal_modes
 
 const signal_mode MODE = SIMPLE_CONTINUOUS;				// Main mode switch for program
-
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                           //otherwise use a more complicated mode that averages all samples during the pulse.
 #define TEST_MODE                      //Use test array not ADC readings
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAFSIZE                50    // 256 absolute max, 200 probably safe
-#define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
-                                        // amplitude to detect a pulse (0 to 5 valid)
+#define MAF_SIZE               50    // 256 absolute max, 200 probably safe
 
 // Pin dfns
 #define LEFT_PIN       A0
 #define RIGHT_PIN      A3
 //unsigned long current_time, start_time; //50 days before rollover
 
-SamplingClass Sampling(MODE);
+SamplingClass Sampling(MODE, LEFT_PIN, RIGHT_PIN, MAF_SIZE);
 
-enum pulse_status_t {NO, YES, FALLING_EDGE};
-float test_array_l[MAFSIZE];
-float test_array_r[MAFSIZE];
+float test_array_l[MAF_SIZE];
+float test_array_r[MAF_SIZE];
 
 void setup() {
   Serial.begin(115200);    //for speed!
@@ -93,16 +91,15 @@ void error(void){
 	}
 }
 
-
 void init_test_arrays(void) {
-  for (int i = 0; i < MAFSIZE - 5; i++) {
+  for (int i = 0; i < MAF_SIZE - 5; i++) {
     test_array_l[i] = 0.0;
   }
-  test_array_l[MAFSIZE - 5] = 0.3;
-  test_array_l[MAFSIZE - 4] = 1.0;
-  test_array_l[MAFSIZE - 3] = 1.0;
-  test_array_l[MAFSIZE - 2] = 1.0;
-  test_array_l[MAFSIZE - 1] = 0.3;
+  test_array_l[MAF_SIZE - 5] = 0.3;
+  test_array_l[MAF_SIZE - 4] = 1.0;
+  test_array_l[MAF_SIZE - 3] = 1.0;
+  test_array_l[MAF_SIZE - 2] = 1.0;
+  test_array_l[MAF_SIZE - 1] = 0.3;
 }
 
 // simple method to return next test_array sample
@@ -122,9 +119,6 @@ float get_random_sample(void){
   // return value between 0.5V an 2.5V
   return random(0,20)/10.0+0.5;
 }
-
-
-
 
 // Super simple mode, prints as fast as possible, typ 1 - 2ms
 void simple(void) {
@@ -164,8 +158,6 @@ void continuous(void) {
   }
 }
 
-
-
 /*  Pulse Mode Loop:
     Sample two channels as fast as possible (+ 100us delay),
     Add each sample to one of two RollingAverage buffers,
@@ -196,7 +188,7 @@ void pulse(void) {
 		// use test array
 		//    current_left = test_array_l[test_indx];
 		//    current_right = test_array_r[test_indx++];
-		//    if (test_indx >MAFSIZE){
+		//    if (test_indx >MAF_SIZE){
 		//      test_indx = 0;
 		//    }
 		// end debug test
@@ -216,5 +208,4 @@ void pulse(void) {
 	}
 }
 
-
-void loop() {}
+void loop() {} // needs to be defined somewhere for arduino main() file to be happy

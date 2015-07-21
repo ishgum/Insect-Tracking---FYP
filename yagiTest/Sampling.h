@@ -13,22 +13,15 @@
 void error(void);
 
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAF_SIZE                50    // 256 absolute max, 200 probably safe
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
-// amplitude to detect a pulse (0 to 5 valid)
-
-// Pin dfns
-//#define LEFT_PIN       A0
-//#define RIGHT_PIN      A3
-
-
+										// amplitude to detect a pulse (0 to 5 valid)
 
 class SamplingClass
 {
 protected:
 public:
 	// Methods
-	SamplingClass(int mode);
+	SamplingClass(int mode, int left_pin, int right_pin, int maf_size);
 	void getSample();
 	void continuousModeUpdate(void);
 	bool pulseModeUpdate(void);
@@ -43,18 +36,16 @@ public:
 	float average_left, average_right; // averaged for continuous mode
 	float noise_floor_left, noise_floor_right;		// estimate of noise floor for pulsed mode
 	float pulse_left, pulse_right;					//result for pulsed mode.
-	
-	//Consts
-	const int _buffer_size = MAF_SIZE;
+
+	int _buffer_size;
 
 private:
-	int _mode;
+	int _left_pin, _right_pin;
+	int _mode;// , _buffer_size;
 	bool left_over_thresh, right_over_thresh;
-	//usigned long start
 };
 
-extern SamplingClass Sampling; // somewhere Sampling is defined
-//SamplingClass Sampling;			// Create instance of sampling object
+extern SamplingClass Sampling; // Sampling is defined in main (yagiTest)
 
 #endif
 
