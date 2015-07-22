@@ -24,6 +24,7 @@
 #define LEFTLED        9
 #define RIGHTLED       7
 #define MIDDLELED      8
+#define BACKLED		   6
 
 //Other
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)

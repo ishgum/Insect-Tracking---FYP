@@ -10,9 +10,11 @@ void init_LEDs(void){
 	pinMode(LEFTLED, OUTPUT);
 	pinMode(RIGHTLED, OUTPUT);
 	pinMode(MIDDLELED, OUTPUT);
+	pinMode(BACKLED, OUTPUT);
 	digitalWrite(LEFTLED, LOW);
 	digitalWrite(RIGHTLED, LOW);
 	digitalWrite(MIDDLELED, LOW);
+	digitalWrite(BACKLED, LOW);
 }
 
 //print buffer contents for debugging
