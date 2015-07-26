@@ -41,9 +41,9 @@ TODO:
 #include "RunningAverage.h"
 
 // Settings
-enum signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS }; // possible signal_modes
+enum Signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS }; // possible signal_modes
 
-const signal_mode MODE = SIMPLE_CONTINUOUS;				// Main mode switch for program
+const Signal_mode MODE = SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                           //otherwise use a more complicated mode that averages all samples during the pulse.
 #define TEST_MODE                      //Use test array not ADC readings
@@ -56,6 +56,16 @@ const signal_mode MODE = SIMPLE_CONTINUOUS;				// Main mode switch for program
 //unsigned long current_time, start_time; //50 days before rollover
 
 SamplingClass Sampling(MODE, LEFT_PIN, RIGHT_PIN, MAF_SIZE);
+
+enum class Insect_dir
+{
+	CENTERED,
+	LEFT,
+	RIGHT,
+	TOO_FAR,
+	TOO_CLOSE
+};
+//Insect_dir insect_dir = Insect_dir::CENTERED;
 
 float test_array_l[MAF_SIZE];
 float test_array_r[MAF_SIZE];
@@ -85,12 +95,14 @@ void setup() {
   }
 }
 
+// super simple error call
 void error(void){
 	Serial.println("ERROR");
 	while (1){
 	}
 }
 
+// Used to debug pulse detection
 void init_test_arrays(void) {
   for (int i = 0; i < MAF_SIZE - 5; i++) {
     test_array_l[i] = 0.0;
@@ -115,6 +127,7 @@ float get_test_sample(float * _sample_array, int _size){
   return _sample_array[_idx];
 }
 
+// Used to debug pulse detection
 float get_random_sample(void){
   // return value between 0.5V an 2.5V
   return random(0,20)/10.0+0.5;
@@ -123,7 +136,7 @@ float get_random_sample(void){
 // Super simple mode, prints as fast as possible, typ 1 - 2ms
 void simple(void) {
   while(1){
-    //Serial.print(millis()-start_time);
+    //Serial.print(millis()-start_time);	// uncomment to print time too
     //Serial.print("\t");
     Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
     Serial.print("\t");
@@ -146,6 +159,7 @@ void continuous(void) {
   while (1) {
     //Sample
 	Sampling.continuousModeUpdate();
+
 
 	displayData(Sampling.average_left, Sampling.average_right);
     delayMicroseconds(100); //max ADC speed given as 100us

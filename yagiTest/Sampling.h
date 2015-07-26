@@ -15,6 +15,11 @@ void error(void);
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
 										// amplitude to detect a pulse (0 to 5 valid)
+#define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
+#define MAX_DST				   1.25
+#define MIN_DST				   1.9
+
+//extern enum class Insect_dir;
 
 class SamplingClass
 {
@@ -26,6 +31,7 @@ public:
 	void continuousModeUpdate(void);
 	bool pulseModeUpdate(void);
 	bool fancyPulseModeUpdate(void);
+	void interpretData(float average_left, float average_right);
 
 	float getElement(int index, int dir);
 
@@ -36,6 +42,7 @@ public:
 	float average_left, average_right; // averaged for continuous mode
 	float noise_floor_left, noise_floor_right;		// estimate of noise floor for pulsed mode
 	float pulse_left, pulse_right;					//result for pulsed mode.
+	Insect_dir insect_dir;
 
 	int _buffer_size;
 

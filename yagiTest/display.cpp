@@ -35,29 +35,54 @@ void print_buffers(void) {
 }
 
 
-// Shouldn't be making decisions with THRESHOLDS, change in future
+
+// determine output based on state of
+// insect_dir in Sampling object.
+// update LEDs and Serial
 void displayData(float average_left, float average_right) {
 	static int N = 0;
 	String dir = "";
 	float diff = average_left - average_right;
 	float mag = abs(diff);
-	if (diff > DIFFERENCE_THRESHOLD) {
+	switch (Sampling.insect_dir){
+	case Insect_dir::LEFT:
 		dir = "Left";
 		digitalWrite(LEFTLED, HIGH);
 		digitalWrite(RIGHTLED, LOW);
 		digitalWrite(MIDDLELED, LOW);
-	}
-	else if (diff < -DIFFERENCE_THRESHOLD) {
+		digitalWrite(BACKLED, LOW);
+		break;
+	case RIGHT:
 		dir = "Right";
 		digitalWrite(LEFTLED, LOW);
 		digitalWrite(RIGHTLED, HIGH);
 		digitalWrite(MIDDLELED, LOW);
-	}
-	else {
+		digitalWrite(BACKLED, LOW);
+		break;
+	case TOO_FAR:
+		dir = "Forwards";
+		digitalWrite(LEFTLED, HIGH);
+		digitalWrite(RIGHTLED, HIGH);
+		digitalWrite(MIDDLELED, HIGH);
+		digitalWrite(BACKLED, LOW);
+		break;
+	case TOO_CLOSE:
+		dir = "Back";
+		digitalWrite(LEFTLED, LOW);
+		digitalWrite(RIGHTLED, LOW);
+		digitalWrite(MIDDLELED, LOW);
+		digitalWrite(BACKLED, HIGH);
+		break;
+	case CENTERED:
 		dir = "Middle";
 		digitalWrite(LEFTLED, LOW);
 		digitalWrite(RIGHTLED, LOW);
 		digitalWrite(MIDDLELED, HIGH);
+		digitalWrite(BACKLED, LOW);
+		break;
+	default:
+		error();
+		break;
 	}
 
 	//Create Serial output

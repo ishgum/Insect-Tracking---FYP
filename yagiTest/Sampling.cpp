@@ -13,6 +13,7 @@ SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, int maf_size
 	_left_pin = left_pin;
 	_right_pin = right_pin;
 	_buffer_size = maf_size;
+	insect_dir = Insect_dir::CENTERED;
 
 	// Fill buffer
 	Serial.println("Filling buffer\n");
@@ -40,6 +41,11 @@ void SamplingClass::continuousModeUpdate(void){
 	average_right = buffer_right.getAverage();
 }
 
+/*
+Determines RSSI for pulsed signals
+Returns value sampled 5ms after pulse detected.
+Sampled value should sit 5ms to 10ms into pulse
+*/
 bool SamplingClass::pulseModeUpdate(void){
 	getSample();
 	// Find if reading exceeds noise floor
@@ -66,7 +72,8 @@ bool SamplingClass::pulseModeUpdate(void){
 }
 
 /* 
-
+Determines RSSI for pulsed signals
+Averages the pulse.
 */
 bool SamplingClass::fancyPulseModeUpdate(void){
 	getSample();
@@ -110,7 +117,7 @@ bool SamplingClass::fancyPulseModeUpdate(void){
 	return false;
 }
 
-
+// returns an element of the buffer, useful for debug
 float SamplingClass::getElement(int index, int dir){
 	if (dir == 0){
 		return buffer_left.getElement(index);
@@ -120,5 +127,29 @@ float SamplingClass::getElement(int index, int dir){
 	}
 	else{
 		error();
+	}
+}
+
+// Logic for interpreting the left and right yagi RSSI
+void SamplingClass::interpretData(float average_left, float average_right){
+	float diff = average_left - average_right;
+	float mag = abs(diff);
+	bool too_weak = (average_left < MAX_DST && average_right < MAX_DST);
+	bool too_strong = (average_left > MIN_DST || average_right > MIN_DST);
+
+	if (diff>DIFFERENCE_THRESHOLD){
+		insect_dir = LEFT;
+	}
+	else if (diff < -DIFFERENCE_THRESHOLD){
+		insect_dir = RIGHT;
+	}
+	else if (too_weak){
+		insect_dir = TOO_FAR;
+	}
+	else if (too_strong){
+		insect_dir = TOO_CLOSE;
+	}
+	else {
+		insect_dir = CENTERED;
 	}
 }
