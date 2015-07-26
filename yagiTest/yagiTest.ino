@@ -43,11 +43,13 @@ TODO:
                          //otherwise use a more complicated mode that averages all samples during the pulse.
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAFSIZE                50    // 256 absolute max, 200 probably safe
-#define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
+#define DIFFERENCE_THRESHOLD   0.2     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
                                               // amplitude to detect a pulse (0 to 5 valid)
-#define STANDOFF_DISTANCE      30    //m, ideal insect distance 
-const int distance_lookup[][3] = { {2.1,2.1,10}, {1.9,2.0,20}, {1.7,1.6,30}, {1.3,1.4,50}, {1.1,1,3,70}, {0.85,1.0,90}, {0.5,0.75,150} };
+//#define STANDOFF_DISTANCE      30    //m, ideal insect distance 
+#define MAX_DST          1.25
+#define MIN_DST          1.9
+//const int distance_lookup[][3] = { {2.1,2.1,10}, {1.9,2.0,20}, {1.7,1.6,30}, {1.3,1.4,50}, {1.1,1,3,70}, {0.85,1.0,90}, {0.5,0.75,150} };
 
 //Display Modes
 #define PRINT_EVERY_N  800  // PULSE_MODE always prints / updates every pulse
@@ -56,16 +58,18 @@ const int distance_lookup[][3] = { {2.1,2.1,10}, {1.9,2.0,20}, {1.7,1.6,30}, {1.
 //#define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
 #define DISP_MILLIS          // display rough time elasped since while loop beginning in millisec
 
+
 // Pin dfns
 #define LEFT_PIN       A0
 #define RIGHT_PIN      A3
 #define LEFTLED        9
 #define RIGHTLED       7
 #define MIDDLELED      8
+#define BACKLED        6
 
 enum pulse_status_t {NO, YES, FALLING_EDGE};
-float test_array_l[MAFSIZE];
-float test_array_r[MAFSIZE];
+//float test_array_l[MAFSIZE];
+//float test_array_r[MAFSIZE];
 
 void setup() {
   Serial.begin(115200);    //for speed!
@@ -74,13 +78,15 @@ void setup() {
   pinMode(LEFTLED, OUTPUT);
   pinMode(RIGHTLED, OUTPUT);
   pinMode(MIDDLELED, OUTPUT);
+  pinMode(BACKLED, OUTPUT);
   digitalWrite(LEFTLED, LOW);
   digitalWrite(RIGHTLED, LOW);
   digitalWrite(MIDDLELED, LOW);
+  digitalWrite(BACKLED, LOW);
   Serial.println("STRONGEST:\tMAGNITUDE:");
   
   // fill test array
-  init_test_arrays();
+ // init_test_arrays();
   
   // Select mode based on PULSE_MODE #define
   #ifdef PULSE_MODE
@@ -112,9 +118,10 @@ unsigned long current_time, start_time = 0; //50 days before rollover
     Serial updated every PRINT_EVERY_N sample to slow down display.
     */
 void continuous(void){
+  Serial.println("CONT");
   while(1){
-    //Serial.print(millis()-start_time);
-    //Serial.print("\t");
+    Serial.print(millis()-start_time);
+    Serial.print("\t");
     Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
     Serial.print("\t");
     Serial.println((analogRead(RIGHT_PIN))*ARDUINO_PWR_V/1023.0);
@@ -196,16 +203,21 @@ void pulse(void){
     
     #ifdef SIMPLE_PULSE
     if ((left_over_thresh || right_over_thresh)){
-      if (pulse_sample_num < 4){ //if one of first 4 pulses on rising edge; ignore
-        pulse_sample_num++;
-      }else{
-        display_data(current_left, current_right);
-        delay(20);
-        digitalWrite(LEFTLED, LOW);
-        digitalWrite(RIGHTLED, LOW);
-        digitalWrite(MIDDLELED, LOW);
-        pulse_sample_num = 0;
+      delay(5);
+      display_data(current_left, current_right);
+      // debug print
+      unsigned long temp_time = millis();
+      while (temp_time +30 < millis()){
+        Serial.print(analogRead(LEFT_PIN)*ARDUINO_PWR_V/1023.0);
+        Serial.print("\t R: \t");
+        Serial.println(analogRead(RIGHT_PIN)*ARDUINO_PWR_V/1023.0);
       }
+      Serial.println("End debug pulse");
+      delay(20);
+//      digitalWrite(LEFTLED, LOW);
+//      digitalWrite(RIGHTLED, LOW);
+//      digitalWrite(MIDDLELED, LOW);
+     
     }
     #else
     switch (pulse_status){
@@ -290,21 +302,39 @@ void pulse(void){
 void display_data(float average_left, float average_right){
   float diff =  average_left-average_right;
   float mag = abs(diff);
+  bool too_weak = (average_left < MAX_DST && average_right < MAX_DST);
+  bool too_strong = (average_left > MIN_DST || average_right > MIN_DST);
+
   if (diff>DIFFERENCE_THRESHOLD){
     dir = "Left";
     digitalWrite(LEFTLED, HIGH);
     digitalWrite(RIGHTLED, LOW);
     digitalWrite(MIDDLELED, LOW);
+    digitalWrite(BACKLED, LOW);
   }else if (diff < -DIFFERENCE_THRESHOLD){
     dir = "Right";
     digitalWrite(LEFTLED, LOW);
     digitalWrite(RIGHTLED, HIGH);
     digitalWrite(MIDDLELED, LOW);
-  }else{
+    digitalWrite(BACKLED, LOW);
+  }else if(too_weak){
+    dir = "Forwards";
+    digitalWrite(LEFTLED, HIGH);
+    digitalWrite(RIGHTLED, HIGH);
+    digitalWrite(MIDDLELED, HIGH);
+    digitalWrite(BACKLED, LOW);
+  }else if (too_strong){
+    dir = "Back";
+    digitalWrite(LEFTLED, LOW);
+    digitalWrite(RIGHTLED, LOW);
+    digitalWrite(MIDDLELED, LOW);
+    digitalWrite(BACKLED, HIGH);
+  }else {
     dir = "Middle";
     digitalWrite(LEFTLED, LOW);
     digitalWrite(RIGHTLED, LOW);
     digitalWrite(MIDDLELED, HIGH);
+    digitalWrite(BACKLED, LOW);
   }
   
   //Create Serial output
@@ -355,25 +385,25 @@ void print_buffers(void){
   for (int i = 0; i < MAFSIZE; i++){
     buffer_output = "";
     buffer_output += i;
-    buffer_output += "\tR:\t";
-    buffer_output += left_b.getElement(i);
     buffer_output += "\tL:\t";
+    buffer_output += left_b.getElement(i);
+    buffer_output += "\tR:\t";
     buffer_output += right_b.getElement(i);
-    buffer_output += "\tTest array:\t";
-    buffer_output += test_array_l[i];
+   // buffer_output += "\tTest array:\t";
+    //buffer_output += test_array_l[i];
     Serial.println(buffer_output);
   }
 }
 
-void init_test_arrays(void){
-  for (int i = 0; i < MAFSIZE-5; i++){
-    test_array_l[i] = 0.0;
-  }
-  test_array_l[MAFSIZE-5] = 0.3;
-  test_array_l[MAFSIZE-4] = 1.0;
-  test_array_l[MAFSIZE-3] = 1.0;
-  test_array_l[MAFSIZE-2] = 1.0;
-  test_array_l[MAFSIZE-1] = 0.3;
-}
+//void init_test_arrays(void){
+//  for (int i = 0; i < MAFSIZE-5; i++){
+//    test_array_l[i] = 0.0;
+//  }
+//  test_array_l[MAFSIZE-5] = 0.3;
+//  test_array_l[MAFSIZE-4] = 1.0;
+//  test_array_l[MAFSIZE-3] = 1.0;
+//  test_array_l[MAFSIZE-2] = 1.0;
+//  test_array_l[MAFSIZE-1] = 0.3;
+//}
 
 void loop(){}
