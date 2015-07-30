@@ -19,7 +19,14 @@ void error(void);
 #define MAX_DST				   1.25
 #define MIN_DST				   1.9
 
-//extern enum class Insect_dir;
+enum Insect_dir
+{
+	CENTERED,
+	LEFT,
+	RIGHT,
+	TOO_FAR,
+	TOO_CLOSE
+};
 
 class SamplingClass
 {
@@ -27,11 +34,9 @@ protected:
 public:
 	// Methods
 	SamplingClass(int mode, int left_pin, int right_pin, int maf_size);
-	void getSample();
 	void continuousModeUpdate(void);
 	bool pulseModeUpdate(void);
 	bool fancyPulseModeUpdate(void);
-	void interpretData(float average_left, float average_right);
 
 	float getElement(int index, int dir);
 
@@ -47,6 +52,9 @@ public:
 	int _buffer_size;
 
 private:
+	void interpretData(float average_left, float average_right);
+	void getSample();
+
 	int _left_pin, _right_pin;
 	int _mode;// , _buffer_size;
 	bool left_over_thresh, right_over_thresh;

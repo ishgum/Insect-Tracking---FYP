@@ -45,7 +45,7 @@ void displayData(float average_left, float average_right) {
 	float diff = average_left - average_right;
 	float mag = abs(diff);
 	switch (Sampling.insect_dir){
-	case Insect_dir::LEFT:
+	case LEFT:
 		dir = "Left";
 		digitalWrite(LEFTLED, HIGH);
 		digitalWrite(RIGHTLED, LOW);

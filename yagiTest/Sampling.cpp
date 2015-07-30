@@ -13,7 +13,7 @@ SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, int maf_size
 	_left_pin = left_pin;
 	_right_pin = right_pin;
 	_buffer_size = maf_size;
-	insect_dir = Insect_dir::CENTERED;
+	insect_dir = CENTERED;
 
 	// Fill buffer
 	Serial.println("Filling buffer\n");
@@ -34,11 +34,12 @@ void SamplingClass::getSample(void){
 }
 
 void SamplingClass::continuousModeUpdate(void){
-	getSample();
-	buffer_left.addValue(current_left);
+	getSample();								// Sample ADC
+	buffer_left.addValue(current_left);			// Add values to buffers
 	buffer_right.addValue(current_right);
-	average_left = buffer_left.getAverage();
+	average_left = buffer_left.getAverage();	// Find new average value
 	average_right = buffer_right.getAverage();
+	interpretData(average_left, average_right);	// Update bug position based on average
 }
 
 /*
@@ -58,6 +59,7 @@ bool SamplingClass::pulseModeUpdate(void){
 		getSample();
 		pulse_left = current_left;
 		pulse_right = current_right;
+		interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
 		delay(20);	// wait until pulse has stopped
 		// signal pulse detected
 		return true;
@@ -106,6 +108,7 @@ bool SamplingClass::fancyPulseModeUpdate(void){
 		}
 		pulse_left = pulse_left / num_pulse_samples;
 		pulse_right = pulse_right / num_pulse_samples;
+		interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
 		return true;
 	}
 	else{	// No pulse; update noise floor readings

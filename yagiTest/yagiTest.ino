@@ -57,14 +57,14 @@ const Signal_mode MODE = SIMPLE_CONTINUOUS;				// Main mode switch for program
 
 SamplingClass Sampling(MODE, LEFT_PIN, RIGHT_PIN, MAF_SIZE);
 
-enum class Insect_dir
-{
-	CENTERED,
-	LEFT,
-	RIGHT,
-	TOO_FAR,
-	TOO_CLOSE
-};
+//enum Insect_dir
+//{
+//	CENTERED,
+//	LEFT,
+//	RIGHT,
+//	TOO_FAR,
+//	TOO_CLOSE
+//};
 //Insect_dir insect_dir = Insect_dir::CENTERED;
 
 float test_array_l[MAF_SIZE];
