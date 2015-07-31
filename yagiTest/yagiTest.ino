@@ -1,7 +1,7 @@
 /* ENEL400 Insect Tracking FYP
   Dylan Mackie, Michael Jones,
   2015
-
+OVERVIEW:
 Just reading & comparing two ADC's
 has provision to implement a Moving average filter,
 just change MAF_SIZE #define to size of MA buffer.
@@ -11,16 +11,24 @@ These should be commented out for headless operation for max speed,
 though at 115200baud this program should still be able to get a
 sample at least every 5ms.
 
-Max ADC read rate is ~0.1ms
-Can get ~ 1 sample per ms w/ DIR_MAG.
-digitalWrite typ takes <20us so can do this every loop
-
 Has basic detect & compare pulses functionality
 When no pulses are being detected the state can be queried by sending one character
 to the serial port. Send a msg by selecting CR or NL in serial monitor window,
 and hit enter in the msg window.
 
+NOTES:
+-Have to use 9600baud (bits per second) for HAC_96 radio
+
+-Max ADC read rate is ~0.1ms
+Can get ~ 1 sample per ms w/ DIR_MAG.
+digitalWrite typ takes <20us so can do this every loop
+
+-Tried adding 625 us delay in Serial.print (actually HardwareSerial.cpp in arduino installation folder)
+	to allow it to work with the HAC_96 radio. To be tested
+
 TODO:
+> Implement methods to comm with HAC_96 radio
+	> check performance at 9600 baud
 > investigate new error when using MAF_SIZE = 1
 > create pulse test code
 > check time display
@@ -41,6 +49,9 @@ TODO:
 #include "RunningAverage.h"
 
 // Settings
+const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, false if using local serial
+										// disables LEDs, and performs neccessary serial msg changes.
+
 enum Signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS }; // possible signal_modes
 
 const Signal_mode MODE = SIMPLE_CONTINUOUS;				// Main mode switch for program
@@ -71,34 +82,42 @@ float test_array_l[MAF_SIZE];
 float test_array_r[MAF_SIZE];
 
 void setup() {
-  Serial.begin(115200);    //for speed!
-  pinMode(LEFT_PIN, INPUT);
-  pinMode(RIGHT_PIN, INPUT);
-  init_LEDs();
-  Serial.println("STRONGEST:\tMAGNITUDE:");
+	if (HAC_96){
+		Serial.begin(9600);    // radio requirements
+	}
+	else
+	{
+		Serial.begin(115200);    //for speed!
+	}
+	pinMode(LEFT_PIN, INPUT);
+	pinMode(RIGHT_PIN, INPUT);
+	init_LEDs();
+	Serial.println("STRONGEST:\tMAGNITUDE:");
 
-  // fill test array
-  init_test_arrays();
+	// fill test array
+	init_test_arrays();
 
-  // Select mode based on MODE
-  if (MODE == PULSE){
-	  pulse();
-  }
-  else if (MODE == CONTINUOUS){
-	  continuous();
-  }
-  else if (MODE == SIMPLE_CONTINUOUS){
-	  simple();
-  }
-  else{
-	  error();
-  }
+	// Select mode based on MODE
+	if (MODE == PULSE){
+		pulse();
+	}
+	else if (MODE == CONTINUOUS){
+		continuous();
+	}
+	else if (MODE == SIMPLE_CONTINUOUS){
+		simple();
+	}
+	else{
+		error();
+	}
 }
 
 // super simple error call
 void error(void){
 	Serial.println("ERROR");
 	while (1){
+		delay(1000);
+		Serial.println("ERROR");
 	}
 }
 
@@ -208,9 +227,7 @@ void pulse(void) {
 		// end debug test
 		if (is_pulse){
 			displayData(Sampling.pulse_left, Sampling.pulse_right);
-			digitalWrite(LEFTLED, LOW);
-			digitalWrite(RIGHTLED, LOW);
-			digitalWrite(MIDDLELED, LOW);
+			setLEDs(OFF);	// turn LEDs off so we can see them flicker with pulse
 		}
 
 		delayMicroseconds(100); //max ADC speed given as 100us

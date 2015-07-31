@@ -17,6 +17,18 @@ void init_LEDs(void){
 	digitalWrite(BACKLED, LOW);
 }
 
+void setLEDs(Led_config led_config)
+{
+	switch (led_config){
+	case OFF:
+		digitalWrite(LEFTLED, LOW);
+		digitalWrite(RIGHTLED, LOW);
+		digitalWrite(MIDDLELED, LOW);
+		break;
+	default:
+		break;
+	}
+}
 //print buffer contents for debugging
 void print_buffers(void) {
 	Serial.print("Display buffer contents:\n");

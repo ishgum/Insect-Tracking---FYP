@@ -31,11 +31,16 @@
 
 extern SamplingClass Sampling; // Sampling is defined in Sampling.cpp // huhu woulda thunk it
 
+enum Led_config
+{
+	OFF
+};
+
 // Function prototypes
 void init_LEDs(void);
 void displayData(float average_left, float average_right);
 void serialResponse(void);
-//void setLEDs(int led_config)
+void setLEDs(Led_config led_config);
 
 
 #endif
