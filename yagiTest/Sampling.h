@@ -10,6 +10,7 @@
 #endif
 
 #include "RunningAverage.h"
+//#include "display.h"
 void error(void);
 
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
@@ -18,6 +19,8 @@ void error(void);
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define MAX_DST				   1.25
 #define MIN_DST				   1.9
+
+extern void myPrintString(const char input_str[]);
 
 enum Insect_dir
 {
@@ -33,7 +36,8 @@ class SamplingClass
 protected:
 public:
 	// Methods
-	SamplingClass(int mode, int left_pin, int right_pin, int maf_size);
+	SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_size);
+	void fillBuffer(void);
 	void continuousModeUpdate(void);
 	bool pulseModeUpdate(void);
 	bool fancyPulseModeUpdate(void);
@@ -49,7 +53,7 @@ public:
 	float pulse_left, pulse_right;					//result for pulsed mode.
 	Insect_dir insect_dir;
 
-	int _buffer_size;
+	uint8_t _buffer_size;
 
 private:
 	void interpretData(float average_left, float average_right);

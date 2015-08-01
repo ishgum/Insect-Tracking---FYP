@@ -30,3 +30,33 @@ Change RA lib to use ints
 // Pulse detection
 
 // end pulse detection
+
+//Radio
+Easiest way to accomodate radio is to add a delay in serial write function.
+Modify Print.c.pp
+Print.cpp can be found in arduino install folder; Arduino\hardware\arduino\avr\cores\arduino\Print.cpp
+In Print.cpp add in commented region to write function:
+
+/* default implementation: may be overridden */
+
+size_t Print::write(const uint8_t *buffer, size_t size)
+{
+
+  size_t n = 0;
+
+  while (size--) {
+
+/************************************************************************************************************************************/
+
+	 delay(2);	// Added by Dylan Mackie to make this work with HAK_96 radio.
+/***********************************************************************************************************************************/
+
+    n += write(*buffer++);
+
+  }
+
+  return n;
+
+}
+
+//end radio

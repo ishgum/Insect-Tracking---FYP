@@ -1,6 +1,6 @@
 /* ENEL400 Insect Tracking FYP
-  Dylan Mackie, Michael Jones,
-  2015
+Dylan Mackie, Michael Jones,
+2015
 OVERVIEW:
 Just reading & comparing two ADC's
 has provision to implement a Moving average filter,
@@ -24,23 +24,25 @@ Can get ~ 1 sample per ms w/ DIR_MAG.
 digitalWrite typ takes <20us so can do this every loop
 
 -Tried adding 625 us delay in Serial.print (actually HardwareSerial.cpp in arduino installation folder)
-	to allow it to work with the HAC_96 radio. To be tested
+to allow it to work with the HAC_96 radio. To be tested
 
 TODO:
+> debug serial response
+> Move all Serial to suitable function for HAK
 > Implement methods to comm with HAC_96 radio
-	> check performance at 9600 baud
+> check performance at 9600 baud
 > investigate new error when using MAF_SIZE = 1
 > create pulse test code
 > check time display
 > Change output to have more states:
-	> clockwise, anticlockwise, forwards, back, stop
+> clockwise, anticlockwise, forwards, back, stop
 > fix  pulse averaging													done, check
 >possibly trim rising & falling edges of pulse detect					done, check
-      to increase accuracy (if >3 samples achieved)						
->Have some overall gain information								
-  >scale comparison based on this gain information
+to increase accuracy (if >3 samples achieved)
+>Have some overall gain information
+>scale comparison based on this gain information
 >remove known pulse values from averaging buffer for noise floor		done, check
-  calculation
+calculation
 */
 
 #include "Sampling.h"
@@ -49,23 +51,19 @@ TODO:
 #include "RunningAverage.h"
 
 // Settings
-const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, false if using local serial
-										// disables LEDs, and performs neccessary serial msg changes.
+enum Signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS, SERIAL_TEST}; // possible signal_modes
 
-enum Signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS }; // possible signal_modes
-
-const Signal_mode MODE = SIMPLE_CONTINUOUS;				// Main mode switch for program
+const Signal_mode MODE = PULSE;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                           //otherwise use a more complicated mode that averages all samples during the pulse.
 #define TEST_MODE                      //Use test array not ADC readings
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAF_SIZE               50    // 256 absolute max, 200 probably safe
+#define MAF_SIZE               5    // 256 absolute max, 200 probably safe
 
 // Pin dfns
 #define LEFT_PIN       A0
 #define RIGHT_PIN      A3
 //unsigned long current_time, start_time; //50 days before rollover
-
 SamplingClass Sampling(MODE, LEFT_PIN, RIGHT_PIN, MAF_SIZE);
 
 //enum Insect_dir
@@ -84,15 +82,22 @@ float test_array_r[MAF_SIZE];
 void setup() {
 	if (HAC_96){
 		Serial.begin(9600);    // radio requirements
+		delay(500);
+		Serial.print(1);
+		delay(2);
+		Serial.println();
 	}
 	else
 	{
 		Serial.begin(115200);    //for speed!
 	}
+
 	pinMode(LEFT_PIN, INPUT);
 	pinMode(RIGHT_PIN, INPUT);
+	delay(500);
+
+	Sampling.fillBuffer();
 	init_LEDs();
-	Serial.println("STRONGEST:\tMAGNITUDE:");
 
 	// fill test array
 	init_test_arrays();
@@ -106,6 +111,9 @@ void setup() {
 	}
 	else if (MODE == SIMPLE_CONTINUOUS){
 		simple();
+	}
+	else if (MODE == SERIAL_TEST){
+		serialTest();
 	}
 	else{
 		error();
@@ -207,7 +215,7 @@ void continuous(void) {
     LED's updated every pulse.
     Serial updated every pulse.
     */
-void pulse(void) {
+void pulse(){
 	bool is_pulse = false;
 
 
@@ -233,10 +241,12 @@ void pulse(void) {
 		delayMicroseconds(100); //max ADC speed given as 100us
 		// Check for incoming serial messages, and print status if we get anything
 		// Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
-		if (Serial.available() > 0) {
+		if (Serial.available() > 0) {	
 			serialResponse();
 		}
 	}
 }
 
 void loop() {} // needs to be defined somewhere for arduino main() file to be happy
+				// might miss out on checking for serial events, see main() definition
+

@@ -138,7 +138,7 @@ void displayData(float average_left, float average_right) {
 #endif
 }
 
-void serial_response(void){
+void serialResponse(void){
 	int incomingByte = Serial.read();    // required to clear serial receive buffer
 	Serial.println("Serial Msg received");
 	print_buffers();
@@ -146,4 +146,16 @@ void serial_response(void){
 	displayData(Sampling.average_left, Sampling.average_right);
 	Serial.println("\nDisplay current:");
 	displayData(Sampling.current_left, Sampling.current_right);
+}
+
+
+void serialTest(){
+	uint8_t counter = 0;
+	while (1){
+		Serial.print("Hello World\t");
+		Serial.print(counter);
+		Serial.print("\n");
+		counter++;
+		delay(1000);
+	}
 }

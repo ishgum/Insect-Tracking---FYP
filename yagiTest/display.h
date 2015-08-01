@@ -13,7 +13,10 @@
 #include "Sampling.h"
 //#include "yagiTest.ino"
 
+
 //Display Modes
+const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, false if using local serial
+													// disables LEDs, and performs neccessary serial msg changes.
 #define PRINT_EVERY_N  800  // PULSE mode always prints / updates every pulse
 #define DIR_MAG             //display strongest dir & mag
 #define RAW                 //display raw V values
@@ -38,10 +41,12 @@ enum Led_config
 
 // Function prototypes
 void init_LEDs(void);
-void displayData(float average_left, float average_right);
-void serialResponse(void);
 void setLEDs(Led_config led_config);
 
+void displayData(float average_left, float average_right);
+void serialResponse(void);
+
+void serialTest();	// main loop for testing serial comms to HAK_96 radio
 
 #endif
 

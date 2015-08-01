@@ -6,21 +6,24 @@
 
 #include "Sampling.h"
 
-SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, int maf_size)
-	:buffer_left(_buffer_size), buffer_right(_buffer_size){
+SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_size)
+	:buffer_left(maf_size), buffer_right(maf_size){
 
 	_mode = mode;
 	_left_pin = left_pin;
 	_right_pin = right_pin;
 	_buffer_size = maf_size;
 	insect_dir = CENTERED;
+}
 
+void SamplingClass::fillBuffer(void){
 	// Fill buffer
-	Serial.println("Filling buffer\n");
+	Serial.print("Filling Buffer\n");
 	while (buffer_left.getCount() < _buffer_size) { // wait until bufffer is full
-		getSample();
+		//Serial.println(buffer_left.getCount());
+		continuousModeUpdate();
 	}
-	Serial.println("Buffer full\n");
+	Serial.print("Buffer Full\n");
 	average_left = buffer_left.getAverage();
 	average_right = buffer_right.getAverage();
 	noise_floor_left = average_left;
