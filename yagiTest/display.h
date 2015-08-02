@@ -14,7 +14,9 @@
 //#include "yagiTest.ino"
 
 
-//Display Modes
+/*******************************************************************************
+* Various settings for display modes
+*******************************************************************************/
 const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, false if using local serial
 													// disables LEDs, and performs neccessary serial msg changes.
 #define PRINT_EVERY_N  800  // PULSE mode always prints / updates every pulse
@@ -32,7 +34,7 @@ const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, fal
 //Other
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 
-extern SamplingClass Sampling; // Sampling is defined in Sampling.cpp // huhu woulda thunk it
+extern SamplingClass Sampling; // Sampling is declared in main
 
 enum Led_config
 {

@@ -1,22 +1,29 @@
-// General functions to display state and debug information via either:
-//	Serial monitor
-//	or LEDs
+/*******************************************************************************
+* FILE: display.cpp
+* General functions to display state and debug information via Serial and LEDs
+*******************************************************************************/
 
 #include "display.h"
 unsigned long current_time, start_time; //50 days before rollover
 
-
+/*******************************************************************************
+* Sets LED pin modes and inital state to off
+*******************************************************************************/
 void init_LEDs(void){
 	pinMode(LEFTLED, OUTPUT);
 	pinMode(RIGHTLED, OUTPUT);
 	pinMode(MIDDLELED, OUTPUT);
 	pinMode(BACKLED, OUTPUT);
+	//delay might be needed
 	digitalWrite(LEFTLED, LOW);
 	digitalWrite(RIGHTLED, LOW);
 	digitalWrite(MIDDLELED, LOW);
 	digitalWrite(BACKLED, LOW);
 }
 
+/*******************************************************************************
+* Set all LEDs to OFF
+*******************************************************************************/
 void setLEDs(Led_config led_config)
 {
 	switch (led_config){
@@ -24,12 +31,16 @@ void setLEDs(Led_config led_config)
 		digitalWrite(LEFTLED, LOW);
 		digitalWrite(RIGHTLED, LOW);
 		digitalWrite(MIDDLELED, LOW);
+		digitalWrite(BACKLED, LOW);
 		break;
 	default:
 		break;
 	}
 }
-//print buffer contents for debugging
+
+/*******************************************************************************
+* Prints both buffers contents for debugging
+*******************************************************************************/
 void print_buffers(void) {
 	Serial.print("Display buffer contents:\n");
 	String buffer_output = "";
@@ -47,16 +58,17 @@ void print_buffers(void) {
 }
 
 
-
-// determine output based on state of
-// insect_dir in Sampling object.
-// update LEDs and Serial
+/*******************************************************************************
+* Prints insect state and other optional information to Serial.
+* Also updates LED states
+* Options toggled by #defines in display.h
+*******************************************************************************/
 void displayData(float average_left, float average_right) {
 	static int N = 0;
 	String dir = "";
 	float diff = average_left - average_right;
 	float mag = abs(diff);
-	switch (Sampling.insect_dir){
+	switch (Sampling.insect_state){
 	case LEFT:
 		dir = "Left";
 		digitalWrite(LEFTLED, HIGH);
@@ -138,6 +150,9 @@ void displayData(float average_left, float average_right) {
 #endif
 }
 
+/*******************************************************************************
+* Prints program internal state for debugging
+*******************************************************************************/
 void serialResponse(void){
 	int incomingByte = Serial.read();    // required to clear serial receive buffer
 	Serial.println("Serial Msg received");
@@ -148,7 +163,9 @@ void serialResponse(void){
 	displayData(Sampling.current_left, Sampling.current_right);
 }
 
-
+/*******************************************************************************
+* Hello World used to debug transmit only comms on HAK_96 radio
+*******************************************************************************/
 void serialTest(){
 	uint8_t counter = 0;
 	while (1){

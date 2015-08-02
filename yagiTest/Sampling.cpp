@@ -1,11 +1,16 @@
-// Contains all code related to sampling the ADCs
-// Class contains easily accessible buffer,
-// RSSI magnitudes, pulse magnitudes, and rough time estimate
-// Notes:
-// Time rollover is 50 days
-
+/*******************************************************************************
+* FILE: Sampling.cpp
+* Contains all code related to sampling the ADCs
+* Class contains easily accessible buffer,
+* RSSI magnitudes, pulse magnitudes, and rough time estimate
+* NOTES:
+* Time rollover is 50 days
+*******************************************************************************/
 #include "Sampling.h"
 
+/*******************************************************************************
+* SamplingClass Constructor
+*******************************************************************************/
 SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_size)
 	:buffer_left(maf_size), buffer_right(maf_size){
 
@@ -13,9 +18,12 @@ SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_
 	_left_pin = left_pin;
 	_right_pin = right_pin;
 	_buffer_size = maf_size;
-	insect_dir = CENTERED;
+	insect_state = CENTERED;
 }
 
+/*******************************************************************************
+* Fills RunningAverage buffer with sequential ADC samples
+*******************************************************************************/
 void SamplingClass::fillBuffer(void){
 	// Fill buffer
 	Serial.print("Filling Buffer\n");
@@ -30,12 +38,19 @@ void SamplingClass::fillBuffer(void){
 	noise_floor_right = average_right;
 }
 
-// Performs a sample without return
+/*******************************************************************************
+* Updates current reading with one ADC sample on both channels
+*******************************************************************************/
 void SamplingClass::getSample(void){
 	current_left = analogRead(_left_pin) * ARDUINO_PWR_V / 1023.0;
 	current_right = analogRead(_right_pin) * ARDUINO_PWR_V / 1023.0;
 }
 
+/*******************************************************************************
+* Continuous mode method
+* Performs sample, buffer update, and updates average reading
+* Averaged reading is then interpreted to update insect state
+*******************************************************************************/
 void SamplingClass::continuousModeUpdate(void){
 	getSample();								// Sample ADC
 	buffer_left.addValue(current_left);			// Add values to buffers
@@ -45,11 +60,13 @@ void SamplingClass::continuousModeUpdate(void){
 	interpretData(average_left, average_right);	// Update bug position based on average
 }
 
-/*
-Determines RSSI for pulsed signals
-Returns value sampled 5ms after pulse detected.
-Sampled value should sit 5ms to 10ms into pulse
-*/
+/*******************************************************************************
+* Simplified pulse mode method
+* Depreciated once the more complex mode is tested working
+* Performs sample, and update for pulsed signals
+* Uses value sampled 5ms after pulse detected to determine pulse amplitude
+* Sampled value should sit 5ms to 10ms into pulse
+*******************************************************************************/
 bool SamplingClass::pulseModeUpdate(void){
 	getSample();
 	// Find if reading exceeds noise floor
@@ -76,10 +93,11 @@ bool SamplingClass::pulseModeUpdate(void){
 	return false;
 }
 
-/* 
-Determines RSSI for pulsed signals
-Averages the pulse.
-*/
+/*******************************************************************************
+* Pulse mode method
+* Performs sample, and update for pulsed signals
+* Averages all samples determined to sit on the pulse
+*******************************************************************************/
 bool SamplingClass::fancyPulseModeUpdate(void){
 	getSample();
 	// Find if reading exceeds noise floor
@@ -123,7 +141,10 @@ bool SamplingClass::fancyPulseModeUpdate(void){
 	return false;
 }
 
-// returns an element of the buffer, useful for debug
+/*******************************************************************************
+* Returns an element of the buffers
+* dir 0 = left, 1 = right
+*******************************************************************************/
 float SamplingClass::getElement(int index, int dir){
 	if (dir == 0){
 		return buffer_left.getElement(index);
@@ -136,26 +157,28 @@ float SamplingClass::getElement(int index, int dir){
 	}
 }
 
-// Logic for interpreting the left and right yagi RSSI
+/*******************************************************************************
+* Updates insect state based on passed RSSI readings
+*******************************************************************************/
 void SamplingClass::interpretData(float average_left, float average_right){
 	float diff = average_left - average_right;
 	float mag = abs(diff);
-	bool too_weak = (average_left < MAX_DST && average_right < MAX_DST);
-	bool too_strong = (average_left > MIN_DST || average_right > MIN_DST);
+	bool too_weak = (average_left < MAX_DST && average_right < MAX_DST);	// if both Yagi RSSI's are too weak
+	bool too_strong = (average_left > MIN_DST || average_right > MIN_DST);	// if at least one Yagi RSSI is too strong
 
 	if (diff>DIFFERENCE_THRESHOLD){
-		insect_dir = LEFT;
+		insect_state = LEFT;
 	}
 	else if (diff < -DIFFERENCE_THRESHOLD){
-		insect_dir = RIGHT;
+		insect_state = RIGHT;
 	}
 	else if (too_weak){
-		insect_dir = TOO_FAR;
+		insect_state = TOO_FAR;
 	}
 	else if (too_strong){
-		insect_dir = TOO_CLOSE;
+		insect_state = TOO_CLOSE;
 	}
 	else {
-		insect_dir = CENTERED;
+		insect_state = CENTERED;
 	}
 }

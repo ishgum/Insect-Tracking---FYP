@@ -22,7 +22,7 @@ void error(void);
 
 extern void myPrintString(const char input_str[]);
 
-enum Insect_dir
+enum Insect_state
 {
 	CENTERED,
 	LEFT,
@@ -31,6 +31,9 @@ enum Insect_dir
 	TOO_CLOSE
 };
 
+/*******************************************************************************
+* Class to implement all ADC sampling and signal interpretation functions
+*******************************************************************************/
 class SamplingClass
 {
 protected:
@@ -51,7 +54,7 @@ public:
 	float average_left, average_right; // averaged for continuous mode
 	float noise_floor_left, noise_floor_right;		// estimate of noise floor for pulsed mode
 	float pulse_left, pulse_right;					//result for pulsed mode.
-	Insect_dir insect_dir;
+	Insect_state insect_state;
 
 	uint8_t _buffer_size;
 
@@ -64,7 +67,7 @@ private:
 	bool left_over_thresh, right_over_thresh;
 };
 
-extern SamplingClass Sampling; // Sampling is defined in main (yagiTest)
+extern SamplingClass Sampling; // Sampling is declared in main (yagiTest)
 
 #endif
 
