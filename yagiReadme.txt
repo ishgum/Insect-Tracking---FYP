@@ -93,5 +93,14 @@ Either use interrupts on pulse signal, or break printing into smaller tasks.
 
 Testing with all display #defines takes about 10ms per displayData call
 Testing with just time and dir display #defines takes about 3ms per displayData call
-	
+Looks like 5ms on scope . . .
+
+With continuous;
+printing every 100 samples,
+2ms delay in write, 2ms either side of println,
+using println to print,
+about 12-14 characters,
+takes 25ms, with 1ms between bytes. Sent every ~100ms
+Expected 2ms between bytes, and 12-14Bytes . . .
+ 
 //end radio

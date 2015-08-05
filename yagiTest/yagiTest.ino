@@ -51,6 +51,7 @@ calculation
 > consider using timer interrupts for ADC sampling to mitigate serial comms delay
 *******************************************************************************/
 
+//#include "TimerOne.h"
 #include "Sampling.h"
 #include "display.h"
 #include "distance.h"
@@ -115,6 +116,12 @@ void setup() {
 		error();
 	}
 }
+
+/*******************************************************************************
+* Super basic error loop
+*******************************************************************************/
+
+
 
 /*******************************************************************************
 * Super basic error loop
