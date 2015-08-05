@@ -1,12 +1,12 @@
 // Function related to determining distance of the bug to the yagis
-// 
+// Currently unused
 // 
 
 #include "distance.h"
 
 /* Returns the minimum distance to the bug based on LUT
 note: the in array should have increasing values
-Modified from http://playground.arduino.cc/Main/MultiMap*/
+Modified from http://playground.arduino.cc/Main/MultiMap */
 float lookup_distance(float val, float * _in, int * _out, uint8_t size)
 {
 	// take care the value is within range

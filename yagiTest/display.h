@@ -19,9 +19,10 @@
 *******************************************************************************/
 const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, false if using local serial
 													// disables LEDs, and performs neccessary serial msg changes.
-#define PRINT_EVERY_N  800  // PULSE mode always prints / updates every pulse
-#define DIR_MAG             //display strongest dir & mag
-#define RAW                 //display raw V values
+#define PRINT_EVERY_N  100  // for CONTINUOUS mode, PULSE mode always prints every pulse
+#define DIR             //display strongest dir & mag
+//#define MAG             //display mag diff between yagis, abs(L-R)
+//#define RAW                 //display raw V values
 //#define CRAPH               //display magnitude of differences with .'s (to make a graph of sorts)
 #define DISP_MILLIS         // display rough time elasped since while loop beginning in millisec
 

@@ -14,7 +14,7 @@ void init_LEDs(void){
 	pinMode(RIGHTLED, OUTPUT);
 	pinMode(MIDDLELED, OUTPUT);
 	pinMode(BACKLED, OUTPUT);
-	//delay might be needed
+	// a delay might be needed here
 	digitalWrite(LEFTLED, LOW);
 	digitalWrite(RIGHTLED, LOW);
 	digitalWrite(MIDDLELED, LOW);
@@ -115,16 +115,20 @@ void displayData(float average_left, float average_right) {
 	String output = "";
 #ifdef DISP_MILLIS
 	current_time = millis() - start_time;
-	output += current_time;
+	float current_time_s = current_time / 1000.0;
+	output += current_time_s;
 	output += "\t";
 #endif
-#ifdef DIR_MAG
+#ifdef DIR
 	// output = "Strongest:\t";
 	output += dir + "\t";
-	output += mag;
 #endif
-#ifdef CRAPH
+#ifdef MAG
+	output += mag;
 	output += "\t";
+#endif // MAG
+
+#ifdef CRAPH
 	for (int i = 0; i < mag * 10 && i < 100; i++) {
 		output += ".";
 		if (i == 99) {

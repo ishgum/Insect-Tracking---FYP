@@ -30,7 +30,7 @@ digitalWrite typ takes <20us so can do this every loop
 
 *******************************************************************************
 TODO:
-
+> debug purple LED staying on
 > debug serial response
 > Move all Serial to suitable function for HAK
 	> limit serial comms due to slow serial
@@ -48,6 +48,7 @@ to increase accuracy (if >3 samples achieved)
 >scale comparison based on this gain information if helpful
 >remove known pulse values from averaging buffer for noise floor		done, check
 calculation
+> consider using timer interrupts for ADC sampling to mitigate serial comms delay
 *******************************************************************************/
 
 #include "Sampling.h"
@@ -58,7 +59,7 @@ calculation
 // Settings
 enum Signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS, SERIAL_TEST}; // possible signal_modes
 
-const Signal_mode MODE = PULSE;//SIMPLE_CONTINUOUS;				// Main mode switch for program
+const Signal_mode MODE = CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                           //otherwise use a more complicated mode that averages all samples during the pulse.
 #define TEST_MODE                      //Use test array not ADC readings
@@ -119,10 +120,9 @@ void setup() {
 * Super basic error loop
 *******************************************************************************/
 void error(void){
-	Serial.println("ERROR");
 	while (1){
-		delay(1000);
 		Serial.println("ERROR");
+		delay(1000);
 	}
 }
 
@@ -141,7 +141,7 @@ void init_test_arrays(void) {
 }
 
 /*******************************************************************************
-* Return next array sample
+* Return next test array sample
 *******************************************************************************/
 float get_test_sample(float * _sample_array, int _size){
   // Init index
@@ -156,7 +156,7 @@ float get_test_sample(float * _sample_array, int _size){
 }
 
 /*******************************************************************************
-* Return random sample to debug pulse detection
+* Return random test sample to debug pulse detection
 *******************************************************************************/
 float get_random_sample(void){
   // return value between 0.5V an 2.5V
@@ -174,6 +174,8 @@ void simple(void) {
     Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
     Serial.print("\t");
     Serial.println((analogRead(RIGHT_PIN))*ARDUINO_PWR_V/1023.0);
+	//Serial.print("\r\n");
+
   }
 }
 
@@ -195,7 +197,6 @@ void continuous(void) {
 	Sampling.continuousModeUpdate();
 	displayData(Sampling.average_left, Sampling.average_right);
     delayMicroseconds(100); //max ADC speed given as 100us, serial takes much longer than this anyway
-    
     // Check for incoming serial messages, and print status if we get anything
     // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
     if (Serial.available() > 0) {
