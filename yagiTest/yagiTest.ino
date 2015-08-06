@@ -51,7 +51,7 @@ calculation
 > consider using timer interrupts for ADC sampling to mitigate serial comms delay
 *******************************************************************************/
 
-//#include "TimerOne.h"
+#include "TimerOne.h"
 #include "Sampling.h"
 #include "display.h"
 #include "distance.h"
@@ -99,6 +99,10 @@ void setup() {
 	// fill test array
 	init_test_arrays();
 
+	// init Timer interrupt for ADC sampling
+	Timer1.initialize(2000); // set a timer of length 1000 microseconds (or 0.001 sec - or 1kHz)
+	Timer1.attachInterrupt(timerIsr); // attach the service routine here
+
 	// Select mode based on MODE
 	if (MODE == PULSE){
 		pulse();
@@ -118,9 +122,13 @@ void setup() {
 }
 
 /*******************************************************************************
-* Super basic error loop
+* timer ISR
+* Sample ADC and perform a lot of processing despite best practices b/c how
+* should I buffer it otherwise?
 *******************************************************************************/
+void timerIsr(){
 
+}
 
 
 /*******************************************************************************

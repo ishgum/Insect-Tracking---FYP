@@ -19,6 +19,10 @@ SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_
 	_right_pin = right_pin;
 	_buffer_size = maf_size;
 	insect_state = CENTERED;
+	_idxConsumer = 0;
+	_idxProducer = 0;
+	_consumerDelay = 0;
+	_buffer_mutex = 1;
 }
 
 /*******************************************************************************
@@ -39,58 +43,19 @@ void SamplingClass::fillBuffer(void){
 }
 
 /*******************************************************************************
-* Updates current reading with one ADC sample on both channels
+* Updates adc_isr_buffer with one ADC sample on both channels
 *******************************************************************************/
 void SamplingClass::getSample(void){
-	current_left = analogRead(_left_pin) * ARDUINO_PWR_V / 1023.0;
-	current_right = analogRead(_right_pin) * ARDUINO_PWR_V / 1023.0;
-}
-
-/*******************************************************************************
-* Continuous mode method
-* Performs sample, buffer update, and updates average reading
-* Averaged reading is then interpreted to update insect state
-*******************************************************************************/
-void SamplingClass::continuousModeUpdate(void){
-	getSample();								// Sample ADC
-	buffer_left.addValue(current_left);			// Add values to buffers
-	buffer_right.addValue(current_right);
-	average_left = buffer_left.getAverage();	// Find new average value
-	average_right = buffer_right.getAverage();
-	interpretData(average_left, average_right);	// Update bug position based on average
-}
-
-/*******************************************************************************
-* Simplified pulse mode method
-* Depreciated once the more complex mode is tested working
-* Performs sample, and update for pulsed signals
-* Uses value sampled 5ms after pulse detected to determine pulse amplitude
-* Sampled value should sit 5ms to 10ms into pulse
-*******************************************************************************/
-bool SamplingClass::pulseModeUpdate(void){
-	getSample();
-	// Find if reading exceeds noise floor
-	left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
-	right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
-
-	// Pulse detected
-	if ((left_over_thresh || right_over_thresh)) {
-		delay(5);			// wait until pulse has risen (rough)
-		getSample();
-		pulse_left = current_left;
-		pulse_right = current_right;
-		interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
-		delay(20);	// wait until pulse has stopped
-		// signal pulse detected
-		return true;
+	adc_isr_buffer[0][_idxProducer] = analogRead(_left_pin);// *ARDUINO_PWR_V / 1023.0;
+	adc_isr_buffer[1][_idxProducer] = analogRead(_right_pin);// *ARDUINO_PWR_V / 1023.0;
+	_idxProducer++;
+	if (_idxProducer >= 5){ // rollover
+		_idxProducer = 0;
 	}
-	else{	// No pulse; update noise floor readings
-		buffer_left.addValue(current_left);
-		buffer_right.addValue(current_right);
-		noise_floor_left = buffer_left.getAverage();
-		noise_floor_right = buffer_right.getAverage();
+	if (_idxProducer == _idxConsumer){
+		// Consumer too slow, set flag here to print error later
 	}
-	return false;
+	_consumerDelay++;
 }
 
 /*******************************************************************************
@@ -99,46 +64,51 @@ bool SamplingClass::pulseModeUpdate(void){
 * Averages all samples determined to sit on the pulse
 *******************************************************************************/
 bool SamplingClass::fancyPulseModeUpdate(void){
-	getSample();
-	// Find if reading exceeds noise floor
-	left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
-	right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
+	if (_consumerDelay > 0){
+		// Find if reading exceeds noise floor
+		_buffer_mutex
+		left_over_thresh = adc_isr_buffer[0][_idxConsunmer] >= noise_floor_left + PULSE_THRESHOLD;
+		right_over_thresh = adc_isr_buffer[0][_idxProducer] >= noise_floor_right + PULSE_THRESHOLD;
 
-	//fancy pulse
-	if ((left_over_thresh || right_over_thresh)) {
-		int num_pulse_samples = 0;
-		delay(1); // ignore rising edge
+		//fancy pulse
+		if ((left_over_thresh || right_over_thresh)) {
+			int num_pulse_samples = 0;
+			delay(1); // ignore rising edge
 
-		// get new sample which should be on peak of pulse
-		getSample();
-		left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
-		right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
-		if ((!left_over_thresh && !right_over_thresh)) {
-			// pulse lasted 1 sample
-			Serial.println("1 sample pulse, noise?");
-		}
-
-		while ((left_over_thresh || right_over_thresh)){ //during pulse
-			pulse_left += current_left;
-			pulse_right += current_right;
-			num_pulse_samples++;
+			// get new sample which should be on peak of pulse
 			getSample();
 			left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
 			right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
-			
+			if ((!left_over_thresh && !right_over_thresh)) {
+				// pulse lasted 1 sample
+				Serial.println("1 sample pulse, noise?");
+			}
+
+			while ((left_over_thresh || right_over_thresh)){ //during pulse
+				pulse_left += current_left;
+				pulse_right += current_right;
+				num_pulse_samples++;
+				getSample();
+				left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
+				right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
+
+			}
+			pulse_left = pulse_left / num_pulse_samples;
+			pulse_right = pulse_right / num_pulse_samples;
+			interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
+			return true;
 		}
-		pulse_left = pulse_left / num_pulse_samples;
-		pulse_right = pulse_right / num_pulse_samples;
-		interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
-		return true;
+		else{	// No pulse; update noise floor readings
+			buffer_left.addValue(current_left);
+			buffer_right.addValue(current_right);
+			noise_floor_left = buffer_left.getAverage();
+			noise_floor_right = buffer_right.getAverage();
+		}
+		return false;
+
+		_idxConsumer++;
+		_consumerDelay--;
 	}
-	else{	// No pulse; update noise floor readings
-		buffer_left.addValue(current_left);
-		buffer_right.addValue(current_right);
-		noise_floor_left = buffer_left.getAverage();
-		noise_floor_right = buffer_right.getAverage();
-	}
-	return false;
 }
 
 /*******************************************************************************

@@ -65,6 +65,11 @@ private:
 	int _left_pin, _right_pin;
 	int _mode;// , _buffer_size;
 	bool left_over_thresh, right_over_thresh;
+	int adc_isr_buffer[2][5];	// for adc ISR to fill, usage e.g [0][0] for 1st left, [1][4] for 5th right
+	uint8_t _idxProducer;
+	uint8_t _idxConsumer;
+	uint8_t _consumerDelay;
+	uint8_t _buffer_mutex;	// 1 if available to write
 };
 
 extern SamplingClass Sampling; // Sampling is declared in main (yagiTest)
