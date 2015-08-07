@@ -2,11 +2,12 @@
 #define INSECT
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/gpu/gpu.hpp>
 #include <numeric> 
 
 using namespace cv;
 using namespace std;
-
+using namespace cv::gpu;
 
 #define ROI_SIZE .15
 #define HEIGHT_OFFSET 10

@@ -4,6 +4,10 @@
 #include <opencv2/video/tracking.hpp>
 #include <iostream>
 
+// GPU libs
+
+#include <opencv2/gpu/gpu.hpp
+
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
@@ -12,6 +16,8 @@
 
 using namespace cv;
 using namespace std;
+
+using namespace cv::gpu;
 
 #define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode.
@@ -131,7 +137,7 @@ int main(int argc, char** argv)
 	#endif // FPS
 
 	Mat src, src_ROI;
-	
+	GpuMat g_src;
 
 #ifdef USE_CAM
 	src = irGetImage();
@@ -148,6 +154,9 @@ int main(int argc, char** argv)
 
 
 	while (!src.empty()) {
+        
+        //Upload frame to gpu (TO DO: investigate direct stream to GPU mem)
+        g_src.upload(src);  //Need to download to CPU once processing finished - g_src.download(src)
 
 #ifdef RECORD_SOURCE_W_BOX
 		// write output video w/ text
