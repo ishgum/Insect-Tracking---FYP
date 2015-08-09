@@ -3,6 +3,7 @@
 
 #include <opencv2/core/core.hpp>
 #include <numeric> 
+#include <stdio.h>
 
 using namespace cv;
 using namespace std;

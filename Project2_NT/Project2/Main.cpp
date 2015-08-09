@@ -3,12 +3,13 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <iostream>
+#include <stdio.h>
 
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
-#include "IrCam.h"
-#include "Kalman.h"
+//#include "IrCam.h"
+//#include "Kalman.h"
 
 using namespace cv;
 using namespace std;
@@ -17,7 +18,7 @@ using namespace std;
 #define FPS //wall breaks (==0) on release mode.
 //#define KALMAN
 #define WAIT_PERIOD	10
-#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
+//#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
 
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
@@ -102,10 +103,20 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
 
 	//DEPTH TESTS:
-	capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
+
+
+	cout << "Loading file" << endl;
+
 
 	// Relative path to small test file
 	//capture.open("../../test.avi");
+	//capture.open("../../retro2_2015-05-09-193310-0000.avi");
+	//capture.open("../../realRun4_2_OK.avi");
+	capture.open("../../realRun4_2_OK_shorter.avi");
+
+	cout << "File loaded" << endl;
+
 
 	//DYLANS folder structure:
 	//capture.open("C:/Users/Dylan/Documents/FYP/data/MVI_2987.MOV");
@@ -126,18 +137,27 @@ int main(int argc, char** argv)
 		#endif //DEBUG
 	#endif    // KALMAN
 
+	cout << "HERE" << endl;
+
 	#ifdef FPS
-	Fps fps(WAIT_PERIOD, fps_mode_t::WALL); // set what displays by changing mode to WALL, CPU, or BOTH
+	Fps fps(WAIT_PERIOD, WALL); // set what displays by changing mode to WALL, CPU, or BOTH
 	#endif // FPS
+
+	cout << "FPS done" << endl;
 
 	Mat src, src_ROI;
 	
+	cout << "MAT" << endl;
 
 #ifdef USE_CAM
 	src = irGetImage();
 #else
+	cout << "SEG fault?" << endl;
 	capture >> src;
+	cout << "Nope" << endl;
 #endif
+
+	cout << "CAP >> SRC" << endl;
 	
 	Insect insect(&src);
 
@@ -146,7 +166,7 @@ int main(int argc, char** argv)
 
 	/********** WHILE LOOP *********/
 
-
+cout << "Starting LOOP!" << endl;
 	while (!src.empty()) {
 
 #ifdef RECORD_SOURCE_W_BOX

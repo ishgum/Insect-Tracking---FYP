@@ -254,3 +254,14 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Profiling stuff
+gmon.out
+
+# 
