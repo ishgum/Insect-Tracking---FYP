@@ -6,7 +6,7 @@
 
 // GPU libs
 
-#include <opencv2/gpu/gpu.hpp
+#include <opencv2/gpu/gpu.hpp>
 
 #include "Thresholding.h"
 #include "Insect.h"
@@ -34,13 +34,18 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 
 
 
-vector<Point2f> findObjects(Mat inputImage) {
+vector<Point2f> findObjects(GpuMat inputImage) {
 	vector<vector<Point> > contours;
 	vector<Point2f> centres;
 	vector<Vec4i> hierarchy;
-	Mat contourEdges;
+	GpuMat contourEdges_g;
 
-	Canny(inputImage, contourEdges, 100, 100 * 2, 3);
+	// Detect edges on GPU
+	Canny(inputImage, contourEdges_g, 100, 100 * 2, 3);
+
+	// Download edges to CPU (no current GPU findContours function)
+	Mat contourEdges(contourEdges_g);
+
 	findContours(contourEdges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	
 	for (int i = 0; i < contours.size(); i++)
@@ -60,9 +65,10 @@ Insect findInsect(Insect insect, GpuMat inputImage) {
 
 	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
 	//split(*inputImage, values);						// Split into channels
-    cv::gpu::split(*inputImage, &values_g); // May need to be & of vector<GpuMat>
+    split(inputImage, values_g);				// GPU split into three channels; may need to be & of vector<GpuMat>
     
 	lum_g = values_g[0];
+	//Mat lum(values_g[0]);						// Download luminance channel off GPU
 
 	int lumThreshold = findThreshold(lum_g);		//Perform Dynamic thresholding on the saturation image
 
@@ -71,10 +77,11 @@ Insect findInsect(Insect insect, GpuMat inputImage) {
 		return insect;
 	}
 
-	threshold(lum, lum, lumThreshold, 255, 0);
+	//threshold(lum, lum, lumThreshold, 255, 0);
+	threshold(lum_g, lum_g, lumThreshold, 255, 0);
 	insect.updateHeight(lumThreshold);
 
-	vector<Point2f> objectCentres = findObjects(lum);
+	vector<Point2f> objectCentres = findObjects(lum_g);
 
 	if (objectCentres.size() == 0) {
 		insect.found = false;

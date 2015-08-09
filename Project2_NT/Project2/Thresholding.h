@@ -21,7 +21,7 @@ public:
 	int threshold;
 
 	myHist();
-	myHist(GpuMat);
+	myHist(Mat);
 	void findPeaksandMins(int);
 	void findThresholdByArea(int);
 };
