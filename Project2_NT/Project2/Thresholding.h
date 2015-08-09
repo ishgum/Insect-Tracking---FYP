@@ -4,11 +4,11 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
+#include <opencv2/gpu/gpu.hpp>
 
 using namespace cv;
 using namespace std;
-
+using namespace cv::gpu;
 
 class myHist {
 	vector<double> histogram;
@@ -27,6 +27,6 @@ public:
 };
 
 
-int findThreshold(Mat inputImage);
+int findThreshold(GpuMat inputImage);
 
 #endif

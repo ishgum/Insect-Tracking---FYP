@@ -5,6 +5,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <opencv2/gpu/gpu.hpp>
+
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
@@ -13,6 +15,7 @@
 
 using namespace cv;
 using namespace std;
+using namespace cv::gpu;
 
 #define DEBUG		//display video output windows
 #define FPS //wall breaks (==0) on release mode.
@@ -28,8 +31,31 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 }
 
 
+vector<Point2f> findObjects(GpuMat inputImage) {
+	vector<vector<Point> > contours;
+	vector<Point2f> centres;
+	vector<Vec4i> hierarchy;
+	GpuMat contourEdges_g;
 
-vector<Point2f> findObjects(Mat inputImage) {
+	// Detect edges on GPU
+	Canny(inputImage, contourEdges_g, 100, 100 * 2, 3);
+
+	// Download edges to CPU (no current GPU findContours function)
+	Mat contourEdges(contourEdges_g);
+
+	findContours(contourEdges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	
+	for (int i = 0; i < contours.size(); i++)
+	{
+		Moments conMom = (moments(contours[i], false));
+		if ((conMom.m00 < 500) && (conMom.m00 > 5)) {
+			centres.push_back(Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00));
+		}
+	}
+	return centres;
+}
+
+/*vector<Point2f> findObjects(Mat inputImage) {
 	vector<vector<Point> > contours;
 	vector<Point2f> centres;
 	vector<Vec4i> hierarchy;
@@ -46,9 +72,9 @@ vector<Point2f> findObjects(Mat inputImage) {
 		}
 	}
 	return centres;
-}
+}*/
 
-
+/*
 Insect findInsect(Insect insect, Mat* inputImage) {
 	Mat values[3], image_hsl, lum;
 
@@ -77,7 +103,41 @@ Insect findInsect(Insect insect, Mat* inputImage) {
 	insect.updatePosition(objectCentres[0]);
 	return insect;
 }
+*/
 
+Insect findInsect(Insect insect, GpuMat inputImage) {
+    GpuMat image_hsl_g, lum_g, values_g[3];
+	//Mat values[3], image_hsl, lum;
+
+	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
+	//split(*inputImage, values);						// Split into channels
+    split(inputImage, values_g);				// GPU split into three channels; may need to be & of vector<GpuMat>
+    
+	lum_g = values_g[0];
+	//Mat lum(values_g[0]);						// Download luminance channel off GPU
+
+	int lumThreshold = findThreshold(lum_g);		//Perform Dynamic thresholding on the saturation image
+
+	if (lumThreshold < 0) {
+		insect.found = false;
+		return insect;
+	}
+
+	//threshold(lum, lum, lumThreshold, 255, 0);
+	threshold(lum_g, lum_g, lumThreshold, 255, 0);
+	insect.updateHeight(lumThreshold);
+
+	vector<Point2f> objectCentres = findObjects(lum_g);
+
+	if (objectCentres.size() == 0) {
+		insect.found = false;
+		return insect;
+	}
+
+	insect.found = true;
+	insect.updatePosition(objectCentres[0]);
+	return insect;
+}
 
 /** @function main */
 int main(int argc, char** argv)
@@ -110,10 +170,10 @@ int main(int argc, char** argv)
 
 
 	// Relative path to small test file
-	//capture.open("../../test.avi");
+	capture.open("../../test.avi");
 	//capture.open("../../retro2_2015-05-09-193310-0000.avi");
 	//capture.open("../../realRun4_2_OK.avi");
-	capture.open("../../realRun4_2_OK_shorter.avi");
+	//capture.open("../../realRun4_2_OK_shorter.avi");
 
 	cout << "File loaded" << endl;
 
@@ -146,6 +206,7 @@ int main(int argc, char** argv)
 	cout << "FPS done" << endl;
 
 	Mat src, src_ROI;
+	GpuMat g_src;
 	
 	cout << "MAT" << endl;
 
@@ -176,7 +237,10 @@ cout << "Starting LOOP!" << endl;
 
 		src_ROI = src(insect.ROI);
 
-		insect = findInsect(insect, &src_ROI);
+		g_src.upload(src_ROI);
+
+		//insect = findInsect(insect, &src_ROI);
+		insect = findInsect(insect, g_src);
 		insect.updateROI(&src);
 
 #ifdef DEBUG
