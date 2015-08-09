@@ -137,7 +137,7 @@ int myHist::findNextMin(int testThreshold) {
 }
 
 
-int findThreshold(Mat inputImage) {
+int findThreshold(GpuMat inputImage) {
 
 	myHist hist(findHistogram(inputImage));
 	hist.findPeaksandMins();

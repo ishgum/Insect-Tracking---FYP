@@ -54,14 +54,17 @@ vector<Point2f> findObjects(Mat inputImage) {
 }
 
 
-Insect findInsect(Insect insect, Mat* inputImage) {
-	Mat values[3], image_hsl, lum;
+Insect findInsect(Insect insect, GpuMat inputImage) {
+    GpuMat image_hsl_g, lum_g, values_g[3];
+	//Mat values[3], image_hsl, lum;
 
 	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
-	split(*inputImage, values);						// Split into channels
-	lum = values[0];
+	//split(*inputImage, values);						// Split into channels
+    cv::gpu::split(*inputImage, &values_g); // May need to be & of vector<GpuMat>
+    
+	lum_g = values_g[0];
 
-	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
+	int lumThreshold = findThreshold(lum_g);		//Perform Dynamic thresholding on the saturation image
 
 	if (lumThreshold < 0) {
 		insect.found = false;
@@ -155,17 +158,18 @@ int main(int argc, char** argv)
 
 	while (!src.empty()) {
         
-        //Upload frame to gpu (TO DO: investigate direct stream to GPU mem)
-        g_src.upload(src);  //Need to download to CPU once processing finished - g_src.download(src)
 
 #ifdef RECORD_SOURCE_W_BOX
 		// write output video w/ text
 		outputVideo.write(src_w_text);
 #endif
 
-		src_ROI = src(insect.ROI);
+		src_ROI = src(insect.ROI);  // Non-parallel operation
+        
+        //Upload frame to gpu (TO DO: investigate direct stream to GPU mem)
+        g_src.upload(src_ROI);  //Need to download to CPU once processing finished - g_src.download(src)
 
-		insect = findInsect(insect, &src_ROI);
+		insect = findInsect(insect, g_src);
 		insect.updateROI(&src);
 
 #ifdef DEBUG
