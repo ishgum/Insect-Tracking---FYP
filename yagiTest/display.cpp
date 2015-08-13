@@ -142,6 +142,7 @@ void displayData(float average_left, float average_right) {
 	output += "\tR:\t";
 	output += String(average_right);
 #endif
+	Serial.println(output);
 
 #if defined(PULSE_MODE)
 	Serial.println(output);
