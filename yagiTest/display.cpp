@@ -143,15 +143,15 @@ void displayData(float average_left, float average_right) {
 	output += String(average_right);
 #endif
 
-#if defined(PULSE_MODE)
 	Serial.println(output);
-#else
-	N++;
-	if (N > PRINT_EVERY_N) {
-		N = 0;
-		Serial.println(output);
-	}
-#endif
+	// code to limit output prints
+	//else{
+	//	N++;
+	//	if (N > PRINT_EVERY_N) {
+	//		N = 0;
+	//		Serial.println(output);
+	//	}
+	
 }
 
 /*******************************************************************************

@@ -41,10 +41,9 @@ public:
 	// Methods
 	SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_size);
 	void fillBuffer(void);
-	void continuousModeUpdate(void);
-	bool pulseModeUpdate(void);
-	bool fancyPulseModeUpdate(void);
 
+	bool pulseModeUpdate(void);
+	void getSample();
 	float getElement(int index, int dir);
 
 	// Variables
@@ -59,13 +58,13 @@ public:
 	uint8_t _buffer_size;
 
 private:
+	bool _pulseOccuring;
 	void interpretData(float average_left, float average_right);
-	void getSample();
-
+	int _num_pulse_samples;
 	int _left_pin, _right_pin;
 	int _mode;// , _buffer_size;
 	bool left_over_thresh, right_over_thresh;
-	int adc_isr_buffer[2][5];	// for adc ISR to fill, usage e.g [0][0] for 1st left, [1][4] for 5th right
+	float adc_isr_buffer[2][5];	// for adc ISR to fill, usage e.g [0][0] for 1st left, [1][4] for 5th right
 	uint8_t _idxProducer;
 	uint8_t _idxConsumer;
 	uint8_t _consumerDelay;

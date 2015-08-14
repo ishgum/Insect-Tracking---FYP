@@ -58,12 +58,11 @@ calculation
 #include "RunningAverage.h"
 
 // Settings
-enum Signal_mode { PULSE, CONTINUOUS, SIMPLE_CONTINUOUS, SERIAL_TEST}; // possible signal_modes
+enum Signal_mode {PULSE, SIMPLE_CONTINUOUS, SERIAL_TEST}; // possible signal_modes
 
-const Signal_mode MODE = CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch for program
+const Signal_mode MODE = SIMPLE_CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
                           //otherwise use a more complicated mode that averages all samples during the pulse.
-#define TEST_MODE                      //Use test array not ADC readings
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAF_SIZE               5    // 256 absolute max, 200 probably safe
 
@@ -72,9 +71,6 @@ const Signal_mode MODE = CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch 
 #define RIGHT_PIN      A3
 
 SamplingClass Sampling(MODE, LEFT_PIN, RIGHT_PIN, MAF_SIZE);
-
-float test_array_l[MAF_SIZE];
-float test_array_r[MAF_SIZE];
 
 void setup() {
 	if (HAC_96){
@@ -96,19 +92,14 @@ void setup() {
 	Sampling.fillBuffer();
 	init_LEDs();
 
-	// fill test array
-	init_test_arrays();
-
 	// init Timer interrupt for ADC sampling
-	Timer1.initialize(2000); // set a timer of length 1000 microseconds (or 0.001 sec - or 1kHz)
+	Timer1.initialize(5000); // e.g set a timer of length 1000 microseconds (or 0.001 sec - or 1kHz)
 	Timer1.attachInterrupt(timerIsr); // attach the service routine here
+	//Timer1.stop();
 
 	// Select mode based on MODE
 	if (MODE == PULSE){
 		pulse();
-	}
-	else if (MODE == CONTINUOUS){
-		continuous();
 	}
 	else if (MODE == SIMPLE_CONTINUOUS){
 		simple();
@@ -123,13 +114,11 @@ void setup() {
 
 /*******************************************************************************
 * timer ISR
-* Sample ADC and perform a lot of processing despite best practices b/c how
-* should I buffer it otherwise?
+* Sample ADC
 *******************************************************************************/
 void timerIsr(){
-
+	Sampling.getSample();
 }
-
 
 /*******************************************************************************
 * Super basic error loop
@@ -139,43 +128,6 @@ void error(void){
 		Serial.println("ERROR");
 		delay(1000);
 	}
-}
-
-/*******************************************************************************
-* Init test arrays used to debug pulse detection
-*******************************************************************************/
-void init_test_arrays(void) {
-  for (int i = 0; i < MAF_SIZE - 5; i++) {
-    test_array_l[i] = 0.0;
-  }
-  test_array_l[MAF_SIZE - 5] = 0.3;
-  test_array_l[MAF_SIZE - 4] = 1.0;
-  test_array_l[MAF_SIZE - 3] = 1.0;
-  test_array_l[MAF_SIZE - 2] = 1.0;
-  test_array_l[MAF_SIZE - 1] = 0.3;
-}
-
-/*******************************************************************************
-* Return next test array sample
-*******************************************************************************/
-float get_test_sample(float * _sample_array, int _size){
-  // Init index
-  static int _idx = 0;
-  //increment index
-  _idx++;
-  // check for index exceeding bounds
-  if (_idx == _size){
-    _idx = 0;
-  }
-  return _sample_array[_idx];
-}
-
-/*******************************************************************************
-* Return random test sample to debug pulse detection
-*******************************************************************************/
-float get_random_sample(void){
-  // return value between 0.5V an 2.5V
-  return random(0,20)/10.0+0.5;
 }
 
 /*******************************************************************************
@@ -191,32 +143,6 @@ void simple(void) {
     Serial.println((analogRead(RIGHT_PIN))*ARDUINO_PWR_V/1023.0);
 	//Serial.print("\r\n");
 
-  }
-}
-
-/*******************************************************************************
-* Continuous program mode
-* Sample two channels as fast as possible,
-* Add each sample to one of two RollingAverage buffers,
-* and find the average.
-* If the average for one buffer is greater than the other (within some tolerance DIFFERENCE_THRESHOLD),
-* Then that channel is said to have a greater RSSI, which is indicated by the LED's,
-* and Serial output if there are suitable display defines.
-* LED's updated every sample.
-* Serial updated every PRINT_EVERY_N sample to slow down display.
-*******************************************************************************/
-void continuous(void) {
-
-  while (1) {
-    //Sample
-	Sampling.continuousModeUpdate();
-	displayData(Sampling.average_left, Sampling.average_right);
-    delayMicroseconds(100); //max ADC speed given as 100us, serial takes much longer than this anyway
-    // Check for incoming serial messages, and print status if we get anything
-    // Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
-    if (Serial.available() > 0) {
-		serialResponse();
-    }
   }
 }
 
@@ -238,23 +164,14 @@ Serial updated every pulse.
 *******************************************************************************/
 void pulse(){
 	bool is_pulse = false;
-	int test_indx = 0;  // for debugging using a fixed test array
-	unsigned long start_time = millis();
-
 	while (1) {
-		//Sample
-		is_pulse = Sampling.pulseModeUpdate();
+		is_pulse = Sampling.pulseModeUpdate(); 		// Process sample buffer
 		
-		// use test array for debug
-		//current_left = get_test_sample(test_array_l, MAF_SIZE);
-		//current_right = get_test_sample(test_array_r, MAF_SIZE);
-
 		if (is_pulse){
-			displayData(Sampling.pulse_left, Sampling.pulse_right);
-			setLEDs(OFF);	// turn LEDs off so we can see them flicker with pulse
+			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
+			setLEDs(OFF);	// turn LEDs off again so we can see them flicker, relies on serial lag
 		}
 
-		delayMicroseconds(100); //max ADC speed given as 100us
 		// Check for incoming serial messages, and print status if we get anything
 		// Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
 		if (Serial.available() > 0) {	
