@@ -7,7 +7,6 @@
 * Time rollover is 50 days
 *******************************************************************************/
 #include "Sampling.h"
-
 /*******************************************************************************
 * SamplingClass Constructor
 *******************************************************************************/
@@ -25,6 +24,7 @@ SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_
 	_buffer_mutex = 1;
 	_pulseOccuring = false;
 	_num_pulse_samples = 0;
+	_sampling_interrupt_buffer_full = false;
 }
 
 /*******************************************************************************
@@ -55,16 +55,28 @@ void SamplingClass::getSample(void){
 	adc_isr_buffer[0][_idxProducer] = analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0;
 	adc_isr_buffer[1][_idxProducer] = analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0;
 	_idxProducer++;
-	if (_idxProducer >= 5){ // rollover
+	if (_idxProducer >= ADC_TIMER_BUFFER_SIZE){ // rollover
 		_idxProducer = 0;
 	}
-	if (_idxProducer == _idxConsumer){
-		// Consumer too slow, set flag here to print error later
-	}
+
 	_consumerDelay++;
+
+	if (_consumerDelay > ADC_TIMER_BUFFER_SIZE){
+		// Consumer too slow, set flag here to print error later
+		_sampling_interrupt_buffer_full = true;
+		// how should this be cleared?
+	}
+
+	static bool toggle = false;
+	toggle = !toggle;
+	digitalWrite(13, toggle);
 }
 
-
+//void delayInISR(int micro_seconds){
+//	while (micro_seconds-- > 0){
+//		delayMicroseconds(1000);
+//	}
+//}
 
 /*******************************************************************************
 * Pulse mode method
@@ -75,10 +87,12 @@ bool SamplingClass::pulseModeUpdate(void){
 	bool updatedState = false;
 	if (_consumerDelay > 0){ // Something to do
 		// Find if reading exceeds noise floor
+		//Serial.println("T");
 		left_over_thresh = adc_isr_buffer[0][_idxConsumer] >= noise_floor_left + PULSE_THRESHOLD;
 		right_over_thresh = adc_isr_buffer[1][_idxConsumer] >= noise_floor_right + PULSE_THRESHOLD;
 
 		if ((left_over_thresh || right_over_thresh)) {
+			//Serial.println("P");
 			if (_pulseOccuring) { // pulse was occuring on last update
 				pulse_left += current_left;	//could check for overflow, but should only be incrementing 1-2
 				pulse_right += current_right;
@@ -93,6 +107,7 @@ bool SamplingClass::pulseModeUpdate(void){
 		}
 		else{ // Threshold not exceeded
 			if (_pulseOccuring){ // pulse was occuring on last update
+				//Serial.println("LP");
 				if (_num_pulse_samples == 1){	// pulse lasted 1 sample
 					Serial.println("1 sample pulse; noise?");
 				}
@@ -105,18 +120,23 @@ bool SamplingClass::pulseModeUpdate(void){
 				}
 			}
 			else{ // No pulse occured last update
-				buffer_left.addValue(current_left);
-				buffer_right.addValue(current_right);
+				//Serial.println("U");
+				buffer_left.addValue(adc_isr_buffer[0][_idxConsumer]);
+				buffer_right.addValue(adc_isr_buffer[1][_idxConsumer]);
 				noise_floor_left = buffer_left.getAverage();
 				noise_floor_right = buffer_right.getAverage();
 			}
 		}
 		_idxConsumer++;
+		if (_idxConsumer >= ADC_TIMER_BUFFER_SIZE){ // rollover
+			_idxConsumer = 0;
+		}
 		_consumerDelay--;
 	}
 	else
 	{
 		// Nothing to do, this task managed to run more than once in one sample period.
+		//Serial.println("S");
 	}
 	return updatedState;
 }

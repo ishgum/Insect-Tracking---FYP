@@ -50,7 +50,6 @@ to increase accuracy (if >3 samples achieved)
 calculation
 > consider using timer interrupts for ADC sampling to mitigate serial comms delay
 *******************************************************************************/
-
 #include "TimerOne.h"
 #include "Sampling.h"
 #include "display.h"
@@ -60,12 +59,10 @@ calculation
 // Settings
 enum Signal_mode {PULSE, SIMPLE_CONTINUOUS, SERIAL_TEST}; // possible signal_modes
 
-const Signal_mode MODE = SIMPLE_CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch for program
-#define SIMPLE_PULSE   //defined: uses basic check against MAF, then delays 5ms and samples to determine pulse value,
-                          //otherwise use a more complicated mode that averages all samples during the pulse.
+const Signal_mode MODE = PULSE;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAF_SIZE               5    // 256 absolute max, 200 probably safe
-
+#define ADC_SAMPLING_PERIOD	   2000	// us. 200 definitely too fast
 // Pin dfns
 #define LEFT_PIN       A0
 #define RIGHT_PIN      A3
@@ -73,6 +70,7 @@ const Signal_mode MODE = SIMPLE_CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode 
 SamplingClass Sampling(MODE, LEFT_PIN, RIGHT_PIN, MAF_SIZE);
 
 void setup() {
+	pinMode(13, OUTPUT);
 	if (HAC_96){
 		Serial.begin(9600);    // radio requirements
 		delay(500);
@@ -93,9 +91,9 @@ void setup() {
 	init_LEDs();
 
 	// init Timer interrupt for ADC sampling
-	Timer1.initialize(5000); // e.g set a timer of length 1000 microseconds (or 0.001 sec - or 1kHz)
+	Timer1.initialize(ADC_SAMPLING_PERIOD); // e.g set a timer of length 1000 microseconds (or 0.001 sec - or 1kHz)
 	Timer1.attachInterrupt(timerIsr); // attach the service routine here
-	//Timer1.stop();
+	Timer1.stop();
 
 	// Select mode based on MODE
 	if (MODE == PULSE){
@@ -136,7 +134,7 @@ void error(void){
 *******************************************************************************/
 void simple(void) {
   while(1){
-    //Serial.print(millis()-start_time);	// uncomment to print time too
+    //Serial.println(millis());	// uncomment to print time too
     //Serial.print("\t");
     Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
     Serial.print("\t");
@@ -164,6 +162,7 @@ Serial updated every pulse.
 *******************************************************************************/
 void pulse(){
 	bool is_pulse = false;
+	Timer1.resume(); // start timed sampling
 	while (1) {
 		is_pulse = Sampling.pulseModeUpdate(); 		// Process sample buffer
 		
@@ -171,6 +170,15 @@ void pulse(){
 			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
 			setLEDs(OFF);	// turn LEDs off again so we can see them flicker, relies on serial lag
 		}
+
+		// Check if we are too slow emptying adc buffer
+		//Serial.print(Sampling._idxProducer);
+		//Serial.print("\t");
+		//Serial.println(Sampling._idxConsumer);
+		//if (Sampling._sampling_interrupt_buffer_full){
+		//	Serial.println("Slow");
+		//	Sampling._sampling_interrupt_buffer_full = false; // crappy workaround for now
+		//}
 
 		// Check for incoming serial messages, and print status if we get anything
 		// Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
