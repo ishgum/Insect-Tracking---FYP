@@ -15,11 +15,14 @@ void error(void);
 
 #define ADC_TIMER_BUFFER_SIZE  10
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define PULSE_THRESHOLD        3     // V, the amount the RSSI amplitude has to be greater than the averaged
+#define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
 										// amplitude to detect a pulse (0 to 5 valid) typ ~ 0.5V
 #define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define MAX_DST				   1.25
 #define MIN_DST				   1.9
+#define HYSTERESIS			   0.05		// hysteresis for switching between any two states.
+											// hysteresis is +/- HYSTERESIS, so total hysteresis band width
+												// is actually double HYSTERESIS
 
 extern void myPrintString(const char input_str[]);
 void delayInISR(int micro_seconds);

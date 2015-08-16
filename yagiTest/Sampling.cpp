@@ -164,22 +164,26 @@ float SamplingClass::getElement(int index, int dir){
 void SamplingClass::interpretData(float average_left, float average_right){
 	float diff = average_left - average_right;
 	float mag = abs(diff);
-	bool too_weak = (average_left < MAX_DST && average_right < MAX_DST);	// if both Yagi RSSI's are too weak
-	bool too_strong = (average_left > MIN_DST || average_right > MIN_DST);	// if at least one Yagi RSSI is too strong
 
-	if (diff>DIFFERENCE_THRESHOLD){
+	if (diff>(DIFFERENCE_THRESHOLD + HYSTERESIS)){
 		insect_state = LEFT;
 	}
-	else if (diff < -DIFFERENCE_THRESHOLD){
+	else if (diff < (-DIFFERENCE_THRESHOLD - HYSTERESIS)){
 		insect_state = RIGHT;
 	}
-	else if (too_weak){
+	else if (average_left < (MAX_DST - HYSTERESIS) && average_right < (MAX_DST - HYSTERESIS)){
 		insect_state = TOO_FAR;
 	}
-	else if (too_strong){
+	else if (average_left >(MIN_DST + HYSTERESIS) || average_right >(MIN_DST + HYSTERESIS)){
 		insect_state = TOO_CLOSE;
 	}
-	else {
+	else if ((diff<(DIFFERENCE_THRESHOLD - HYSTERESIS))
+		&& (diff >(-DIFFERENCE_THRESHOLD + HYSTERESIS))
+		&& (average_left < (MAX_DST + HYSTERESIS) && average_right < (MAX_DST + HYSTERESIS))
+		&& (average_left >(MIN_DST - HYSTERESIS) || average_right >(MIN_DST - HYSTERESIS))){
 		insect_state = CENTERED;
+	}
+	else{
+		// Keep current state
 	}
 }

@@ -65,7 +65,7 @@ void print_buffers(void) {
 *******************************************************************************/
 void displayData(float average_left, float average_right) {
 	static int N = 0;
-	String dir = "";
+	String dir = "";	// String uses dynamic memory allocation, possibly not ideal.
 	float diff = average_left - average_right;
 	float mag = abs(diff);
 	switch (Sampling.insect_state){
