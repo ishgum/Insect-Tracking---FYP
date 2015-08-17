@@ -3,44 +3,7 @@
 
 //#define SHOWHISTOGRAM
 
-/*
-Mat findHistogram(Mat inputImage, int numBins = 256) {
-	Mat hist;
-	Mat histNormal;
-
-
-	/// Establish the number of bins
-	int histSize = numBins;
-	float range[] = { 0, 256 };
-	const float* histRange = { range };
-
-	calcHist(&inputImage, 1, 0, Mat(), hist, 1, &histSize, &histRange, true, false);
-
-#ifdef SHOWHISTOGRAM
-	int hist_w = 512; int hist_h = 400;
-	int bin_w = cvRound((double)hist_w / histSize);
-
-	Mat histImage(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
-
-	/// Normalize the result to [ 0, histImage.rows ]
-	normalize(hist, histNormal, 0, histImage.rows, NORM_MINMAX, -1, Mat());
-
-
-	for (int i = 1; i < histSize; i++)
-	{
-		line(histImage, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
-			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
-			Scalar(255, 255, 255), 1, 8, 0);
-	}
-
-	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
-	imshow("calcHist Demo", histImage);
-#endif // DEBUG
-
-
-	return hist;
-}*/
-
+#ifdef THRESH_GPU
 Mat findHistogram(GpuMat inputImage, int numBins = 256) {
 	//Mat hist;
 	//Mat histNormal;
@@ -72,13 +35,6 @@ Mat findHistogram(GpuMat inputImage, int numBins = 256) {
 	Mat histImg(histImage);
 	Mat histNrml(histNormal);
 
-	/*for (int i = 1; i < histSize; i++)
-	{
-		line(histImage, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
-			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
-			Scalar(255, 255, 255), 1, 8, 0);
-	}*/
-
 	for (int i = 1; i < histSize; i++)
 	{
 		line(histImg, Point(bin_w*(i - 1), hist_h - cvRound(histNrml.at<float>(i - 1))),
@@ -88,12 +44,50 @@ Mat findHistogram(GpuMat inputImage, int numBins = 256) {
 
 	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
 	imshow("calcHist Demo", histImg);
-#endif // DEBUG
+#endif // SHOWHISTOGRAM
 
 
 	return cpuHist;
 }
 
+#else
+Mat findHistogram(Mat inputImage, int numBins = 256) {
+	Mat hist;
+	Mat histNormal;
+
+
+	/// Establish the number of bins
+	int histSize = numBins;
+	float range[] = { 0, 256 };
+	const float* histRange = { range };
+
+	calcHist(&inputImage, 1, 0, Mat(), hist, 1, &histSize, &histRange, true, false);
+
+#ifdef SHOWHISTOGRAM
+	int hist_w = 512; int hist_h = 400;
+	int bin_w = cvRound((double)hist_w / histSize);
+
+	Mat histImage(hist_h, hist_w, CV_8UC3, Scalar(0, 0, 0));
+
+	/// Normalize the result to [ 0, histImage.rows ]
+	normalize(hist, histNormal, 0, histImage.rows, NORM_MINMAX, -1, Mat());
+
+
+	for (int i = 1; i < histSize; i++)
+	{
+		line(histImage, Point(bin_w*(i - 1), hist_h - cvRound(histNormal.at<float>(i - 1))),
+			Point(bin_w*(i), hist_h - cvRound(histNormal.at<float>(i))),
+			Scalar(255, 255, 255), 1, 8, 0);
+	}
+
+	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
+	imshow("calcHist Demo", histImage);
+#endif // SHOWHISTOGRAM
+
+
+	return hist;
+}
+#endif // THRESH_GPU
 
 myHist::myHist() {
 	absMaxLoc = 0;
@@ -189,7 +183,7 @@ int myHist::findNextMin(int testThreshold) {
 	return -1;
 }
 
-
+#ifdef THRESH_GPU
 int findThreshold(GpuMat inputImage) {
 
 	myHist hist(findHistogram(inputImage));
@@ -200,3 +194,16 @@ int findThreshold(GpuMat inputImage) {
 	return hist.threshold;
 
 }
+
+#else
+int findThreshold(Mat inputImage) {
+
+	myHist hist(findHistogram(inputImage));
+	hist.findPeaksandMins();
+	hist.findThresholdByArea();
+
+	//printf("Threshold: %i ", hist.threshold);
+	return hist.threshold;
+
+}
+#endif

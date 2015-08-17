@@ -5,23 +5,26 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <time.h>
+
 #include <opencv2/gpu/gpu.hpp>
 
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
-//#include "IrCam.h"
+#include "IrCam.h"
 //#include "Kalman.h"
 
 using namespace cv;
 using namespace std;
 using namespace cv::gpu;
 
-#define DEBUG		//display video output windows
-#define FPS //wall breaks (==0) on release mode.
+//#define DEBUG		//display video output windows
+//#define FPS //wall breaks (==0) on release mode.
 //#define KALMAN
 #define WAIT_PERIOD	10
-//#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
+#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
+//#define USE_GPU  // ALSO NEED TO CHANGE IN THRESHOLDING.H - #DEFINE THRESH_GPU
 
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
@@ -30,7 +33,7 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 	line(img, Point(centre.x + d, centre.y - d), Point(centre.x - d, centre.y + d), colour, 2, CV_AA, 0);
 }
 
-
+#ifdef USE_GPU
 vector<Point2f> findObjects(GpuMat inputImage) {
 	vector<vector<Point> > contours;
 	vector<Point2f> centres;
@@ -55,7 +58,8 @@ vector<Point2f> findObjects(GpuMat inputImage) {
 	return centres;
 }
 
-/*vector<Point2f> findObjects(Mat inputImage) {
+#else
+vector<Point2f> findObjects(Mat inputImage) {
 	vector<vector<Point> > contours;
 	vector<Point2f> centres;
 	vector<Vec4i> hierarchy;
@@ -67,44 +71,15 @@ vector<Point2f> findObjects(GpuMat inputImage) {
 	for (int i = 0; i < contours.size(); i++)
 	{
 		Moments conMom = (moments(contours[i], false));
-		if ((conMom.m00 < 500) && (conMom.m00 > 5)) {
+		//if ((conMom.m00 < 500) && (conMom.m00 > 5)) {
 			centres.push_back(Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00));
-		}
+		//}
 	}
 	return centres;
-}*/
-
-/*
-Insect findInsect(Insect insect, Mat* inputImage) {
-	Mat values[3], image_hsl, lum;
-
-	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
-	split(*inputImage, values);						// Split into channels
-	lum = values[0];
-
-	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
-
-	if (lumThreshold < 0) {
-		insect.found = false;
-		return insect;
-	}
-
-	threshold(lum, lum, lumThreshold, 255, 0);
-	insect.updateHeight(lumThreshold);
-
-	vector<Point2f> objectCentres = findObjects(lum);
-
-	if (objectCentres.size() == 0) {
-		insect.found = false;
-		return insect;
-	}
-
-	insect.found = true;
-	insect.updatePosition(objectCentres[0]);
-	return insect;
 }
-*/
+#endif
 
+#ifdef USE_GPU
 Insect findInsect(Insect insect, GpuMat inputImage) {
     GpuMat image_hsl_g, lum_g, values_g[3];
 	//Mat values[3], image_hsl, lum;
@@ -139,15 +114,68 @@ Insect findInsect(Insect insect, GpuMat inputImage) {
 	return insect;
 }
 
+#else
+
+Insect findInsect(Insect insect, Mat* inputImage) {
+	Mat values[3], image_hsl, lum;
+
+	cvtColor(*inputImage, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
+	//split(*inputImage, values);
+	split(image_hsl, values);						// Split into channels
+	lum = values[1]; //0
+
+
+	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
+
+	if (lumThreshold < 0) {
+		insect.found = false;
+		return insect;
+	}
+
+	threshold(lum, lum, lumThreshold, 255, 0);
+	//imshow("Thresholded image", lum);
+	insect.updateHeight(lumThreshold);
+
+	vector<Point2f> objectCentres = findObjects(lum);
+
+	if (objectCentres.size() == 0) {
+		insect.found = false;
+		return insect;
+	}
+
+	insect.found = true;
+	insect.updatePosition(objectCentres[0]);
+	return insect;
+}
+
+#endif
+
+/*Determines time difference between two CPU clock times*/
+timespec diff(timespec start, timespec end)
+{
+	timespec temp;
+	if ((end.tv_nsec - start.tv_nsec) < 0) {
+		temp.tv_sec = end.tv_sec - start.tv_sec - 1;
+		temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
+	}
+	else {
+		temp.tv_sec = end.tv_sec - start.tv_sec;
+		temp.tv_nsec = end.tv_nsec - start.tv_nsec;
+	}
+	return temp;
+}
+
 /** @function main */
 int main(int argc, char** argv)
 {
 	VideoCapture capture;
 #ifdef USE_CAM
+	cout << "Init Cam" << endl;
 	if(!irCamInit()) {
 		cout << "\nFailed to connect to camera. Aborting.\n";
 		return -1;
 	}
+	cout << "Finished init cam" << endl;
 #else
 	//EARLY TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
@@ -166,16 +194,16 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun2_0.avi");
 
 
-	cout << "Loading file" << endl;
+	//cout << "Loading file" << endl;
 
 
 	// Relative path to small test file
-	capture.open("../../test.avi");
+	//capture.open("../../test.avi");
 	//capture.open("../../retro2_2015-05-09-193310-0000.avi");
 	//capture.open("../../realRun4_2_OK.avi");
 	//capture.open("../../realRun4_2_OK_shorter.avi");
 
-	cout << "File loaded" << endl;
+	//cout << "File loaded" << endl;
 
 
 	//DYLANS folder structure:
@@ -197,51 +225,58 @@ int main(int argc, char** argv)
 		#endif //DEBUG
 	#endif    // KALMAN
 
-	cout << "HERE" << endl;
+	//cout << "HERE" << endl;
 
 	#ifdef FPS
 	Fps fps(WAIT_PERIOD, WALL); // set what displays by changing mode to WALL, CPU, or BOTH
 	#endif // FPS
 
-	cout << "FPS done" << endl;
+	//cout << "FPS done" << endl;
 
 	Mat src, src_ROI;
-	GpuMat g_src;
+	#ifdef USE_GPU
+		GpuMat g_src;
+	#endif
 	
-	cout << "MAT" << endl;
+	//cout << "MAT" << endl;
 
 #ifdef USE_CAM
 	src = irGetImage();
+	cout << "Got IR image. Size is " << src.size() << endl;
 #else
-	cout << "SEG fault?" << endl;
+	//cout << "SEG fault?" << endl;
 	capture >> src;
-	cout << "Nope" << endl;
+	//cout << "Nope" << endl;
 #endif
 
-	cout << "CAP >> SRC" << endl;
+	//cout << "CAP >> SRC" << endl;
 	
 	Insect insect(&src);
 
 
 
-
 	/********** WHILE LOOP *********/
-
+timespec time1, time2, time_diff;
 cout << "Starting LOOP!" << endl;
 	while (!src.empty()) {
+		imshow("IR", src);
+		
+		//clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
 
 #ifdef RECORD_SOURCE_W_BOX
 		// write output video w/ text
 		outputVideo.write(src_w_text);
 #endif
+/*		src_ROI = src(insect.ROI);
+		#ifdef USE_GPU
+			g_src.upload(src_ROI);
+			insect = findInsect(insect, g_src);
 
-		src_ROI = src(insect.ROI);
+		#else
+			insect = findInsect(insect, &src_ROI);
+		#endif
 
-		g_src.upload(src_ROI);
-
-		//insect = findInsect(insect, &src_ROI);
-		insect = findInsect(insect, g_src);
-		insect.updateROI(&src);
+		insect.updateROI(&src);*/
 
 #ifdef DEBUG
 		Mat srcBox = src.clone();
@@ -265,6 +300,9 @@ cout << "Starting LOOP!" << endl;
 		line(insectPosition, insect.position, insect.position + 5*insect.velocity, Scalar(0, 255, 0), 3);
 		imshow("Insect Position", insectPosition);
 #endif // DEBUG
+		//Mat srcBox = src.clone();
+		//rectangle(srcBox, insect.ROI, Scalar(255, 255, 255), 2, 8, 0);
+		//imshow("Source w Box", srcBox);
 
 
 #ifdef KALMAN
@@ -292,9 +330,10 @@ cout << "Starting LOOP!" << endl;
 	#endif //DEBUG
 #endif //KALMAN
 
+
 #ifdef FPS
 		fps.checkFPS();
-		fps.displayFPS(src, insect.ROI);
+		//fps.displayFPS(src, insect.ROI);
 #endif // FPS
 
 #ifdef USE_CAM
@@ -305,7 +344,10 @@ cout << "Starting LOOP!" << endl;
 		//resize(src, src, Size(), 0.3, 0.3);
 
 		waitKey(WAIT_PERIOD);
-		printf("\n");
+		//printf("\n");
+		//clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+		//time_diff = diff(time1, time2);
+		//cout << time_diff.tv_sec << ":" << time_diff.tv_nsec << endl;
 	}
 	cout << "Done\n";
 

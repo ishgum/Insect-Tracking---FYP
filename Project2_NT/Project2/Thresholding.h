@@ -6,6 +6,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/gpu/gpu.hpp>
 
+//#define THRESH_GPU
+
 using namespace cv;
 using namespace std;
 using namespace cv::gpu;
@@ -26,7 +28,10 @@ public:
 	void findThresholdByArea(int);
 };
 
-
-int findThreshold(GpuMat inputImage);
+#ifdef THRESH_GPU
+	int findThreshold(GpuMat inputImage);
+#else
+	int findThreshold(Mat inputImage);
+#endif
 
 #endif

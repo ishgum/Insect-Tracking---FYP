@@ -5,8 +5,10 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
-#include <Windows.h>
+//#include <Windows.h>
 #include "FlyCapture2.h"
+
+#include <iomanip>
 
 
 using namespace cv;
