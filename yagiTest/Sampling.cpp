@@ -172,15 +172,18 @@ void SamplingClass::interpretData(float average_left, float average_right){
 		insect_state = RIGHT;
 	}
 	else if (average_left < (MAX_DST - HYSTERESIS) && average_right < (MAX_DST - HYSTERESIS)){
+		// if both Yagi RSSI's are too weak
 		insect_state = TOO_FAR;
 	}
 	else if (average_left >(MIN_DST + HYSTERESIS) || average_right >(MIN_DST + HYSTERESIS)){
+		// if at least one Yagi RSSI is too strong
 		insect_state = TOO_CLOSE;
 	}
 	else if ((diff<(DIFFERENCE_THRESHOLD - HYSTERESIS))
 		&& (diff >(-DIFFERENCE_THRESHOLD + HYSTERESIS))
 		&& (average_left < (MAX_DST + HYSTERESIS) && average_right < (MAX_DST + HYSTERESIS))
-		&& (average_left >(MIN_DST - HYSTERESIS) || average_right >(MIN_DST - HYSTERESIS))){
+		&& (average_left >(MIN_DST - HYSTERESIS) || average_right >(MIN_DST - HYSTERESIS)))
+	{
 		insect_state = CENTERED;
 	}
 	else{
