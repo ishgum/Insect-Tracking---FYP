@@ -32,7 +32,7 @@ void Insect::updatePosition(Point2f centre) {
 	relNorm = norm(relPosition);
 	relAngle = atan2f(relPosition.y, relPosition.x) *180 / CV_PI;
 
-	humanReadableOutput();
+	//humanReadableOutput();
 	prevPosition = position;
 }
 

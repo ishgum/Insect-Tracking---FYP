@@ -98,10 +98,11 @@ myHist::myHist(Mat inputHistogram) {
 	absMaxLoc = 0;
 }
 
-void myHist::findPeaksandMins(int findWidth = 15) {
+void myHist::findPeaksandMins(int findWidth = 10) {
 
 	int forLoopMin = -findWidth;
 	int forLoopMax = findWidth;
+	minLocs.push_back(0);
 
 	for (int i = 0; i < histogram.size(); i++) {
 
@@ -147,7 +148,7 @@ void myHist::findPeaksandMins(int findWidth = 15) {
 }
 
 
-void myHist::findThresholdByArea(int minArea = 30)
+int myHist::findThresholdByArea(int minArea = 30)
 {
 	double threshSum = 0;
 	int i = 0;
@@ -163,12 +164,43 @@ void myHist::findThresholdByArea(int minArea = 30)
 	}
 
 	if (checkThreshold(i)) {
-		threshold = findNextMin(i);
+		return findNextMin(i);
 	}
 	else {
-		threshold = -1;
+		return NULL;
 	}
 }
+
+void myHist::findLobes(int minArea = THRESHOLD_LEVEL) {
+	lobeMap.clear();
+	maxMap.clear();
+	//map<int, int> lobeMap;
+	for (unsigned long i = 0; i < minLocs.size()-1; i++) {
+		int minSum = 0;
+		for (int j = minLocs[i]; j < minLocs[i + 1]; j++) {
+			minSum += histogram[j];
+		}
+		if (minSum > minArea){
+			lobeMap[minLocs[i]] = minSum;
+			maxMap[minSum] = minLocs[i + 1];
+			printf("Value: %u, Sum: %u	\n", minLocs[i], minSum);
+		}
+	}
+	printf("\n");
+}
+
+
+int myHist::findThresholdByLobes() {
+	findLobes();
+	while (lobeMap.size() > 1) {
+		if (int(lobeMap.rbegin()->first - maxMap.rbegin()->second) > 20) {
+			return lobeMap.rbegin()->first;
+		}
+		lobeMap.erase(--lobeMap.end());
+	}
+	return NULL;
+}
+
 
 bool myHist::checkThreshold(int testThreshold) {
 	return !((testThreshold - 10) < absMaxLoc);
@@ -197,13 +229,14 @@ int findThreshold(GpuMat inputImage) {
 
 #else
 int findThreshold(Mat inputImage) {
-
+	
 	myHist hist(findHistogram(inputImage));
 	hist.findPeaksandMins();
-	hist.findThresholdByArea();
+	//int threshold = hist.findThresholdByArea();
+	int threshold = hist.findThresholdByLobes();
 
-	//printf("Threshold: %i ", hist.threshold);
-	return hist.threshold;
+	printf("Threshold: %i \n", threshold);
+	return threshold;
 
 }
 #endif

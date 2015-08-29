@@ -5,7 +5,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#include <time.h>
+//#include <time.h>
 
 #include <opencv2/gpu/gpu.hpp>
 
@@ -71,9 +71,9 @@ vector<Point2f> findObjects(Mat inputImage) {
 	for (int i = 0; i < contours.size(); i++)
 	{
 		Moments conMom = (moments(contours[i], false));
-		//if ((conMom.m00 < 500) && (conMom.m00 > 5)) {
+		if ((conMom.m00 > 5)) {
 			centres.push_back(Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00));
-		//}
+		}
 	}
 	return centres;
 }
@@ -117,7 +117,7 @@ Insect findInsect(Insect insect, GpuMat inputImage) {
 #else
 
 Insect findInsect(Insect insect, Mat* inputImage) {
-	Mat values[3], image_hsl, lum;
+	Mat values[3], image_hsl, lum, lumMorph;
 
 	cvtColor(*inputImage, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
 	//split(*inputImage, values);
@@ -127,7 +127,7 @@ Insect findInsect(Insect insect, Mat* inputImage) {
 	imshow("Luminance", lum);
 	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
 
-	if (lumThreshold < 0) {
+	if (lumThreshold == 0) {
 		insect.found = false;
 		return insect;
 	}
@@ -136,7 +136,11 @@ Insect findInsect(Insect insect, Mat* inputImage) {
 	imshow("Thresholded image", lum);
 	insect.updateHeight(lumThreshold);
 
-	vector<Point2f> objectCentres = findObjects(lum);
+	Mat element = getStructuringElement(0, Size(4,4));
+	morphologyEx(lum, lumMorph, 3, element);
+	imshow("Thresholded image - Morph", lumMorph);
+
+	vector<Point2f> objectCentres = findObjects(lumMorph);
 
 	if (objectCentres.size() == 0) {
 		insect.found = false;
@@ -150,7 +154,8 @@ Insect findInsect(Insect insect, Mat* inputImage) {
 
 #endif
 
-/*Determines time difference between two CPU clock times*/
+/*
+/*Determines time difference between two CPU clock times
 timespec diff(timespec start, timespec end)
 {
 	timespec temp;
@@ -164,6 +169,7 @@ timespec diff(timespec start, timespec end)
 	}
 	return temp;
 }
+*/
 
 /** @function main */
 int main(int argc, char** argv)
@@ -186,7 +192,7 @@ int main(int argc, char** argv)
 
 
 	/********** WHILE LOOP *********/
-timespec time1, time2, time_diff;
+//timespec time1, time2, time_diff;
 	while (!src.empty()) {
 		//imshow("Img", src);
 		
@@ -198,10 +204,10 @@ timespec time1, time2, time_diff;
 			insect = findInsect(insect, g_src);
 
 		#else
-			insect = findInsect(insect, &src_ROI);
+			insect = findInsect(insect, &src);
 		#endif
 
-		insect.updateROI(&src);
+		//insect.updateROI(&src);
 
 #ifdef DEBUG
 		Mat srcBox = src.clone();
@@ -209,7 +215,7 @@ timespec time1, time2, time_diff;
 		imshow("Source w Box", srcBox);
 		imshow("Frame", src_ROI);
 		//imshow("Luminance", lum);
-		printf("Height Bracket: %i	", insect.heightBracket);
+		//printf("Height Bracket: %i	", insect.heightBracket);
 
 		/// Draw contours
 		Mat contourOutput = Mat::zeros(src_ROI.size(), CV_8UC3);
@@ -218,8 +224,8 @@ timespec time1, time2, time_diff;
 		//	circle(contourOutput, objectCentres[i], 4, Scalar(255, 0, 0), -1, 8, 0);
 		//}
 		//imshow("Contours", contourOutput);
-		printf("Speed: %.1f	", insect.speed);
-		printf("Angle: %.0f", insect.relAngle);
+		//printf("Speed: %.1f	", insect.speed);
+		//printf("Angle: %.0f", insect.relAngle);
 		Mat insectPosition = src.clone();
 		line(insectPosition, Point(src.cols / 2, src.rows / 2), insect.position, Scalar(255, 0, 0), 3);
 		line(insectPosition, insect.position, insect.position + 5*insect.velocity, Scalar(0, 255, 0), 3);

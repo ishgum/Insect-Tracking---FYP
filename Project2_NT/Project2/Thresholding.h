@@ -8,6 +8,8 @@
 
 //#define THRESH_GPU
 
+#define THRESHOLD_LEVEL 10
+
 using namespace cv;
 using namespace std;
 using namespace cv::gpu;
@@ -19,13 +21,18 @@ class myHist {
 	int absMaxLoc;
 	bool checkThreshold(int);
 	int findNextMin(int);
+	map<int, int> lobeMap;
+	map<int, int> maxMap;
+
 public:
-	int threshold;
+
 
 	myHist();
 	myHist(Mat);
 	void findPeaksandMins(int);
-	void findThresholdByArea(int);
+	int findThresholdByArea(int);
+	void findLobes(int);
+	int findThresholdByLobes();
 };
 
 #ifdef THRESH_GPU
