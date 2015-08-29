@@ -1,4 +1,4 @@
-#include "fps.h"
+#include "Fps.h"
 
 // Functions for system clock so we can determine runtine FPS
 // copied from http://stackoverflow.com/questions/17432502
@@ -64,7 +64,7 @@ void Fps::checkFPS(void){
 	num_frames_proc++;
 
 	switch (mode_){
-	case (fps_mode_t::WALL):
+	case (WALL):
 		wall1 = get_wall_time();
 		if (wall1 >= (wall0 + 1)){ // check if >1s has elapsed
 			fps_wall = num_frames_proc / (wall1 - wall0 - num_frames_proc*0.001*wait_period_);
@@ -73,7 +73,7 @@ void Fps::checkFPS(void){
 			wall0 = get_wall_time();
 		}
 		break;
-	case(fps_mode_t::CPU) :
+	case(CPU) :
 		cpu1 = get_cpu_time();
 		if ((cpu1 > cpu0)){ // check if reported cpu time has changed. sometimes get_cpu_time appears not to change for an unknown reason
 
@@ -84,7 +84,7 @@ void Fps::checkFPS(void){
 			cpu0 = get_cpu_time();
 		}
 		break;
-	case(fps_mode_t::BOTH) :
+	case(BOTH) :
 		wall1 = get_wall_time();
 		cpu1 = get_cpu_time();
 		if (wall1 >= (wall0 + 1) && (cpu1 > cpu0)){ //Check if >1s has elapsed And,
@@ -120,13 +120,13 @@ void Fps::displayFPS(Mat src, Rect ROI){
 	char frame_num_c[30]; // Needs to be large enough to avoid corrupting stack
 
 
-	if (mode_ == fps_mode_t::WALL || mode_ == fps_mode_t::BOTH){
+	if (mode_ == WALL || mode_ == BOTH){
 		//wall time
 		sprintf(fps_wall_c, "wall FPS %4.2f", fps_wall);
 		putText(src_w_text, fps_wall_c, fps_wall_text_loc,
 			FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
 	}
-	if (mode_ == fps_mode_t::CPU || mode_ == fps_mode_t::BOTH){
+	if (mode_ == CPU || mode_ == BOTH){
 		//cpu time
 		sprintf(fps_cpu_c, "cpu FPS %4.2f", fps_cpu);
 		putText(src_w_text, fps_cpu_c, fps_cpu_text_loc,
@@ -136,7 +136,7 @@ void Fps::displayFPS(Mat src, Rect ROI){
 	//Frame Number
 	sprintf(frame_num_c, "Frame #: %5i", frame_num);
 	putText(src_w_text, frame_num_c, frame_num_text_loc, FONT_HERSHEY_SIMPLEX, 0.6, { 255, 255, 255 }, 1.5);
-	imshow("FPS", src_w_text);
+	//imshow("FPS", src_w_text);
 
 	//printf("\nFrame: %i\tCPU total: %f\tCPU FPS: %f", frame_num, cpu_running_total, fps_cpu);
 

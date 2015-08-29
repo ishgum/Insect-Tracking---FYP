@@ -18,7 +18,7 @@ using namespace cv;
 #include <sys/time.h>
 #endif
 
-enum class fps_mode_t {WALL, CPU, BOTH};
+enum fps_mode_t {WALL, CPU, BOTH};
 
 class Fps {
 public:
