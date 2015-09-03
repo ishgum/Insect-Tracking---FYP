@@ -105,6 +105,9 @@ void setup() {
 	else if (MODE == SERIAL_TEST){
 		serialTest();
 	}
+	else if (MODE == PULSE_TEST){
+		pulseSerialData();
+	}
 	else{
 		error();
 	}
