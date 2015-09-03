@@ -88,12 +88,16 @@ bool SamplingClass::pulseModeUpdate(void){
 	if (_consumerDelay > 0){ // Something to do
 		// Find if reading exceeds noise floor
 		//Serial.println("T");
-		left_over_thresh = adc_isr_buffer[0][_idxConsumer] >= noise_floor_left + PULSE_THRESHOLD;
-		right_over_thresh = adc_isr_buffer[1][_idxConsumer] >= noise_floor_right + PULSE_THRESHOLD;
+		current_left = adc_isr_buffer[0][_idxConsumer];
+		current_right = adc_isr_buffer[1][_idxConsumer];
+
+		left_over_thresh = current_left  >= noise_floor_left + PULSE_THRESHOLD;
+		right_over_thresh =  current_right >= noise_floor_right + PULSE_THRESHOLD;
 
 		if ((left_over_thresh || right_over_thresh)) {
 			//Serial.println("P");
 			if (_pulseOccuring) { // pulse was occuring on last update
+				//Serial.println(current_left);
 				pulse_left += current_left;	//could check for overflow, but should only be incrementing 1-2
 				pulse_right += current_right;
 				_num_pulse_samples++;
@@ -109,7 +113,7 @@ bool SamplingClass::pulseModeUpdate(void){
 			if (_pulseOccuring){ // pulse was occuring on last update
 				//Serial.println("LP");
 				if (_num_pulse_samples == 1){	// pulse lasted 1 sample
-					Serial.println("1 sample pulse; noise?");
+					Serial.println("1 SP");
 				}
 				else{
 					pulse_left = pulse_left / _num_pulse_samples;
@@ -162,6 +166,8 @@ float SamplingClass::getElement(int index, int dir){
 * Updates insect state based on passed RSSI readings
 *******************************************************************************/
 void SamplingClass::interpretData(float average_left, float average_right){
+	//Serial.print("Left Pulse\t");
+	//Serial.println(average_left);
 	float diff = average_left - average_right;
 	float mag = abs(diff);
 
@@ -189,4 +195,27 @@ void SamplingClass::interpretData(float average_left, float average_right){
 	else{
 		// Keep current state
 	}
+}
+
+
+/*******************************************************************************
+* Updates adc_isr_buffer if available serial samples are received
+*******************************************************************************/
+void SamplingClass::getTestSample(float left, float right){
+	adc_isr_buffer[0][_idxProducer] = left;
+	adc_isr_buffer[1][_idxProducer] = right;
+	_idxProducer++;
+	if (_idxProducer >= ADC_TIMER_BUFFER_SIZE){ // rollover
+		_idxProducer = 0;
+	}
+
+	_consumerDelay++;
+
+	if (_consumerDelay > ADC_TIMER_BUFFER_SIZE){
+		_sampling_interrupt_buffer_full = true;
+	}
+
+	static bool toggle = false;
+	toggle = !toggle;
+	digitalWrite(13, toggle);
 }

@@ -14,7 +14,6 @@ void init_LEDs(void){
 	pinMode(RIGHTLED, OUTPUT);
 	pinMode(MIDDLELED, OUTPUT);
 	pinMode(BACKLED, OUTPUT);
-	// a delay might be needed here
 	digitalWrite(LEFTLED, LOW);
 	digitalWrite(RIGHTLED, LOW);
 	digitalWrite(MIDDLELED, LOW);
@@ -160,11 +159,17 @@ void displayData(float average_left, float average_right) {
 void serialResponse(void){
 	int incomingByte = Serial.read();    // required to clear serial receive buffer
 	Serial.println("Serial Msg received");
-	print_buffers();
-	Serial.println("\nDisplay averages:");
+	//print_buffers();
+	/*Serial.println("\nDisplay averages:");
 	displayData(Sampling.average_left, Sampling.average_right);
 	Serial.println("\nDisplay current:");
 	displayData(Sampling.current_left, Sampling.current_right);
+	*/
+	Serial.println("\nDisplay pulses:");
+	Serial.println(Sampling.pulse_left);
+	Serial.println(Sampling.pulse_right);
+	//displayData(Sampling.pulse_left, Sampling.pulse_right);
+	Serial.println();
 }
 
 /*******************************************************************************
@@ -175,8 +180,41 @@ void serialTest(){
 	while (1){
 		Serial.print("Hello World\t");
 		Serial.print(counter);
-		Serial.print("\n");
+		Serial.print("\r\n");
 		counter++;
 		delay(1000);
 	}
+}
+
+/*******************************************************************************
+* For serial data test mode
+*******************************************************************************/
+bool serialTestData(void){
+	float left, right;
+	static bool left_yagi = true; // what value is being sent through. true left, false right
+	bool sample_finished = false;
+
+	int incomingByte = Serial.read();    // required to clear serial receive buffer
+	
+	// Leading character
+	if (incomingByte == 255){
+		left_yagi = true;
+	}
+	else if (left_yagi){
+		left = testDataMap(incomingByte);
+		left_yagi = false;
+	}
+	else{
+		right = testDataMap(incomingByte);
+		sample_finished = true;
+		Sampling.getTestSample(left, right);
+	}
+	return sample_finished;
+}
+
+float testDataMap(int code){
+	// Assume integer, Convert to float
+	// 0 to 5V in 0.1V increments
+	float result = 0.1*code;
+	return result;
 }
