@@ -212,7 +212,7 @@ bool serialTestData(void){
 	//Serial.println(incomingByte);
 	// Leading character
 	if (incomingByte == 10){ // == '\r'
-		//Serial.println("think its fucken tops");
+		//Serial.println("think its tops");
 		left_yagi = true;
 		left = -1;
 		right = -1;
@@ -224,7 +224,7 @@ bool serialTestData(void){
 	else{
 		right = testDataMap(incomingByte);
 		sample_finished = true;
-//		Serial.println("sending the kids off");
+//		Serial.println("sending it off");
 		Sampling.getTestSample(left, right);
 		//printBuffers();
 	}
@@ -242,7 +242,7 @@ float testDataMap(int code){
 		result = 0.01*(code-15)+0.4;
 	}
 	else{
-		//Serial.println("Nah mate, thats shit");
+		//Serial.println("that is not expected");
 		result = -1.0;
 	}
 	//Serial.print("now:  ");

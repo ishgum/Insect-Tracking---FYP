@@ -35,8 +35,8 @@ void SamplingClass::fillBuffer(void){
 	Serial.print("Filling Buffer\n");
 	while (buffer_left.getCount() < _buffer_size) { // wait until bufffer is full
 
-		buffer_left.addValue(0.0);
-		buffer_right.addValue(0.0);
+		buffer_left.addValue(0.4);
+		buffer_right.addValue(0.4);
 
 		// Manually fill buffer
 //		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);

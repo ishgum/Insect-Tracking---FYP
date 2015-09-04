@@ -201,19 +201,19 @@ void pulseSerialData(){
 	bool new_sample = false;
 	printBuffers();
 	while (1) {
-		//Serial.println("Fucken here");
+		//Serial.println("here");
 		//delay(1000);
 		is_pulse = Sampling.pulseModeUpdate(); 		// Process sample buffer
 
 		if (is_pulse){
-			//Serial.println("Fucken displaying");
+			//Serial.println("displaying");
 			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
 			setLEDs(OFF);	// turn LEDs off again so we can see them flicker, relies on serial lag
 		}
 
 		// Check for incoming serial messages, and update buffer
 		if (Serial.available() > 0) {
-			//Serial.println("Got it gee");
+			//Serial.println("Got it");
 			new_sample = serialTestData();
 			//printBuffers();
 		}
