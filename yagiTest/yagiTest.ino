@@ -59,7 +59,7 @@ calculation
 // Settings
 enum Signal_mode {PULSE, SIMPLE_CONTINUOUS, PULSE_TEST, SERIAL_TEST}; // possible signal_modes
 
-const Signal_mode MODE = SIMPLE_CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch for program
+const Signal_mode MODE = PULSE_TEST;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAF_SIZE               5    // 256 absolute max, 200 probably safe
 #define ADC_SAMPLING_PERIOD	   2000	// us. 200 definitely too fast
@@ -87,13 +87,14 @@ void setup() {
 	pinMode(RIGHT_PIN, INPUT);
 	delay(500);
 
+	printBuffers();
 	Sampling.fillBuffer();
 	init_LEDs();
 
 	// init Timer interrupt for ADC sampling
 	Timer1.initialize(ADC_SAMPLING_PERIOD); // e.g set a timer of length 1000 microseconds (or 0.001 sec - or 1kHz)
-	Timer1.attachInterrupt(timerIsr); // attach the service routine here
-	Timer1.stop();
+	//Timer1.attachInterrupt(timerIsr); // attach the service routine here
+	//Timer1.stop();
 
 	// Select mode based on MODE
 	if (MODE == PULSE){
@@ -198,18 +199,23 @@ As above
 void pulseSerialData(){
 	bool is_pulse = false;
 	bool new_sample = false;
+	printBuffers();
 	while (1) {
-
+		//Serial.println("Fucken here");
+		//delay(1000);
 		is_pulse = Sampling.pulseModeUpdate(); 		// Process sample buffer
 
 		if (is_pulse){
+			//Serial.println("Fucken displaying");
 			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
 			setLEDs(OFF);	// turn LEDs off again so we can see them flicker, relies on serial lag
 		}
 
 		// Check for incoming serial messages, and update buffer
 		if (Serial.available() > 0) {
+			//Serial.println("Got it gee");
 			new_sample = serialTestData();
+			//printBuffers();
 		}
 	}
 }

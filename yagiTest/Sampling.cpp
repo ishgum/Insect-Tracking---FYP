@@ -34,9 +34,13 @@ void SamplingClass::fillBuffer(void){
 	// Fill buffer
 	Serial.print("Filling Buffer\n");
 	while (buffer_left.getCount() < _buffer_size) { // wait until bufffer is full
+
+		buffer_left.addValue(0.0);
+		buffer_right.addValue(0.0);
+
 		// Manually fill buffer
-		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);
-		buffer_right.addValue(analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0);
+//		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);
+//		buffer_right.addValue(analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0);
 		delay(2);
 		//Serial.println(buffer_left.getCount());
 		//continuousModeUpdate();
@@ -52,6 +56,7 @@ void SamplingClass::fillBuffer(void){
 * Updates adc_isr_buffer with one ADC sample on both channels
 *******************************************************************************/
 void SamplingClass::getSample(void){
+//	Timer1.stop();
 	adc_isr_buffer[0][_idxProducer] = analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0;
 	adc_isr_buffer[1][_idxProducer] = analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0;
 	_idxProducer++;
@@ -166,22 +171,29 @@ float SamplingClass::getElement(int index, int dir){
 * Updates insect state based on passed RSSI readings
 *******************************************************************************/
 void SamplingClass::interpretData(float average_left, float average_right){
-	//Serial.print("Left Pulse\t");
-	//Serial.println(average_left);
+	Serial.print("L\t");
+	Serial.print(average_left);
+	Serial.print("\tR\t");
+	Serial.println(average_right);
 	float diff = average_left - average_right;
 	float mag = abs(diff);
 
 	if (diff>(DIFFERENCE_THRESHOLD + HYSTERESIS)){
+		Serial.println("L");
 		insect_state = LEFT;
 	}
 	else if (diff < (-DIFFERENCE_THRESHOLD - HYSTERESIS)){
+		Serial.println("R");
 		insect_state = RIGHT;
 	}
 	else if (average_left < (MAX_DST - HYSTERESIS) && average_right < (MAX_DST - HYSTERESIS)){
+		Serial.println("Too Far");
+
 		// if both Yagi RSSI's are too weak
 		insect_state = TOO_FAR;
 	}
 	else if (average_left >(MIN_DST + HYSTERESIS) || average_right >(MIN_DST + HYSTERESIS)){
+		Serial.println("Too Close");
 		// if at least one Yagi RSSI is too strong
 		insect_state = TOO_CLOSE;
 	}
@@ -190,9 +202,11 @@ void SamplingClass::interpretData(float average_left, float average_right){
 		&& (average_left < (MAX_DST + HYSTERESIS) && average_right < (MAX_DST + HYSTERESIS))
 		&& (average_left >(MIN_DST - HYSTERESIS) || average_right >(MIN_DST - HYSTERESIS)))
 	{
+		Serial.println("Cent");
 		insect_state = CENTERED;
 	}
 	else{
+		Serial.println("Keep");
 		// Keep current state
 	}
 }
@@ -204,6 +218,10 @@ void SamplingClass::interpretData(float average_left, float average_right){
 void SamplingClass::getTestSample(float left, float right){
 	adc_isr_buffer[0][_idxProducer] = left;
 	adc_isr_buffer[1][_idxProducer] = right;
+	//Serial.println(adc_isr_buffer[0][_idxProducer]);
+	//Serial.println();
+	//Serial.println("isr");
+
 	_idxProducer++;
 	if (_idxProducer >= ADC_TIMER_BUFFER_SIZE){ // rollover
 		_idxProducer = 0;
@@ -218,4 +236,6 @@ void SamplingClass::getTestSample(float left, float right){
 	static bool toggle = false;
 	toggle = !toggle;
 	digitalWrite(13, toggle);
+
+
 }

@@ -11,12 +11,12 @@
 
 #include "RunningAverage.h"
 #include "Sampling.h"
-
+#include "TimerOne.h"
 
 /*******************************************************************************
 * Various settings for display modes
 *******************************************************************************/
-const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, false if using local serial
+const bool HAC_96 = false;				// true if using HAC_96 radio to transmit data, false if using local serial
 													// disables LEDs, and performs neccessary serial msg changes.
 #define PRINT_EVERY_N  100  // for CONTINUOUS mode, PULSE mode always prints every pulse
 #define DIR             //display strongest dir & mag
@@ -48,6 +48,7 @@ void serialResponse(void);
 
 bool serialTestData(void);
 float testDataMap(int code);
+void printBuffers(void);
 
 void serialTest();	// main loop for testing serial comms to HAK_96 radio
 

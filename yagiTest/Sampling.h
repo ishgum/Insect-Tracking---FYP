@@ -12,7 +12,7 @@
 #include "RunningAverage.h"
 
 
-#define ADC_TIMER_BUFFER_SIZE  10
+#define ADC_TIMER_BUFFER_SIZE  5
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
 										// amplitude to detect a pulse (0 to 5 valid) typ ~ 0.5V
@@ -64,6 +64,7 @@ public:
 	uint8_t _idxProducer;
 	uint8_t _idxConsumer;
 	uint8_t _consumerDelay;
+	float adc_isr_buffer[2][ADC_TIMER_BUFFER_SIZE];	// for adc ISR to fill, usage e.g [0][0] for 1st left, [1][4] for 5th right
 
 private:
 	bool _pulseOccuring;
@@ -72,7 +73,7 @@ private:
 	int _left_pin, _right_pin;
 	int _mode;// , _buffer_size;
 	bool left_over_thresh, right_over_thresh;
-	float adc_isr_buffer[2][ADC_TIMER_BUFFER_SIZE];	// for adc ISR to fill, usage e.g [0][0] for 1st left, [1][4] for 5th right
+//	float adc_isr_buffer[2][ADC_TIMER_BUFFER_SIZE];	// for adc ISR to fill, usage e.g [0][0] for 1st left, [1][4] for 5th right
 	uint8_t _buffer_mutex;	// 1 if available to write
 };
 
