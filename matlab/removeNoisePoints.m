@@ -1,5 +1,5 @@
 function [ pointArray ] = removeNoisePoints(array)
-% Emulates method used on UAV
+% Emulates method used on UAV, returns smaller array with only the pulse samples 
  %  simple threshold
 % average = mean(array);
 % array = array-mean;
