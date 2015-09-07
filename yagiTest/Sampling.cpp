@@ -7,7 +7,6 @@
 * Time rollover is 50 days
 *******************************************************************************/
 #include "Sampling.h"
-
 /*******************************************************************************
 * SamplingClass Constructor
 *******************************************************************************/
@@ -19,6 +18,13 @@ SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_
 	_right_pin = right_pin;
 	_buffer_size = maf_size;
 	insect_state = CENTERED;
+	_idxConsumer = 0;
+	_idxProducer = 0;
+	_consumerDelay = 0;
+	_buffer_mutex = 1;
+	_pulseOccuring = false;
+	_num_pulse_samples = 0;
+	_sampling_interrupt_buffer_full = false;
 }
 
 /*******************************************************************************
@@ -28,8 +34,16 @@ void SamplingClass::fillBuffer(void){
 	// Fill buffer
 	Serial.print("Filling Buffer\n");
 	while (buffer_left.getCount() < _buffer_size) { // wait until bufffer is full
+
+		buffer_left.addValue(0.4);
+		buffer_right.addValue(0.4);
+
+		// Manually fill buffer
+//		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);
+//		buffer_right.addValue(analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0);
+		delay(2);
 		//Serial.println(buffer_left.getCount());
-		continuousModeUpdate();
+		//continuousModeUpdate();
 	}
 	Serial.print("Buffer Full\n");
 	average_left = buffer_left.getAverage();
@@ -39,107 +53,103 @@ void SamplingClass::fillBuffer(void){
 }
 
 /*******************************************************************************
-* Updates current reading with one ADC sample on both channels
+* Updates adc_isr_buffer with one ADC sample on both channels
 *******************************************************************************/
 void SamplingClass::getSample(void){
-	current_left = analogRead(_left_pin) * ARDUINO_PWR_V / 1023.0;
-	current_right = analogRead(_right_pin) * ARDUINO_PWR_V / 1023.0;
-}
-
-/*******************************************************************************
-* Continuous mode method
-* Performs sample, buffer update, and updates average reading
-* Averaged reading is then interpreted to update insect state
-*******************************************************************************/
-void SamplingClass::continuousModeUpdate(void){
-	getSample();								// Sample ADC
-	buffer_left.addValue(current_left);			// Add values to buffers
-	buffer_right.addValue(current_right);
-	average_left = buffer_left.getAverage();	// Find new average value
-	average_right = buffer_right.getAverage();
-	interpretData(average_left, average_right);	// Update bug position based on average
-}
-
-/*******************************************************************************
-* Simplified pulse mode method
-* Depreciated once the more complex mode is tested working
-* Performs sample, and update for pulsed signals
-* Uses value sampled 5ms after pulse detected to determine pulse amplitude
-* Sampled value should sit 5ms to 10ms into pulse
-*******************************************************************************/
-bool SamplingClass::pulseModeUpdate(void){
-	getSample();
-	// Find if reading exceeds noise floor
-	left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
-	right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
-
-	// Pulse detected
-	if ((left_over_thresh || right_over_thresh)) {
-		delay(5);			// wait until pulse has risen (rough)
-		getSample();
-		pulse_left = current_left;
-		pulse_right = current_right;
-		interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
-		delay(20);	// wait until pulse has stopped
-		// signal pulse detected
-		return true;
+//	Timer1.stop();
+	adc_isr_buffer[0][_idxProducer] = analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0;
+	adc_isr_buffer[1][_idxProducer] = analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0;
+	_idxProducer++;
+	if (_idxProducer >= ADC_TIMER_BUFFER_SIZE){ // rollover
+		_idxProducer = 0;
 	}
-	else{	// No pulse; update noise floor readings
-		buffer_left.addValue(current_left);
-		buffer_right.addValue(current_right);
-		noise_floor_left = buffer_left.getAverage();
-		noise_floor_right = buffer_right.getAverage();
+
+	_consumerDelay++;
+
+	if (_consumerDelay > ADC_TIMER_BUFFER_SIZE){
+		// Consumer too slow, set flag here to print error later
+		_sampling_interrupt_buffer_full = true;
+		// how should this be cleared?
 	}
-	return false;
+
+	static bool toggle = false;
+	toggle = !toggle;
+	digitalWrite(13, toggle);
 }
+
+//void delayInISR(int micro_seconds){
+//	while (micro_seconds-- > 0){
+//		delayMicroseconds(1000);
+//	}
+//}
 
 /*******************************************************************************
 * Pulse mode method
 * Performs sample, and update for pulsed signals
 * Averages all samples determined to sit on the pulse
 *******************************************************************************/
-bool SamplingClass::fancyPulseModeUpdate(void){
-	getSample();
-	// Find if reading exceeds noise floor
-	left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
-	right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
+bool SamplingClass::pulseModeUpdate(void){
+	bool updatedState = false;
+	if (_consumerDelay > 0){ // Something to do
+		// Find if reading exceeds noise floor
+		//Serial.println("T");
+		current_left = adc_isr_buffer[0][_idxConsumer];
+		current_right = adc_isr_buffer[1][_idxConsumer];
 
-	//fancy pulse
-	if ((left_over_thresh || right_over_thresh)) {
-		int num_pulse_samples = 0;
-		delay(1); // ignore rising edge
+		left_over_thresh = current_left  >= noise_floor_left + PULSE_THRESHOLD;
+		right_over_thresh =  current_right >= noise_floor_right + PULSE_THRESHOLD;
 
-		// get new sample which should be on peak of pulse
-		getSample();
-		left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
-		right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
-		if ((!left_over_thresh && !right_over_thresh)) {
-			// pulse lasted 1 sample
-			Serial.println("1 sample pulse, noise?");
+		if ((left_over_thresh || right_over_thresh)) {
+			//Serial.println("P");
+			if (_pulseOccuring) { // pulse was occuring on last update
+				//Serial.println(current_left);
+				pulse_left += current_left;	//could check for overflow, but should only be incrementing 1-2
+				pulse_right += current_right;
+				_num_pulse_samples++;
+			}
+			else{
+				_pulseOccuring = true;
+				_num_pulse_samples = 1;
+				pulse_left = current_left;
+				pulse_right = current_right;
+			}
 		}
-
-		while ((left_over_thresh || right_over_thresh)){ //during pulse
-			pulse_left += current_left;
-			pulse_right += current_right;
-			num_pulse_samples++;
-			getSample();
-			left_over_thresh = current_left >= noise_floor_left + PULSE_THRESHOLD;
-			right_over_thresh = current_right >= noise_floor_right + PULSE_THRESHOLD;
-			
+		else{ // Threshold not exceeded
+			if (_pulseOccuring){ // pulse was occuring on last update
+				//Serial.println("LP");
+				if (_num_pulse_samples == 1){	// pulse lasted 1 sample
+					Serial.println("1 SP");
+				}
+				else{
+					pulse_left = pulse_left / _num_pulse_samples;
+					pulse_right = pulse_right / _num_pulse_samples;
+					interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
+					_pulseOccuring = false;
+					updatedState = true;
+				}
+			}
+			else{ // No pulse occured last update
+				//Serial.println("U");
+				buffer_left.addValue(adc_isr_buffer[0][_idxConsumer]);
+				buffer_right.addValue(adc_isr_buffer[1][_idxConsumer]);
+				noise_floor_left = buffer_left.getAverage();
+				noise_floor_right = buffer_right.getAverage();
+			}
 		}
-		pulse_left = pulse_left / num_pulse_samples;
-		pulse_right = pulse_right / num_pulse_samples;
-		interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
-		return true;
+		_idxConsumer++;
+		if (_idxConsumer >= ADC_TIMER_BUFFER_SIZE){ // rollover
+			_idxConsumer = 0;
+		}
+		_consumerDelay--;
 	}
-	else{	// No pulse; update noise floor readings
-		buffer_left.addValue(current_left);
-		buffer_right.addValue(current_right);
-		noise_floor_left = buffer_left.getAverage();
-		noise_floor_right = buffer_right.getAverage();
+	else
+	{
+		// Nothing to do, this task managed to run more than once in one sample period.
+		//Serial.println("S");
 	}
-	return false;
+	return updatedState;
 }
+
 
 /*******************************************************************************
 * Returns an element of the buffers
@@ -160,25 +170,72 @@ float SamplingClass::getElement(int index, int dir){
 /*******************************************************************************
 * Updates insect state based on passed RSSI readings
 *******************************************************************************/
-void SamplingClass::interpretData(float average_left, float average_right){
-	float diff = average_left - average_right;
+void SamplingClass::interpretData(float left, float right){
+	Serial.print("L\t");
+	Serial.print(left);
+	Serial.print("\tR\t");
+	Serial.println(right);
+	float diff = left - right;
 	float mag = abs(diff);
-	bool too_weak = (average_left < MAX_DST && average_right < MAX_DST);	// if both Yagi RSSI's are too weak
-	bool too_strong = (average_left > MIN_DST || average_right > MIN_DST);	// if at least one Yagi RSSI is too strong
 
-	if (diff>DIFFERENCE_THRESHOLD){
+	if (diff>(LR_DIFF + HYST)){
+		Serial.println("L");
 		insect_state = LEFT;
 	}
-	else if (diff < -DIFFERENCE_THRESHOLD){
+	else if (diff < (-LR_DIFF - HYST)){
+		Serial.println("R");
 		insect_state = RIGHT;
 	}
-	else if (too_weak){
+	else if (left < (MAX_DST - HYST) && right < (MAX_DST - HYST)){
+		Serial.println("Too Far");
+
+		// if both Yagi RSSI's are too weak
 		insect_state = TOO_FAR;
 	}
-	else if (too_strong){
+	else if (left >(MIN_DST + HYST) || right >(MIN_DST + HYST)){
+		Serial.println("Too Close");
+		// if at least one Yagi RSSI is too strong
 		insect_state = TOO_CLOSE;
 	}
-	else {
+	else if ((diff<(LR_DIFF - HYST))
+		&& (diff >(-LR_DIFF + HYST))
+		&& (left > (MAX_DST + HYST) && right > (MAX_DST + HYST))
+		&& (left <(MIN_DST - HYST) || right <(MIN_DST - HYST)))
+	{
+		Serial.println("Cent");
 		insect_state = CENTERED;
 	}
+	else{
+		Serial.println("Keep");
+		// Keep current state
+	}
+}
+
+
+/*******************************************************************************
+* Updates adc_isr_buffer if available serial samples are received
+*******************************************************************************/
+void SamplingClass::getTestSample(float left, float right){
+	adc_isr_buffer[0][_idxProducer] = left;
+	adc_isr_buffer[1][_idxProducer] = right;
+	//Serial.println(adc_isr_buffer[0][_idxProducer]);
+	//Serial.println();
+	//Serial.println("isr");
+
+	_idxProducer++;
+	if (_idxProducer >= ADC_TIMER_BUFFER_SIZE){ // rollover
+		_idxProducer = 0;
+	}
+
+	_consumerDelay++;
+
+	if (_consumerDelay > ADC_TIMER_BUFFER_SIZE){
+		_sampling_interrupt_buffer_full = true;
+	}
+
+	static bool toggle = false;
+	toggle = !toggle;
+	digitalWrite(13, toggle);
+
+
 }

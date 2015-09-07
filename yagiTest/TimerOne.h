@@ -32,6 +32,11 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *  See Google Code project http://code.google.com/p/arduino-timerone/ for latest
+ *	Usage:
+ *		Timer1.initialize();
+ *		Timer1.attachInterrupt(timerIsr); 
+ *		Timer1.stop(); to pause
+ *		Timer1.resume(); to resume
  */
 #ifndef TIMERONE_h
 #define TIMERONE_h

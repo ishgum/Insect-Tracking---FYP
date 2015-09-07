@@ -14,7 +14,6 @@ void init_LEDs(void){
 	pinMode(RIGHTLED, OUTPUT);
 	pinMode(MIDDLELED, OUTPUT);
 	pinMode(BACKLED, OUTPUT);
-	// a delay might be needed here
 	digitalWrite(LEFTLED, LOW);
 	digitalWrite(RIGHTLED, LOW);
 	digitalWrite(MIDDLELED, LOW);
@@ -41,20 +40,34 @@ void setLEDs(Led_config led_config)
 /*******************************************************************************
 * Prints both buffers contents for debugging
 *******************************************************************************/
-void print_buffers(void) {
-	Serial.print("Display buffer contents:\n");
+void printBuffers(void) {
+	//Timer1.stop();
+	Serial.println("Display ISR buffer contents:");
 	String buffer_output = "";
+	for (int i = 0; i < 5; i++){
+		buffer_output = "";
+		buffer_output += i;
+		buffer_output += "\tL:\t";
+		buffer_output += Sampling.adc_isr_buffer[0][i];
+		buffer_output += "\tR:\t";
+		buffer_output += Sampling.adc_isr_buffer[1][i];
+		Serial.println(buffer_output);
+	}
+
+	Serial.println("Display MAF buffer contents:");
+	buffer_output = "";
 	for (int i = 0; i < Sampling._buffer_size; i++){//SamplingClass::RunningAverage.getSize(); i++) {
 		buffer_output = "";
 		buffer_output += i;
-		buffer_output += "\tR:\t";
-		buffer_output += Sampling.getElement(i,0); // could use buffer_output += Sampling.buffer_left.getElement(i);
 		buffer_output += "\tL:\t";
+		buffer_output += Sampling.getElement(i,0); // could use buffer_output += Sampling.buffer_left.getElement(i);
+		buffer_output += "\tR:\t";
 		buffer_output += Sampling.getElement(i, 1);
 	//	buffer_output += "\tTest array:\t";
 	//	buffer_output += _test[i];
 		Serial.println(buffer_output);
 	}
+	//Timer1.resume();
 }
 
 
@@ -65,7 +78,7 @@ void print_buffers(void) {
 *******************************************************************************/
 void displayData(float average_left, float average_right) {
 	static int N = 0;
-	String dir = "";
+	String dir = "";	// String uses dynamic memory allocation, possibly not ideal.
 	float diff = average_left - average_right;
 	float mag = abs(diff);
 	switch (Sampling.insect_state){
@@ -144,15 +157,15 @@ void displayData(float average_left, float average_right) {
 #endif
 	Serial.println(output);
 
-#if defined(PULSE_MODE)
 	Serial.println(output);
-#else
-	N++;
-	if (N > PRINT_EVERY_N) {
-		N = 0;
-		Serial.println(output);
-	}
-#endif
+	// code to limit output prints
+	//else{
+	//	N++;
+	//	if (N > PRINT_EVERY_N) {
+	//		N = 0;
+	//		Serial.println(output);
+	//	}
+	Serial.println();
 }
 
 /*******************************************************************************
@@ -161,11 +174,17 @@ void displayData(float average_left, float average_right) {
 void serialResponse(void){
 	int incomingByte = Serial.read();    // required to clear serial receive buffer
 	Serial.println("Serial Msg received");
-	print_buffers();
-	Serial.println("\nDisplay averages:");
+	//printBuffers();
+	/*Serial.println("\nDisplay averages:");
 	displayData(Sampling.average_left, Sampling.average_right);
 	Serial.println("\nDisplay current:");
 	displayData(Sampling.current_left, Sampling.current_right);
+	*/
+	Serial.println("\nDisplay pulses:");
+	Serial.println(Sampling.pulse_left);
+	Serial.println(Sampling.pulse_right);
+	//displayData(Sampling.pulse_left, Sampling.pulse_right);
+	Serial.println();
 }
 
 /*******************************************************************************
@@ -176,8 +195,58 @@ void serialTest(){
 	while (1){
 		Serial.print("Hello World\t");
 		Serial.print(counter);
-		Serial.print("\n");
+		Serial.print("\r\n");
 		counter++;
 		delay(1000);
 	}
+}
+
+/*******************************************************************************
+* For serial data test mode
+*******************************************************************************/
+bool serialTestData(void){
+	static float left, right;
+	static bool left_yagi = true; // what value is being sent through. true left, false right
+	bool sample_finished = false;
+
+	int incomingByte = Serial.read();    // required to clear serial receive buffer
+	//Serial.println(incomingByte);
+	// Leading character
+	if (incomingByte == 10){ // == '\r'
+		//Serial.println("think its tops");
+		left_yagi = true;
+		left = -1;
+		right = -1;
+	}
+	else if (left_yagi){
+		left = testDataMap(incomingByte);
+		left_yagi = false;
+	}
+	else{
+		right = testDataMap(incomingByte);
+		sample_finished = true;
+//		Serial.println("sending it off");
+		Sampling.getTestSample(left, right);
+		//printBuffers();
+	}
+	return sample_finished;
+}
+
+float testDataMap(int code){
+	float result = -2.0;
+	//Serial.print("was:  ");
+	//Serial.println(code);
+	if (code >= 15){
+		// Assume integer, Convert to float
+		// 0 to 5V in 0.1V increments
+		//Serial.println("is ok");
+		result = 0.01*(code-15)+0.4;
+	}
+	else{
+		//Serial.println("that is not expected");
+		result = -1.0;
+	}
+	//Serial.print("now:  ");
+	//Serial.println(result);
+	return result;
 }

@@ -31,11 +31,16 @@ public:
 	float getElement(uint8_t idx);
 	uint8_t getSize() { return _size; }
 	uint8_t getCount() { return _cnt; }
-	int getIndex(void);  //Dylans adition
+	int getIndex(void);
+	//int getProducerIndex(void);
+	//int getConsumerIndex(void);
+	//bool foodInBuffer(void);
 protected:
 	uint8_t _size;
 	uint8_t _cnt;
 	uint8_t _idx;
+	//uint8_t _idxProducer;
+	//uint8_t _idxConsumer;
 	float _sum;
 	float * _ar;
 };

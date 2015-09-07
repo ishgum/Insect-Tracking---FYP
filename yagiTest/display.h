@@ -11,13 +11,12 @@
 
 #include "RunningAverage.h"
 #include "Sampling.h"
-//#include "yagiTest.ino"
-
+#include "TimerOne.h"
 
 /*******************************************************************************
 * Various settings for display modes
 *******************************************************************************/
-const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, false if using local serial
+const bool HAC_96 = false;				// true if using HAC_96 radio to transmit data, false if using local serial
 													// disables LEDs, and performs neccessary serial msg changes.
 #define PRINT_EVERY_N  100  // for CONTINUOUS mode, PULSE mode always prints every pulse
 #define DIR             //display strongest dir & mag
@@ -33,8 +32,6 @@ const bool HAC_96 = true;				// true if using HAC_96 radio to transmit data, fal
 #define BACKLED		   6
 
 //Other
-#define DIFFERENCE_THRESHOLD   0.1     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
-
 extern SamplingClass Sampling; // Sampling is declared in main
 
 enum Led_config
@@ -48,6 +45,10 @@ void setLEDs(Led_config led_config);
 
 void displayData(float average_left, float average_right);
 void serialResponse(void);
+
+bool serialTestData(void);
+float testDataMap(int code);
+void printBuffers(void);
 
 void serialTest();	// main loop for testing serial comms to HAK_96 radio
 
