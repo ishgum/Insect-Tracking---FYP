@@ -16,10 +16,10 @@
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
 										// amplitude to detect a pulse (0 to 5 valid) typ ~ 0.5V
-#define DIFFERENCE_THRESHOLD   0.25     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
+#define LR_DIFF				   0.25     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
 #define MAX_DST				   1.25
 #define MIN_DST				   1.9
-#define HYSTERESIS			   0.0		// hysteresis for switching between any two states.
+#define HYST				   0.1		// hysteresis for switching between any two states.
 											// hysteresis is +/- HYSTERESIS, so total hysteresis band width
 												// is actually double HYSTERESIS
 void error(void);

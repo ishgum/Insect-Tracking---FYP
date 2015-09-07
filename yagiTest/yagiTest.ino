@@ -87,7 +87,7 @@ void setup() {
 	pinMode(RIGHT_PIN, INPUT);
 	delay(500);
 
-	printBuffers();
+//	printBuffers();
 	Sampling.fillBuffer();
 	init_LEDs();
 
@@ -199,7 +199,7 @@ As above
 void pulseSerialData(){
 	bool is_pulse = false;
 	bool new_sample = false;
-	printBuffers();
+	//printBuffers();
 	while (1) {
 		//Serial.println("here");
 		//delay(1000);

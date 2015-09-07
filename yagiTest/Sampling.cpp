@@ -170,37 +170,37 @@ float SamplingClass::getElement(int index, int dir){
 /*******************************************************************************
 * Updates insect state based on passed RSSI readings
 *******************************************************************************/
-void SamplingClass::interpretData(float average_left, float average_right){
+void SamplingClass::interpretData(float left, float right){
 	Serial.print("L\t");
-	Serial.print(average_left);
+	Serial.print(left);
 	Serial.print("\tR\t");
-	Serial.println(average_right);
-	float diff = average_left - average_right;
+	Serial.println(right);
+	float diff = left - right;
 	float mag = abs(diff);
 
-	if (diff>(DIFFERENCE_THRESHOLD + HYSTERESIS)){
+	if (diff>(LR_DIFF + HYST)){
 		Serial.println("L");
 		insect_state = LEFT;
 	}
-	else if (diff < (-DIFFERENCE_THRESHOLD - HYSTERESIS)){
+	else if (diff < (-LR_DIFF - HYST)){
 		Serial.println("R");
 		insect_state = RIGHT;
 	}
-	else if (average_left < (MAX_DST - HYSTERESIS) && average_right < (MAX_DST - HYSTERESIS)){
+	else if (left < (MAX_DST - HYST) && right < (MAX_DST - HYST)){
 		Serial.println("Too Far");
 
 		// if both Yagi RSSI's are too weak
 		insect_state = TOO_FAR;
 	}
-	else if (average_left >(MIN_DST + HYSTERESIS) || average_right >(MIN_DST + HYSTERESIS)){
+	else if (left >(MIN_DST + HYST) || right >(MIN_DST + HYST)){
 		Serial.println("Too Close");
 		// if at least one Yagi RSSI is too strong
 		insect_state = TOO_CLOSE;
 	}
-	else if ((diff<(DIFFERENCE_THRESHOLD - HYSTERESIS))
-		&& (diff >(-DIFFERENCE_THRESHOLD + HYSTERESIS))
-		&& (average_left < (MAX_DST + HYSTERESIS) && average_right < (MAX_DST + HYSTERESIS))
-		&& (average_left >(MIN_DST - HYSTERESIS) || average_right >(MIN_DST - HYSTERESIS)))
+	else if ((diff<(LR_DIFF - HYST))
+		&& (diff >(-LR_DIFF + HYST))
+		&& (left > (MAX_DST + HYST) && right > (MAX_DST + HYST))
+		&& (left <(MIN_DST - HYST) || right <(MIN_DST - HYST)))
 	{
 		Serial.println("Cent");
 		insect_state = CENTERED;
