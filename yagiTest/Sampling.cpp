@@ -35,12 +35,12 @@ void SamplingClass::fillBuffer(void){
 	Serial.print("Filling Buffer\n");
 	while (buffer_left.getCount() < _buffer_size) { // wait until bufffer is full
 
-		buffer_left.addValue(0.4);
-		buffer_right.addValue(0.4);
+		//buffer_left.addValue(0.4);
+		//buffer_right.addValue(0.4);
 
 		// Manually fill buffer
-//		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);
-//		buffer_right.addValue(analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0);
+		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);
+		buffer_right.addValue(analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0 - RIGHT_BIAS);
 		delay(2);
 		//Serial.println(buffer_left.getCount());
 		//continuousModeUpdate();
@@ -58,7 +58,7 @@ void SamplingClass::fillBuffer(void){
 void SamplingClass::getSample(void){
 //	Timer1.stop();
 	adc_isr_buffer[0][_idxProducer] = analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0;
-	adc_isr_buffer[1][_idxProducer] = analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0;
+	adc_isr_buffer[1][_idxProducer] = analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0 - RIGHT_BIAS;
 	_idxProducer++;
 	if (_idxProducer >= ADC_TIMER_BUFFER_SIZE){ // rollover
 		_idxProducer = 0;
@@ -113,12 +113,16 @@ bool SamplingClass::pulseModeUpdate(void){
 				pulse_left = current_left;
 				pulse_right = current_right;
 			}
+			// inf pulse check
+			if (_num_pulse_samples > 20){
+				Serial.println("sft");
+			}
 		}
 		else{ // Threshold not exceeded
 			if (_pulseOccuring){ // pulse was occuring on last update
 				//Serial.println("LP");
 				if (_num_pulse_samples == 1){	// pulse lasted 1 sample
-					Serial.println("1 SP");
+					Serial.println("1SP");
 				}
 				else{
 					pulse_left = pulse_left / _num_pulse_samples;
@@ -217,7 +221,7 @@ void SamplingClass::interpretData(float left, float right){
 *******************************************************************************/
 void SamplingClass::getTestSample(float left, float right){
 	adc_isr_buffer[0][_idxProducer] = left;
-	adc_isr_buffer[1][_idxProducer] = right;
+	adc_isr_buffer[1][_idxProducer] = right - RIGHT_BIAS;
 	//Serial.println(adc_isr_buffer[0][_idxProducer]);
 	//Serial.println();
 	//Serial.println("isr");
