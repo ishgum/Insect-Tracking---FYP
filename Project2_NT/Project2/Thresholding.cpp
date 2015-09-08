@@ -182,7 +182,7 @@ void myHist::findLobes(int minArea = THRESHOLD_LEVEL) {
 		}
 		if (minSum > minArea){
 			lobeMap[minLocs[i]] = minSum;
-			maxMap[minSum] = minLocs[i + 1];
+			maxMap[minLocs[i+1]] = minSum;
 			printf("Value: %u, Sum: %u	\n", minLocs[i], minSum);
 		}
 	}
@@ -193,7 +193,7 @@ void myHist::findLobes(int minArea = THRESHOLD_LEVEL) {
 int myHist::findThresholdByLobes() {
 	findLobes();
 	while (lobeMap.size() > 1) {
-		if (int(lobeMap.rbegin()->first - maxMap.rbegin()->second) > 20) {
+		if (int(lobeMap.rbegin()->first - maxMap.begin()->first) > 20) {
 			return lobeMap.rbegin()->first;
 		}
 		lobeMap.erase(--lobeMap.end());

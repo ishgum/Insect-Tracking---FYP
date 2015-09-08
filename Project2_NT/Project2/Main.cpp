@@ -204,10 +204,10 @@ int main(int argc, char** argv)
 			insect = findInsect(insect, g_src);
 
 		#else
-			insect = findInsect(insect, &src);
+			insect = findInsect(insect, &src_ROI);
 		#endif
 
-		//insect.updateROI(&src);
+		insect.updateROI(&src);
 
 #ifdef DEBUG
 		Mat srcBox = src.clone();
