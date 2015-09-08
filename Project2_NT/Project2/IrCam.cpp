@@ -15,6 +15,14 @@ static Property newFrmRate;
 static PGRGuid guid;
 static BusManager busMgr;
 
+/*NEW*/
+static Error basicError;
+static Image basicRaw;
+static Camera basicCamera;
+static CameraInfo basicCamInfo;
+static Image rgbImageBasic;
+
+/* Set a region of interest on the camera */
 bool irSetRoi(int offX, int offY, int scale) {
 
 	fmt7ImageSettings.offsetX = offX;
@@ -58,7 +66,7 @@ bool setLowResFrameRate(void) {
 	bool valid;
 	Format7PacketInfo fmt7PacketInfo;
 
-	// Validate the settings to make sure that they are valid
+	// Validate the settings
 	camError = camera.ValidateFormat7Settings(
 		&fmt7ImageSettings,
 		&valid,
@@ -68,18 +76,19 @@ bool setLowResFrameRate(void) {
 		return false;
 	}
 
-	// Set the settings to the camera
+	// Set the settings on the camera
 	camError = camera.SetFormat7Configuration(
 		&fmt7ImageSettings,
 		fmt7PacketInfo.recommendedBytesPerPacket);
 	if (camError != PGRERROR_OK)
 	{
+        cout << "Failed to set resolution" << endl;
 		return false;
 	}
 
-	cout << "Set lower resolution" << endl;
+	//cout << "Set lower resolution" << endl;
 
-	// Lower the framerate
+	// Set the framerate
 
 	frmRate.type = FRAME_RATE;
 	frmRate.absControl = true;
@@ -111,6 +120,7 @@ bool setLowResFrameRate(void) {
 	return true;
 }
 
+/* Initialise the camera and set ROI to full frame */
 bool irCamInit(void) {
 	// Connect to a camera
 	camError = camera.Connect(0);
@@ -120,9 +130,9 @@ bool irCamInit(void) {
 	}
 
 	// Get the camera information
-	cout << "Get cam info" << endl;
+
 	camError = camera.GetCameraInfo(&camInfo);
-	cout << "Got cam info" << endl;
+
 	if (camError != PGRERROR_OK)
 	{
 		return false;
@@ -133,43 +143,76 @@ bool irCamInit(void) {
 	}
 
 	if (!setLowResFrameRate()) {
-		cout << "ERROR SETTING LOWER FRAMERATE AND RESOLUTION" << endl;
 		return false;
 	}
 
 	// Start capturing images
-	cout << "Start cap" << endl;
 	camError = camera.StartCapture();
 	cout << "Capturing" << endl;
 	if (camError != PGRERROR_OK)
 	{
 		return false;
 	}
-	cout << "Return true?" << endl;
-
-	unsigned int numCams;
-	camError = busMgr.GetNumOfCameras(&numCams);
-	if (camError != PGRERROR_OK)
-	{
-		return false;
-	}
-
-	camError = busMgr.GetCameraFromIndex(0, &guid);
-	if (camError != PGRERROR_OK)
-	{
-		return false;
-	}
-
-	unsigned int usb_prop;
-	camError = busMgr.GetUsbPortStatus(guid, &usb_prop);
-	cout << "USB is " << usb_prop << endl;
-
 	return true;
 }
 
+/* Initialise the camera and set ROI to full frame */
+bool irCamInitBasic(void) {
+	// Connect to a camera
+	basicError = basicCamera.Connect(0);
+	if (basicError != PGRERROR_OK)
+	{
+		return false;
+	}
+
+	// Get the camera information
+
+	basicError = basicCamera.GetCameraInfo(&basicCamInfo);
+
+	if (basicError != PGRERROR_OK)
+	{
+		return false;
+	}
+	// Start capturing images
+	basicError = basicCamera.StartCapture();
+	cout << "Capturing" << endl;
+	if (basicError != PGRERROR_OK)
+	{
+		return false;
+	}
+	return true;
+}
+
+/* Retrieve an image from the camera and return as an OpenCV Mat */
+Mat irGetImageBasic(void) {
+	Mat img;
+	// Get the image
+    
+	//cout << "Capturing image" << endl;
+	basicError = basicCamera.RetrieveBuffer(&basicRaw);
+	//cout << "Got an image" << endl;
+	
+	if (basicError.operator!=(PGRERROR_OK)) {
+		cout << "capture error" << endl;
+		img.setTo(-1);
+		return img;
+	}
+
+	// Convert to rgb
+	basicRaw.Convert(PIXEL_FORMAT_BGR, &rgbImageBasic);
+
+	// Convert to OpenCV Mat
+	unsigned int rowBytes = (double)rgbImageBasic.GetReceivedDataSize() / (double)rgbImageBasic.GetRows();
+	img = Mat(rgbImageBasic.GetRows(), rgbImageBasic.GetCols(), CV_8UC3, rgbImageBasic.GetData(), rowBytes);
+
+	return img;
+}
+
+/* Retrieve an image from the camera and return as an OpenCV Mat */
 Mat irGetImage(void) {
 	Mat img;
 	// Get the image
+    
 	cout << "Capturing image" << endl;
 	camError = camera.RetrieveBuffer(&rawImage);
 	cout << "Got an image" << endl;
@@ -190,13 +233,24 @@ Mat irGetImage(void) {
 	return img;
 }
 
+/* Release the camera */
+void irReleaseCamBasic(void) {
+	basicError = basicCamera.StopCapture();
+	if (camError.operator!=(PGRERROR_OK))
+	{
+	// This may fail when the camera is removed, so don't show
+	// an error message
+	}
+	basicCamera.Disconnect();
+}
+
+/* Release the camera */
 void irReleaseCam(void) {
 	camError = camera.StopCapture();
 	if (camError.operator!=(PGRERROR_OK))
 	{
-	// This may fail when the camera was removed, so don't show
+	// This may fail when the camera is removed, so don't show
 	// an error message
 	}
-
 	camera.Disconnect();
 }
