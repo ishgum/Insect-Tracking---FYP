@@ -5,9 +5,6 @@
 #include <iostream>
 #include <stdio.h>
 
-//#include <time.h>
-
-#include <opencv2/gpu/gpu.hpp>
 
 #include "Thresholding.h"
 #include "Insect.h"
@@ -17,14 +14,15 @@
 
 using namespace cv;
 using namespace std;
-using namespace cv::gpu;
 
 #define DEBUG		//display video output windows
 //#define FPS //wall breaks (==0) on release mode.
-//#define KALMAN
 #define WAIT_PERIOD	10
 //#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
-//#define USE_GPU  // ALSO NEED TO CHANGE IN THRESHOLDING.H - #DEFINE THRESH_GPU
+
+
+
+RNG rng(12345);
 
 
 void drawCross(Mat img, Point centre, Scalar colour, int d)
@@ -33,126 +31,58 @@ void drawCross(Mat img, Point centre, Scalar colour, int d)
 	line(img, Point(centre.x + d, centre.y - d), Point(centre.x - d, centre.y + d), colour, 2, CV_AA, 0);
 }
 
-#ifdef USE_GPU
-vector<Point2f> findObjects(GpuMat inputImage) {
-	vector<vector<Point> > contours;
-	vector<Point2f> centres;
-	vector<Vec4i> hierarchy;
-	GpuMat contourEdges_g;
-
-	// Detect edges on GPU
-	Canny(inputImage, contourEdges_g, 100, 100 * 2, 3);
-
-	// Download edges to CPU (no current GPU findContours function)
-	Mat contourEdges(contourEdges_g);
-
-	findContours(contourEdges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+vector<vector<Point> > findObjects(Mat* inputImage) {
 	
-	for (int i = 0; i < contours.size(); i++)
-	{
-		Moments conMom = (moments(contours[i], false));
-		if ((conMom.m00 < 500) && (conMom.m00 > 5)) {
-			centres.push_back(Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00));
-		}
-	}
-	return centres;
-}
-
-#else
-vector<Point2f> findObjects(Mat inputImage) {
 	vector<vector<Point> > contours;
-	vector<Point2f> centres;
 	vector<Vec4i> hierarchy;
-	Mat contourEdges;
+	Mat contourEdges, contourMorph;
 
-	Canny(inputImage, contourEdges, 100, 100 * 2, 3);
-	findContours(contourEdges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-	
-	for (int i = 0; i < contours.size(); i++)
+	Canny(*inputImage, contourEdges, 30, 50 * 2, 3);
+
+	Mat element = getStructuringElement(0, Size(5, 5));
+	morphologyEx(contourEdges, contourMorph, 3, element);
+
+	findContours(contourMorph, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	return contours;
+}
+
+
+map<double, vector<Point>> mapContours(vector<vector<Point>> inputContours, Mat inputImage) {
+	map<double, vector<Point>> contourMap;
+
+	for (int i = 0; i < inputContours.size(); i++)
 	{
-		Moments conMom = (moments(contours[i], false));
-		if ((conMom.m00 > 5)) {
-			centres.push_back(Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00));
-		}
-	}
-	return centres;
-}
-#endif
+		Mat mask = Mat::zeros(inputImage.size(), CV_8UC1);
+		drawContours(mask, inputContours, i, cv::Scalar(255), CV_FILLED, CV_AA, noArray(), 1, Point(0, 0));
+		contourMap[mean(inputImage, mask)[0]] = inputContours[i];
 
-#ifdef USE_GPU
-Insect findInsect(Insect insect, GpuMat inputImage) {
-    GpuMat image_hsl_g, lum_g, values_g[3];
-	//Mat values[3], image_hsl, lum;
-
-	//cvtColor(src, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
-	//split(*inputImage, values);						// Split into channels
-    split(inputImage, values_g);				// GPU split into three channels; may need to be & of vector<GpuMat>
-    
-	lum_g = values_g[0];
-	//Mat lum(values_g[0]);						// Download luminance channel off GPU
-
-	int lumThreshold = findThreshold(lum_g);		//Perform Dynamic thresholding on the saturation image
-
-	if (lumThreshold < 0) {
-		insect.found = false;
-		return insect;
 	}
 
-	//threshold(lum, lum, lumThreshold, 255, 0);
-	threshold(lum_g, lum_g, lumThreshold, 255, 0);
-	insect.updateHeight(lumThreshold);
-
-	vector<Point2f> objectCentres = findObjects(lum_g);
-
-	if (objectCentres.size() == 0) {
-		insect.found = false;
-		return insect;
-	}
-
-	insect.found = true;
-	insect.updatePosition(objectCentres[0]);
-	return insect;
+	return contourMap;
 }
 
-#else
+
 
 Insect findInsect(Insect insect, Mat* inputImage) {
-	Mat values[3], image_hsl, lum, lumMorph;
+	vector<vector<Point>> imageContours = findObjects(inputImage);
+	map<double, vector<Point>> contourMap = mapContours(imageContours, *inputImage);
 
-	cvtColor(*inputImage, image_hsl, CV_BGR2HLS);		// Convert image to HSL - redundant for IR
-	//split(*inputImage, values);
-	split(image_hsl, values);						// Split into channels
-	lum = values[1]; //0
+	if (contourMap.size() != 0) {
+		double insectIntensity = contourMap.rbegin()->first;
+		Moments conMom = (moments(contourMap.rbegin()->second, false));
+		Point insectCentre = Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00);
 
-	imshow("Luminance", lum);
-	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
-
-	if (lumThreshold == 0) {
+		printf("Insect Position - X: %u, Y: %u.  Insect Height - %.2f \n", insectCentre.x, insectCentre.y, insectIntensity);
+		insect.updatePosition(insectCentre);
+		insect.found = true;
+	}
+	else {
 		insect.found = false;
-		return insect;
 	}
 
-	threshold(lum, lum, lumThreshold, 255, 0);
-	imshow("Thresholded image", lum);
-	insect.updateHeight(lumThreshold);
-
-	Mat element = getStructuringElement(0, Size(4,4));
-	morphologyEx(lum, lumMorph, 3, element);
-	imshow("Thresholded image - Morph", lumMorph);
-
-	vector<Point2f> objectCentres = findObjects(lumMorph);
-
-	if (objectCentres.size() == 0) {
-		insect.found = false;
-		return insect;
-	}
-
-	insect.found = true;
-	insect.updatePosition(objectCentres[0]);
 	return insect;
 }
 
-#endif
 
 /*
 /*Determines time difference between two CPU clock times
@@ -174,38 +104,43 @@ timespec diff(timespec start, timespec end)
 /** @function main */
 int main(int argc, char** argv)
 {
-	VideoCapture capture(0);
+	VideoCapture capture;
+
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Ancient_times/plainHigh1.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2990.MOV"); //runs at ~6fps
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2987.MOV");
+
+	//IR RREFLEC TESTS:
+	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only.avi"); 
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only_Uncompressed_Grayscale.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193006-0000_8bit_uncompressed.avi"); // Princess Beetle and the sparkly dress, Co-Staring Michael
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro1_2015-05-09-192708-0000.avi"); //persistent bright region on lower portion of frame
+
+	//DEPTH TESTS:
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun4_0.avi");
+
+
 
 	#ifdef FPS
 	Fps fps(WAIT_PERIOD, WALL); // set what displays by changing mode to WALL, CPU, or BOTH
 	#endif // FPS
 
+
 	Mat src, src_ROI;
-	#ifdef USE_GPU
-		GpuMat g_src;
-	#endif
-
 	capture >> src;
-	
+	//resize(src, src, Size(), 0.3, 0.3);
 	Insect insect(&src);
-
-
-
-	/********** WHILE LOOP *********/
-//timespec time1, time2, time_diff;
+	
 	while (!src.empty()) {
-		//imshow("Img", src);
-		
-		//clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
 
 		src_ROI = src(insect.ROI);
-		#ifdef USE_GPU
-			g_src.upload(src_ROI);
-			insect = findInsect(insect, g_src);
 
-		#else
-			insect = findInsect(insect, &src_ROI);
-		#endif
+		//imshow("Source", src);
+
+
+		insect = findInsect(insect, &src_ROI);
 
 		insect.updateROI(&src);
 
@@ -245,10 +180,6 @@ int main(int argc, char** argv)
 		//resize(src, src, Size(), 0.3, 0.3);
 
 		waitKey(WAIT_PERIOD);
-		//printf("\n");
-		//clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-		//time_diff = diff(time1, time2);
-		//cout << time_diff.tv_sec << ":" << time_diff.tv_nsec << endl;
 	}
 	cout << "Done\n";
 
