@@ -22,15 +22,25 @@
 //#define HYST				   0.025		// hysteresis for switching between any two states.
 											// hysteresis is +/- HYSTERESIS, so total hysteresis band width
 												// is actually double HYSTERESIS
-#define RIGHT_BIAS				0.15		//testing found right is consistently higher than left. // 0.15 seems ok
+/*#define RIGHT_BIAS				0.15*/		//testing found right is consistently higher than left. // 0.15 seems ok
 											// This accounts for that somewhat, subtracted of right readings.
 												// used in all modes
 // Fields test
-#define PULSE_THRESHOLD        0.6     // V, the amount the RSSI amplitude has to be greater than the averaged
-#define LR_DIFF				   0.15     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
-#define MAX_DST				   1.5
-#define MIN_DST				   2.1
+//#define RIGHT_BIAS			   0.15
+//#define PULSE_THRESHOLD        0.6
+//#define LR_DIFF				   0.15    
+//#define MAX_DST				   1.5
+//#define MIN_DST				   2.1
+//#define HYST				   0.01
+
+// Indoors
+#define RIGHT_BIAS			   0.15
+#define PULSE_THRESHOLD        0.8
+#define LR_DIFF				   0.1
+#define MAX_DST				   1.8
+#define MIN_DST				   2.5
 #define HYST				   0.01
+
 
 void error(void);
 extern void myPrintString(const char input_str[]);

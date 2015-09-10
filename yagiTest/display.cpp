@@ -150,14 +150,14 @@ void displayData(float average_left, float average_right) {
 	}
 #endif
 #ifdef RAW
-	output += "\tRAW: L:\t";
+	output += "\t L:\t";
 	output += String(average_left);
 	output += "\tR:\t";
 	output += String(average_right);
 #endif
 	Serial.println(output);
 
-	Serial.println(output);
+	//Serial.println(output);
 	// code to limit output prints
 	//else{
 	//	N++;

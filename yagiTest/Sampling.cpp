@@ -42,7 +42,7 @@ void SamplingClass::fillBuffer(void){
 		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);
 		buffer_right.addValue(analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0 - RIGHT_BIAS);
 		delay(2);
-		//Serial.println(buffer_left.getCount());
+		Serial.println(buffer_left.getCount());
 		//continuousModeUpdate();
 	}
 	Serial.print("Buffer Full\n");
@@ -122,7 +122,7 @@ bool SamplingClass::pulseModeUpdate(void){
 			if (_pulseOccuring){ // pulse was occuring on last update
 				//Serial.println("LP");
 				if (_num_pulse_samples == 1){	// pulse lasted 1 sample
-					Serial.println("1SP");
+					//Serial.println("1SP");
 				}
 				else{
 					pulse_left = pulse_left / _num_pulse_samples;
@@ -175,29 +175,29 @@ float SamplingClass::getElement(int index, int dir){
 * Updates insect state based on passed RSSI readings
 *******************************************************************************/
 void SamplingClass::interpretData(float left, float right){
-	Serial.print("L\t");
-	Serial.print(left);
-	Serial.print("\tR\t");
-	Serial.println(right);
+	//Serial.print("L\t");
+	//Serial.print(left);
+	//Serial.print("\tR\t");
+	//Serial.println(right);
 	float diff = left - right;
 	float mag = abs(diff);
 
 	if (diff>(LR_DIFF + HYST)){
-		Serial.println("L");
+		//Serial.println("L");
 		insect_state = LEFT;
 	}
 	else if (diff < (-LR_DIFF - HYST)){
-		Serial.println("R");
+		//Serial.println("R");
 		insect_state = RIGHT;
 	}
 	else if (left < (MAX_DST - HYST) && right < (MAX_DST - HYST)){
-		Serial.println("Too Far");
+		//Serial.println("Too Far");
 
 		// if both Yagi RSSI's are too weak
 		insect_state = TOO_FAR;
 	}
 	else if (left >(MIN_DST + HYST) || right >(MIN_DST + HYST)){
-		Serial.println("Too Close");
+		//Serial.println("Too Close");
 		// if at least one Yagi RSSI is too strong
 		insect_state = TOO_CLOSE;
 	}
@@ -206,11 +206,11 @@ void SamplingClass::interpretData(float left, float right){
 		&& (left > (MAX_DST + HYST) && right > (MAX_DST + HYST))
 		&& (left <(MIN_DST - HYST) || right <(MIN_DST - HYST)))
 	{
-		Serial.println("Cent");
+		//Serial.println("Cent");
 		insect_state = CENTERED;
 	}
 	else{
-		Serial.println("Keep");
+		//Serial.println("Keep");
 		// Keep current state
 	}
 }
