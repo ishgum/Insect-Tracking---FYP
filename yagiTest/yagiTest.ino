@@ -59,9 +59,9 @@ calculation
 // Settings
 enum Signal_mode {PULSE, SIMPLE_CONTINUOUS, PULSE_TEST, SERIAL_TEST}; // possible signal_modes
 
-const Signal_mode MODE = PULSE;//SIMPLE_CONTINUOUS;				// Main mode switch for program
+const Signal_mode MODE = SIMPLE_CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAF_SIZE               5    // 256 absolute max, 200 probably safe
+#define MAF_SIZE               100    // 256 absolute max, 200 probably safe
 #define ADC_SAMPLING_PERIOD	   2000	// us. 200 definitely too fast
 // Pin dfns
 #define LEFT_PIN       A0
@@ -82,6 +82,13 @@ void setup() {
 	{
 		Serial.begin(115200);    //for speed!
 	}
+
+	// Empty serial receive buffer
+	while (Serial.available() > 0) {
+		//Serial.println("Got it");
+		Serial.read();
+	}
+	
 
 	pinMode(LEFT_PIN, INPUT);
 	pinMode(RIGHT_PIN, INPUT);

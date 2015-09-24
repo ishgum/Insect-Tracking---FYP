@@ -32,7 +32,7 @@ SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_
 *******************************************************************************/
 void SamplingClass::fillBuffer(void){
 	// Fill buffer
-	Serial.print("Filling Buffer\n");
+	Serial.println("Filling Buffer");
 	while (buffer_left.getCount() < _buffer_size) { // wait until bufffer is full
 
 		//buffer_left.addValue(0.4);
@@ -42,10 +42,11 @@ void SamplingClass::fillBuffer(void){
 		buffer_left.addValue(analogRead(_left_pin)*ARDUINO_PWR_V / 1023.0);
 		buffer_right.addValue(analogRead(_right_pin)*ARDUINO_PWR_V / 1023.0 - RIGHT_BIAS);
 		delay(2);
-		Serial.println(buffer_left.getCount());
+		//Serial.println(buffer_left.getCount());
 		//continuousModeUpdate();
 	}
-	Serial.print("Buffer Full\n");
+	Serial.println(buffer_left.getCount());
+	Serial.println("Buffer Full");
 	average_left = buffer_left.getAverage();
 	average_right = buffer_right.getAverage();
 	noise_floor_left = average_left;
@@ -115,7 +116,9 @@ bool SamplingClass::pulseModeUpdate(void){
 			}
 			// inf pulse check
 			if (_num_pulse_samples > 20){
-				Serial.println("sft");
+				//Serial.println("sft");
+				// Update moving floor with measured pulses
+				
 			}
 		}
 		else{ // Threshold not exceeded
@@ -164,7 +167,7 @@ float SamplingClass::getElement(int index, int dir){
 		return buffer_left.getElement(index);
 	}
 	else if (dir == 1){
-		return buffer_left.getElement(index);
+		return buffer_right.getElement(index);
 	}
 	else{
 		error();

@@ -13,19 +13,47 @@
 
 
 #define ADC_TIMER_BUFFER_SIZE  5
-#define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-//#define PULSE_THRESHOLD        0.5     // V, the amount the RSSI amplitude has to be greater than the averaged
-//										// amplitude to detect a pulse (0 to 5 valid) typ ~ 0.5V
-//#define LR_DIFF				   0.25     // V, for max difference between Left and Right considered "the same" (0 to 5 valid)
-//#define MAX_DST				   1.25
-//#define MIN_DST				   1.9
-//#define HYST				   0.025		// hysteresis for switching between any two states.
-											// hysteresis is +/- HYSTERESIS, so total hysteresis band width
-												// is actually double HYSTERESIS
-/*#define RIGHT_BIAS				0.15*/		//testing found right is consistently higher than left. // 0.15 seems ok
-											// This accounts for that somewhat, subtracted of right readings.
-												// used in all modes
-// Fields test
+#define ARDUINO_PWR_V          5
+
+/*  Setting details:
+all are in Volts
+
+ARDUINO_PWR_V		about 4.55V on USB, 5.0V with lipo
+
+RIGHT_BIAS			testing found right is consistently higher than left, this is subtracted off right.
+						used in all modes.
+
+PULSE_THRESHOLD		the amount, (V), the RSSI amplitude has to be greater than the averaged
+						amplitude to detect a pulse typ ~ 0.5V
+
+LR_DIFF				max difference between Left and Right considered "the same"
+
+MAX_DST				The smallest signal allowable before we want to move forward
+
+MIN_DST				The strongest signal allowable before we want to move backwards
+
+HYST			Hysteresis for switching between any two states.
+						hysteresis is +/- HYSTERESIS, so total hysteresis band width
+						is actually double HYSTERESIS
+*/
+
+// Ilam Fields test, on UAV
+#define RIGHT_BIAS			   0.05
+#define PULSE_THRESHOLD        0.1
+#define LR_DIFF				   0.05    
+#define MAX_DST				   1.2
+#define MIN_DST				   1.8
+#define HYST				   0.01
+
+// Ilam Fields test, on ground
+//#define RIGHT_BIAS			   0.05	//0.12
+//#define PULSE_THRESHOLD        0.1
+//#define LR_DIFF				   0.05    
+//#define MAX_DST				   1.2
+//#define MIN_DST				   1.8
+//#define HYST				   0.01
+
+// CV Fields test
 //#define RIGHT_BIAS			   0.15
 //#define PULSE_THRESHOLD        0.6
 //#define LR_DIFF				   0.15    
@@ -33,13 +61,13 @@
 //#define MIN_DST				   2.1
 //#define HYST				   0.01
 
-// Indoors
-#define RIGHT_BIAS			   0.15
-#define PULSE_THRESHOLD        0.8
-#define LR_DIFF				   0.1
-#define MAX_DST				   1.8
-#define MIN_DST				   2.5
-#define HYST				   0.01
+//// Indoors
+//#define RIGHT_BIAS			   0.15
+//#define PULSE_THRESHOLD        0.8
+//#define LR_DIFF				   0.1
+//#define MAX_DST				   1.8
+//#define MIN_DST				   2.5
+//#define HYST				   0.01
 
 
 void error(void);

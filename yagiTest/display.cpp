@@ -130,11 +130,11 @@ void displayData(float average_left, float average_right) {
 	current_time = millis() - start_time;
 	float current_time_s = current_time / 1000.0;
 	output += current_time_s;
-	output += "\t";
+	output += "  ";
 #endif
 #ifdef DIR
 	// output = "Strongest:\t";
-	output += dir + "\t";
+	output += dir + "    ";
 #endif
 #ifdef MAG
 	output += mag;
@@ -150,11 +150,12 @@ void displayData(float average_left, float average_right) {
 	}
 #endif
 #ifdef RAW
-	output += "\t L:\t";
+	output += "L: ";
 	output += String(average_left);
-	output += "\tR:\t";
+	output += "   R: ";
 	output += String(average_right);
 #endif
+	output += "\r\n";
 	Serial.println(output);
 
 	//Serial.println(output);
@@ -165,7 +166,7 @@ void displayData(float average_left, float average_right) {
 	//		N = 0;
 	//		Serial.println(output);
 	//	}
-	Serial.println();
+	//Serial.println();
 }
 
 /*******************************************************************************
@@ -174,15 +175,15 @@ void displayData(float average_left, float average_right) {
 void serialResponse(void){
 	int incomingByte = Serial.read();    // required to clear serial receive buffer
 	Serial.println("Serial Msg received");
-	//printBuffers();
+	printBuffers();
 	/*Serial.println("\nDisplay averages:");
 	displayData(Sampling.average_left, Sampling.average_right);
 	Serial.println("\nDisplay current:");
 	displayData(Sampling.current_left, Sampling.current_right);
 	*/
-	Serial.println("\nDisplay pulses:");
-	Serial.println(Sampling.pulse_left);
-	Serial.println(Sampling.pulse_right);
+	// Serial.println("\nDisplay pulses:");
+	// Serial.println(Sampling.pulse_left);
+	// Serial.println(Sampling.pulse_right);
 	//displayData(Sampling.pulse_left, Sampling.pulse_right);
 	Serial.println();
 }
