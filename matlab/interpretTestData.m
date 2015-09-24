@@ -132,7 +132,8 @@ right = right(6:end-5,:);
 % scatter(left(:,1),left(:,2));
 % scatter(right(:,1), right(:,2),'r');
 
-leftAngles = [1:(360/length(left)):360]';
+% leftAngles = [1:(360/length(left)):360]';
+leftAngles = linspace(0,360,149)';
 leftAngles = (45-leftAngles);
 leftAngles = deg2rad(leftAngles);
 % figure
@@ -143,7 +144,8 @@ title('Left antenna')
 % hold on
 view([90 -90])
 
-rightAngles = [1:(360/length(right)):360]';
+% rightAngles = [1:(360/length(right)):360]';
+rightAngles = linspace(0,360,149)';
 rightAngles = (315-rightAngles);
 rightAngles = deg2rad(rightAngles);
 figure
@@ -155,18 +157,34 @@ legend('Right Antenna');%, 'Right Antenna')
 
 %% super cool plot for 30m:
 % setAngle sets the angle between the two overlaid antenna patterns
-setAngle = 0;
+setAngle = 60;
 leftAngles = (leftAngles-deg2rad(setAngle/2));
 rightAngles = (rightAngles+deg2rad(setAngle/2));
+
+% Modify for poster display:
+left = left(:,2);
+left = left - 0.49;
+right = right(:,2);
+right = right- 0.49;
+
+left = maf(left, 20);
+right = maf(right, 20);
+left = [left; left(1)];
+right = [right; right(1)];
+leftAngles = [leftAngles; leftAngles(1)];
+rightAngles = [rightAngles; rightAngles(1)];
+
+
+
 figure
 axis equal
-polar(leftAngles, left(:,2))
+polar(leftAngles, left)%:,2))
 hold on
 
-polar(rightAngles, right(:,2),'r')
+polar(rightAngles, right,'r')%(:,2),'r')
 view([90 -90])
 legend('Left Antenna', 'Right Antenna');
-title(sprintf('Antennae at %2.0f degrees apart\n',setAngle))
+title(sprintf('Antennae at %2.0f degrees apart\n\n',setAngle))
 % Actual for yt3fr30m
 actualAngles = [0       10
                 -45		29
@@ -190,33 +208,57 @@ actualAngles = [0       10
 % 
 % % distance (guess with measure)
 % figure
-% distance = [10	36
-%             20	48
-%             30	60
-%             40	68
-%             50	78
-%             60	88
-%             70	98
-%             80	110
-%             90	122
-%             100   135
-%             90	150
-%             80    159
-%             70    170
-%             60	180
-%             50	190
-%             40	198
-%             30    207
-%             20    218
-%             10    226
-%             0     233];
-% % find(time<143&time>142)
-% time = test3_Distance(:,1)/1000;
+distance = [10	36
+            20	48
+            30	60
+            40	68
+            50	78
+            60	88
+            70	98
+            80	110
+            90	122
+            100   135
+            90	150
+            80    159
+            70    170
+            60	180
+            50	190
+            40	198
+            30    207
+            20    218
+            10    226
+            0     233];
+% find(time<143&time>142)
+time = test3_Distance(:,1)/1000;
 % time(97500:end) = 2*142.5420-time(97500:end);
-% left = test3_Distance(:,2);
-% right = test3_Distance(:,3);
+left = test3_Distance(:,2);
+right = test3_Distance(:,3);
+figure
+plot(time, left,'-')
+figure
+plot(time, right,'-')
+% figure
+% plot(time(90000:120000), right(90000:120000),'-')
+
+far_right = right(90000:110000)-0.48;
+figure
+plot(1:length(far_right), far_right)
+v_noise = 0.2
+far_right_sig = (far_right>v_noise).* far_right;
+far_right_noise = (far_right<=v_noise).* far_right;
+figure
+plot(1:length(far_right), far_right_sig)
+figure
+plot(1:length(far_right), far_right_noise)
+
+% powers
+PWR_s = far_right_sig'*far_right_sig
+PWR_n = far_right_noise'*far_right_noise
+SNR = 10*log10(PWR_s/PWR_n)
+% plot(time, left,'-', time, right,'-')
 % left = removeNoisePoints([time, left]);
 % right = removeNoisePoints([time, right]);
+% figure
 % plot(left(:,1), left(:,2),'-', right(:,1), right(:,2),'-')
 
 %% Third test
