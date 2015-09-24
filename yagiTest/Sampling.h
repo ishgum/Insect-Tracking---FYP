@@ -12,9 +12,9 @@
 #include "RunningAverage.h"
 
 
-#define ADC_TIMER_BUFFER_SIZE  5
-#define ARDUINO_PWR_V          5
-
+#define ADC_TIMER_BUFFER_SIZE	5
+#define ARDUINO_PWR_V			5
+#define INTER_SAMPLE_BUFFER		3
 /*  Setting details:
 all are in Volts
 
@@ -37,21 +37,21 @@ HYST			Hysteresis for switching between any two states.
 						is actually double HYSTERESIS
 */
 
-// Ilam Fields test, on UAV
+// Ilam Fields test, on UAV. Generally expect stronger signals
 #define RIGHT_BIAS			   0.05
 #define PULSE_THRESHOLD        0.1
 #define LR_DIFF				   0.05    
-#define MAX_DST				   1.2
-#define MIN_DST				   1.8
+#define MAX_DST				   1.5
+#define MIN_DST				   2.1
 #define HYST				   0.01
 
-// Ilam Fields test, on ground
-//#define RIGHT_BIAS			   0.05	//0.12
-//#define PULSE_THRESHOLD        0.1
-//#define LR_DIFF				   0.05    
-//#define MAX_DST				   1.2
-//#define MIN_DST				   1.8
-//#define HYST				   0.01
+//// Ilam Fields test, on ground
+//#define RIGHT_BIAS				0.05	//0.12
+//#define PULSE_THRESHOLD			0.1
+//#define LR_DIFF					0.05    
+//#define MAX_DST					1.2
+//#define MIN_DST					1.8
+//#define HYST					0.01
 
 // CV Fields test
 //#define RIGHT_BIAS			   0.15
@@ -100,12 +100,15 @@ public:
 	float getElement(int index, int dir);
 
 	// Variables
+	RunningAverage pulse_left_buf;
+	RunningAverage pulse_right_buf;
 	RunningAverage buffer_left;
 	RunningAverage buffer_right;
 	float current_left, current_right; // sample from last reading
 	float average_left, average_right; // averaged for continuous mode
 	float noise_floor_left, noise_floor_right;		// estimate of noise floor for pulsed mode
 	float pulse_left, pulse_right;					//result for pulsed mode.
+	float pulse_left_av, pulse_right_av;
 	Insect_state insect_state;
 	uint8_t _buffer_size;
 	bool _sampling_interrupt_buffer_full;

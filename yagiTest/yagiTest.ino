@@ -59,7 +59,7 @@ calculation
 // Settings
 enum Signal_mode {PULSE, SIMPLE_CONTINUOUS, PULSE_TEST, SERIAL_TEST}; // possible signal_modes
 
-const Signal_mode MODE = SIMPLE_CONTINUOUS;//SIMPLE_CONTINUOUS;				// Main mode switch for program
+const Signal_mode MODE = PULSE;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
 #define MAF_SIZE               100    // 256 absolute max, 200 probably safe
 #define ADC_SAMPLING_PERIOD	   2000	// us. 200 definitely too fast
@@ -180,6 +180,8 @@ void pulse(){
 		is_pulse = Sampling.pulseModeUpdate(); 		// Process sample buffer
 		
 		if (is_pulse){
+//			displayData(Sampling.pulse_left_av, Sampling.pulse_right_av);	// pulse detected, update display
+
 			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
 			setLEDs(OFF);	// turn LEDs off again so we can see them flicker, relies on serial lag
 		}
@@ -195,9 +197,9 @@ void pulse(){
 
 		// Check for incoming serial messages, and print status if we get anything
 		// Send a msg by selecting CR or NL in serial monitor window, and sending a blank msg.
-		if (Serial.available() > 0) {	
-			serialResponse();
-		}
+		//if (Serial.available() > 0) {	
+			//serialResponse();
+		//}
 	}
 }
 
@@ -216,7 +218,7 @@ void pulseSerialData(){
 
 		if (is_pulse){
 			//Serial.println("displaying");
-			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
+			displayData(Sampling.pulse_left_av, Sampling.pulse_right_av);	// pulse detected, update display
 			setLEDs(OFF);	// turn LEDs off again so we can see them flicker, relies on serial lag
 		}
 

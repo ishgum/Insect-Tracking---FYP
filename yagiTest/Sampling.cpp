@@ -11,7 +11,8 @@
 * SamplingClass Constructor
 *******************************************************************************/
 SamplingClass::SamplingClass(int mode, int left_pin, int right_pin, uint8_t maf_size)
-	:buffer_left(maf_size), buffer_right(maf_size){
+	:buffer_left(maf_size), buffer_right(maf_size),
+	pulse_left_buf(INTER_SAMPLE_BUFFER), pulse_right_buf(INTER_SAMPLE_BUFFER){
 
 	_mode = mode;
 	_left_pin = left_pin;
@@ -91,6 +92,7 @@ void SamplingClass::getSample(void){
 *******************************************************************************/
 bool SamplingClass::pulseModeUpdate(void){
 	bool updatedState = false;
+	static int pulse_cnter = 0;
 	if (_consumerDelay > 0){ // Something to do
 		// Find if reading exceeds noise floor
 		//Serial.println("T");
@@ -130,9 +132,23 @@ bool SamplingClass::pulseModeUpdate(void){
 				else{
 					pulse_left = pulse_left / _num_pulse_samples;
 					pulse_right = pulse_right / _num_pulse_samples;
-					interpretData(pulse_left, pulse_right);	// Update bug position based on pulse
+					//pulse_left_buf.addValue(pulse_left / _num_pulse_samples);
+					//pulse_right_buf.addValue(pulse_right / _num_pulse_samples);
+					//pulse_left_av = pulse_left_buf.getAverage();
+					//pulse_right_av = pulse_right_buf.getAverage();
 					_pulseOccuring = false;
-					updatedState = true;
+
+					// Inter-sample smoothing:
+					pulse_cnter++;
+					//if (pulse_cnter >= INTER_SAMPLE_BUFFER){
+					//Serial.println(pulse_left_buf.getAverage());
+					//	Serial.println(pulse_left_buf.getElement(1));
+					//interpretData(pulse_left_av, pulse_right_av);	// Update bug position based on pulse
+					interpretData(pulse_left, pulse_right);
+					updatedState = true;	// signals state has been updated, data is then displayed
+					pulse_cnter = 0;
+					//}
+				
 				}
 			}
 			else{ // No pulse occured last update
