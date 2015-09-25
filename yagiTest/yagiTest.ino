@@ -61,7 +61,7 @@ enum Signal_mode {PULSE, SIMPLE_CONTINUOUS, PULSE_TEST, SERIAL_TEST}; // possibl
 
 const Signal_mode MODE = PULSE;//SIMPLE_CONTINUOUS;				// Main mode switch for program
 #define ARDUINO_PWR_V          5      //4.55 // about 4.55V on USB //5.0V ok with lipo
-#define MAF_SIZE               100    // 256 absolute max, 200 probably safe
+#define MAF_SIZE               5    // 256 absolute max, 200 probably safe
 #define ADC_SAMPLING_PERIOD	   2000	// us. 200 definitely too fast
 // Pin dfns
 #define LEFT_PIN       A0
@@ -169,6 +169,7 @@ LED's updated every pulse.
 Serial updated every pulse.
 *******************************************************************************/
 void pulse(){
+	unsigned long radio_checkin = 0;
 	bool is_pulse = false;
 
 	// init Timer interrupt for ADC sampling
@@ -180,9 +181,9 @@ void pulse(){
 		is_pulse = Sampling.pulseModeUpdate(); 		// Process sample buffer
 		
 		if (is_pulse){
-//			displayData(Sampling.pulse_left_av, Sampling.pulse_right_av);	// pulse detected, update display
+			displayData(Sampling.pulse_left_av, Sampling.pulse_right_av);	// pulse detected, update display
 
-			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
+//			displayData(Sampling.pulse_left, Sampling.pulse_right);	// pulse detected, update display
 			setLEDs(OFF);	// turn LEDs off again so we can see them flicker, relies on serial lag
 		}
 
@@ -200,6 +201,11 @@ void pulse(){
 		//if (Serial.available() > 0) {	
 			//serialResponse();
 		//}
+		radio_checkin++; 
+		if (radio_checkin > 1000000){
+			radio_checkin = 0;
+			Serial.println("Radio Connected");
+		}
 	}
 }
 

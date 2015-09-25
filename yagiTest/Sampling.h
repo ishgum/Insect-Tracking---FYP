@@ -14,7 +14,7 @@
 
 #define ADC_TIMER_BUFFER_SIZE	5
 #define ARDUINO_PWR_V			5
-#define INTER_SAMPLE_BUFFER		3
+#define INTER_SAMPLE_BUFFER		7
 /*  Setting details:
 all are in Volts
 
@@ -38,11 +38,11 @@ HYST			Hysteresis for switching between any two states.
 */
 
 // Ilam Fields test, on UAV. Generally expect stronger signals
-#define RIGHT_BIAS			   0.05
-#define PULSE_THRESHOLD        0.1
-#define LR_DIFF				   0.05    
-#define MAX_DST				   1.5
-#define MIN_DST				   2.1
+#define RIGHT_BIAS			   0.12//0.05
+#define PULSE_THRESHOLD        0.5
+#define LR_DIFF				   0.07    
+#define MAX_DST				   1.2
+#define MIN_DST				   1.8
 #define HYST				   0.01
 
 //// Ilam Fields test, on ground

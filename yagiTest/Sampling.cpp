@@ -130,24 +130,24 @@ bool SamplingClass::pulseModeUpdate(void){
 					//Serial.println("1SP");
 				}
 				else{
-					pulse_left = pulse_left / _num_pulse_samples;
-					pulse_right = pulse_right / _num_pulse_samples;
-					//pulse_left_buf.addValue(pulse_left / _num_pulse_samples);
-					//pulse_right_buf.addValue(pulse_right / _num_pulse_samples);
-					//pulse_left_av = pulse_left_buf.getAverage();
-					//pulse_right_av = pulse_right_buf.getAverage();
+					//pulse_left = pulse_left / _num_pulse_samples;
+					//pulse_right = pulse_right / _num_pulse_samples;
+					pulse_left_buf.addValue(pulse_left / _num_pulse_samples);
+					pulse_right_buf.addValue(pulse_right / _num_pulse_samples);
+					pulse_left_av = pulse_left_buf.getAverage();
+					pulse_right_av = pulse_right_buf.getAverage();
 					_pulseOccuring = false;
 
 					// Inter-sample smoothing:
 					pulse_cnter++;
-					//if (pulse_cnter >= INTER_SAMPLE_BUFFER){
-					//Serial.println(pulse_left_buf.getAverage());
-					//	Serial.println(pulse_left_buf.getElement(1));
-					//interpretData(pulse_left_av, pulse_right_av);	// Update bug position based on pulse
-					interpretData(pulse_left, pulse_right);
-					updatedState = true;	// signals state has been updated, data is then displayed
-					pulse_cnter = 0;
-					//}
+					if (pulse_cnter >= INTER_SAMPLE_BUFFER){
+						//Serial.println(pulse_left_buf.getAverage());
+						//	Serial.println(pulse_left_buf.getElement(1));
+						interpretData(pulse_left_av, pulse_right_av);	// Update bug position based on pulse
+						//interpretData(pulse_left, pulse_right);
+						updatedState = true;	// signals state has been updated, data is then displayed
+						pulse_cnter = 0;
+					}
 				
 				}
 			}
