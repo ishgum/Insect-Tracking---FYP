@@ -148,6 +148,12 @@ bool SamplingClass::pulseModeUpdate(void){
 						updatedState = true;	// signals state has been updated, data is then displayed
 						pulse_cnter = 0;
 					}
+					else{
+						Serial.print("Int L: ");
+						Serial.print(pulse_left / _num_pulse_samples);
+						Serial.print("   R: ");
+						Serial.println(pulse_right / _num_pulse_samples);
+					}
 				
 				}
 			}

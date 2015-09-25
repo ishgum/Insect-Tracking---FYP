@@ -142,7 +142,7 @@ void error(void){
 *******************************************************************************/
 void simple(void) {
   while(1){
-    //Serial.println(millis());	// uncomment to print time too
+    //Serial.print(millis());	// uncomment to print time too
     //Serial.print("\t");
     Serial.print((analogRead(LEFT_PIN))*ARDUINO_PWR_V/1023.0);
     Serial.print("\t");
