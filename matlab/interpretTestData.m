@@ -136,13 +136,30 @@ right = right(6:end-5,:);
 leftAngles = linspace(0,360,149)';
 leftAngles = (45-leftAngles);
 leftAngles = deg2rad(leftAngles);
+
+left = maf(left(:,2), 8);
+left = [left; left(1)];
+leftAngles = [leftAngles; leftAngles(1)];
+
 % figure
 % hold on
-% grid on
-polar(leftAngles, left(:,2))
-title('Left antenna')
-% hold on
+f = figure ;
+polar(leftAngles, left-.6,'b')
 view([90 -90])
+rho_labels = {'0.5' '1.5' '1' '2' '0.2'};
+rho_labels2 = {'' '' '' '0' '-40'};
+ff = findall(f,'type','text');
+t=strtrim(get(ff,'String'));
+for r=1:length(rho_labels)
+   set(ff(strcmp(t,rho_labels{r})),'String',rho_labels2{r})
+end
+
+
+
+% grid on
+% polar(leftAngles, left,'b')
+% title(sprintf('Left Antenna gain pattern\n\n'))
+% view([90 -90])
 
 % rightAngles = [1:(360/length(right)):360]';
 rightAngles = linspace(0,360,149)';
@@ -150,9 +167,30 @@ rightAngles = (315-rightAngles);
 rightAngles = deg2rad(rightAngles);
 figure
 
-polar(rightAngles, right(:,2),'r')
-legend('Right Antenna');%, 'Right Antenna')
 
+right = maf(right(:,2), 8);
+right = [right; right(1)];
+rightAngles = [rightAngles; rightAngles(1)];
+
+
+
+f = figure ;
+polar(rightAngles, right-.6,'r')
+view([90 -90])
+rho_labels = {'0.5' '1.5' '1' '2' '0.2'};
+rho_labels2 = {'' '' '' '0' '-40'};
+ff = findall(f,'type','text');
+t=strtrim(get(ff,'String'));
+for r=1:length(rho_labels)
+   set(ff(strcmp(t,rho_labels{r})),'String',rho_labels2{r})
+end
+
+
+
+
+polar(rightAngles, right,'r')
+title(sprintf('Right Antenna gain pattern\n\n'))
+view([90 -90])
 % view([90 -90])
 
 %% super cool plot for 30m:
@@ -162,13 +200,13 @@ leftAngles = (leftAngles-deg2rad(setAngle/2));
 rightAngles = (rightAngles+deg2rad(setAngle/2));
 
 % Modify for poster display:
-left = left(:,2);
+% left = left(:,2);
 left = left - 0.49;
-right = right(:,2);
+% right = right(:,2);
 right = right- 0.49;
 
-left = maf(left, 20);
-right = maf(right, 20);
+left = maf(left, 2);
+right = maf(right, 2);
 left = [left; left(1)];
 right = [right; right(1)];
 leftAngles = [leftAngles; leftAngles(1)];
@@ -176,99 +214,113 @@ rightAngles = [rightAngles; rightAngles(1)];
 
 
 
-figure
+f = figure ;
 axis equal
-polar(leftAngles, left)%:,2))
+polar(leftAngles, left-0.4,'b')%:,2))
 hold on
 
-polar(rightAngles, right,'r')%(:,2),'r')
+polar(rightAngles, right-0.4,'r')%(:,2),'r')
 view([90 -90])
 legend('Left Antenna', 'Right Antenna');
 title(sprintf('Antennae at %2.0f degrees apart\n\n',setAngle))
+
+view([90 -90])
+rho_labels = {'0.2' '0.4' '0.6' '0.8' '1'};
+rho_labels2 = {'' '' '' '' ''};
+ff = findall(f,'type','text');
+t=strtrim(get(ff,'String'));
+for r=1:length(rho_labels)
+   set(ff(strcmp(t,rho_labels{r})),'String',rho_labels2{r})
+end
+
+
+
+
 % Actual for yt3fr30m
-actualAngles = [0       10
-                -45		29
-                -90		64
-                -135	88
-                180		121
-                135		155
-                90		182
-                45		205
-                0       233];
-% actualAnglesInterp = 
-
-% function fig = getParentFigure(fig)
-% % if the object is a figure or figure descendent, return the
-% % figure. Otherwise return [].
-% while ~isempty(fig) & ~strcmp('figure', get(fig,'type'))
-%   fig = get(fig,'parent');
-% end
-
-% 	
+% actualAngles = [0       10
+%                 -45		29
+%                 -90		64
+%                 -135	88
+%                 180		121
+%                 135		155
+%                 90		182
+%                 45		205
+%                 0       233];
+% % actualAnglesInterp = 
 % 
-% % distance (guess with measure)
+% % function fig = getParentFigure(fig)
+% % % if the object is a figure or figure descendent, return the
+% % % figure. Otherwise return [].
+% % while ~isempty(fig) & ~strcmp('figure', get(fig,'type'))
+% %   fig = get(fig,'parent');
+% % end
+% 
+% % 	
+% % 
+
+%% distance (guess with measure)
+% % figure
+% distance = [10	36
+%             20	48
+%             30	60
+%             40	68
+%             50	78
+%             60	88
+%             70	98
+%             80	110
+%             90	122
+%             100   135
+%             90	150
+%             80    159
+%             70    170
+%             60	180
+%             50	190
+%             40	198
+%             30    207
+%             20    218
+%             10    226
+%             0     233];
+% % find(time<143&time>142)
+% time = test3_Distance(:,1)/1000;
+% % time(97500:end) = 2*142.5420-time(97500:end);
+% left = test3_Distance(:,2);
+% right = test3_Distance(:,3);
 % figure
-distance = [10	36
-            20	48
-            30	60
-            40	68
-            50	78
-            60	88
-            70	98
-            80	110
-            90	122
-            100   135
-            90	150
-            80    159
-            70    170
-            60	180
-            50	190
-            40	198
-            30    207
-            20    218
-            10    226
-            0     233];
-% find(time<143&time>142)
-time = test3_Distance(:,1)/1000;
-% time(97500:end) = 2*142.5420-time(97500:end);
-left = test3_Distance(:,2);
-right = test3_Distance(:,3);
-figure
-plot(time, left,'-')
-figure
-plot(time, right,'-')
+% plot(time, left,'-')
 % figure
-% plot(time(90000:120000), right(90000:120000),'-')
-
-far_right = right(90000:110000)-0.48;
-figure
-plot(1:length(far_right), far_right)
-v_noise = 0.2
-far_right_sig = (far_right>v_noise).* far_right;
-far_right_noise = (far_right<=v_noise).* far_right;
-figure
-plot(1:length(far_right), far_right_sig)
-figure
-plot(1:length(far_right), far_right_noise)
-
-% powers
-PWR_s = far_right_sig'*far_right_sig
-PWR_n = far_right_noise'*far_right_noise
-SNR = 10*log10(PWR_s/PWR_n)
-% plot(time, left,'-', time, right,'-')
-% left = removeNoisePoints([time, left]);
-% right = removeNoisePoints([time, right]);
+% plot(time, right,'-')
+% % figure
+% % plot(time(90000:120000), right(90000:120000),'-')
+% 
+% far_right = right(90000:110000)-0.48;
 % figure
-% plot(left(:,1), left(:,2),'-', right(:,1), right(:,2),'-')
-
-%% Third test
-%{
-Future
-with V2 antennas, repeated to investigate prior test results
-
-%}
-% 30m circle
-
-% distance
-
+% plot(1:length(far_right), far_right)
+% v_noise = 0.2
+% far_right_sig = (far_right>v_noise).* far_right;
+% far_right_noise = (far_right<=v_noise).* far_right;
+% figure
+% plot(1:length(far_right), far_right_sig)
+% figure
+% plot(1:length(far_right), far_right_noise)
+% 
+% % powers
+% PWR_s = far_right_sig'*far_right_sig
+% PWR_n = far_right_noise'*far_right_noise
+% SNR = 10*log10(PWR_s/PWR_n)
+% % plot(time, left,'-', time, right,'-')
+% % left = removeNoisePoints([time, left]);
+% % right = removeNoisePoints([time, right]);
+% % figure
+% % plot(left(:,1), left(:,2),'-', right(:,1), right(:,2),'-')
+% 
+% %% Third test
+% %{
+% Future
+% with V2 antennas, repeated to investigate prior test results
+% 
+% %}
+% % 30m circle
+% 
+% % distance
+% 
 % UAV motor noise test
