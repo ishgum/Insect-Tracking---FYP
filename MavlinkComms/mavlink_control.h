@@ -67,7 +67,7 @@
 using std::string;
 using namespace std;
 
-#include <common/mavlink.h>
+#include "../mavlink/common/mavlink.h"
 
 #include "autopilot_interface.h"
 #include "serial_port.h"
