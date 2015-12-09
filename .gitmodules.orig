@@ -1,0 +1,6 @@
+<<<<<<< HEAD
+[submodule "MavLink_Libraries"]
+	path = MavLink_Libraries
+	url = https://github.com/mavlink/c_uart_interface_example.git
+=======
+>>>>>>> edf7c70415cf6323ec8204af4f6f98d5de18fa1f

@@ -112,9 +112,9 @@ map<double, vector<Point> > Insect::mapContours(vector<vector<Point> > inputCont
 
 	for (int i = 0; i < inputContours.size(); i++)
 	{
-		Mat mask = Mat::zeros(inputImage->size(), CV_8UC1);
 		if (inputContours[i].size() > 10) 
 		{
+			Mat mask = Mat::zeros(inputImage->size(), CV_8UC1);
 			drawContours(mask, inputContours, i, cv::Scalar(255), CV_FILLED, CV_AA, noArray(), 1, Point(0, 0));
 			contourMap[mean(*inputImage, mask)[0]] = inputContours[i];
 		}
@@ -129,9 +129,7 @@ void Insect::findInsect(Mat* inputImage) {
 	split(*inputImage, values);						// Split into channels
 	lum = values[0];
 
-
 	int lumThreshold = findThreshold(lum);		//Perform Dynamic thresholding on the saturation image
-	
 	
 	if (lumThreshold < 0) {
 		found = false;
@@ -139,6 +137,7 @@ void Insect::findInsect(Mat* inputImage) {
 	}
 
 	threshold(lum, lum, lumThreshold, 255, 0);
+	//threshold(lum, lum, 200, 255, 0);
 
 	vector<vector<Point> > imageContours = findObjects(&lum);
 	map<double, vector<Point> > contourMap = mapContours(imageContours, &lum);

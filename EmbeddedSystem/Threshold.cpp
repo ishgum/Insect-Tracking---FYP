@@ -34,10 +34,10 @@ MatND findHistogram(Mat inputImage, int numBins = NUM_BINS) {
 			Scalar(255, 255, 255), 1, 8, 0);
 	}
 
-	for (int i = 0; i < histSize; i++) {
-		printf("%i = %f", i, hist.at<float>(i));
-		printf("   %i = %f\n", i, histNormal.at<float>(i));
-	}
+	//for (int i = 0; i < histSize; i++) {
+//		printf("%i = %f", i, hist.at<float>(i));
+//		printf("   %i = %f\n", i, histNormal.at<float>(i));
+//	}
 
 	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
 	imshow("calcHist Demo", histImage);

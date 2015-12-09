@@ -4,11 +4,14 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Fps.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/Fps.cpp.o"
+  "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Input.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/Input.cpp.o"
   "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Insect.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/Insect.cpp.o"
   "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/IrCam.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/IrCam.cpp.o"
   "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Main.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/Main.cpp.o"
   "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/Threshold.cpp.o"
+  "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/autopilot_interface.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o"
+  "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/mavlink_control.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o"
+  "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.cpp" "/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles/Track_Insect.dir/serial_port.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 

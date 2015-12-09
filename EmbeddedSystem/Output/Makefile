@@ -114,29 +114,29 @@ Track_Insect/fast:
 	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/build
 .PHONY : Track_Insect/fast
 
-Fps.o: Fps.cpp.o
-.PHONY : Fps.o
+Input.o: Input.cpp.o
+.PHONY : Input.o
 
 # target to build an object file
-Fps.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Fps.cpp.o
-.PHONY : Fps.cpp.o
+Input.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Input.cpp.o
+.PHONY : Input.cpp.o
 
-Fps.i: Fps.cpp.i
-.PHONY : Fps.i
+Input.i: Input.cpp.i
+.PHONY : Input.i
 
 # target to preprocess a source file
-Fps.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Fps.cpp.i
-.PHONY : Fps.cpp.i
+Input.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Input.cpp.i
+.PHONY : Input.cpp.i
 
-Fps.s: Fps.cpp.s
-.PHONY : Fps.s
+Input.s: Input.cpp.s
+.PHONY : Input.s
 
 # target to generate assembly for a file
-Fps.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Fps.cpp.s
-.PHONY : Fps.cpp.s
+Input.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Input.cpp.s
+.PHONY : Input.cpp.s
 
 Insect.o: Insect.cpp.o
 .PHONY : Insect.o
@@ -234,6 +234,78 @@ Threshold.cpp.s:
 	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Threshold.cpp.s
 .PHONY : Threshold.cpp.s
 
+autopilot_interface.o: autopilot_interface.cpp.o
+.PHONY : autopilot_interface.o
+
+# target to build an object file
+autopilot_interface.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o
+.PHONY : autopilot_interface.cpp.o
+
+autopilot_interface.i: autopilot_interface.cpp.i
+.PHONY : autopilot_interface.i
+
+# target to preprocess a source file
+autopilot_interface.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.i
+.PHONY : autopilot_interface.cpp.i
+
+autopilot_interface.s: autopilot_interface.cpp.s
+.PHONY : autopilot_interface.s
+
+# target to generate assembly for a file
+autopilot_interface.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.s
+.PHONY : autopilot_interface.cpp.s
+
+mavlink_control.o: mavlink_control.cpp.o
+.PHONY : mavlink_control.o
+
+# target to build an object file
+mavlink_control.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o
+.PHONY : mavlink_control.cpp.o
+
+mavlink_control.i: mavlink_control.cpp.i
+.PHONY : mavlink_control.i
+
+# target to preprocess a source file
+mavlink_control.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_control.cpp.i
+.PHONY : mavlink_control.cpp.i
+
+mavlink_control.s: mavlink_control.cpp.s
+.PHONY : mavlink_control.s
+
+# target to generate assembly for a file
+mavlink_control.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_control.cpp.s
+.PHONY : mavlink_control.cpp.s
+
+serial_port.o: serial_port.cpp.o
+.PHONY : serial_port.o
+
+# target to build an object file
+serial_port.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_port.cpp.o
+.PHONY : serial_port.cpp.o
+
+serial_port.i: serial_port.cpp.i
+.PHONY : serial_port.i
+
+# target to preprocess a source file
+serial_port.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_port.cpp.i
+.PHONY : serial_port.cpp.i
+
+serial_port.s: serial_port.cpp.s
+.PHONY : serial_port.s
+
+# target to generate assembly for a file
+serial_port.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_port.cpp.s
+.PHONY : serial_port.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -243,9 +315,9 @@ help:
 	@echo "... Track_Insect"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... Fps.o"
-	@echo "... Fps.i"
-	@echo "... Fps.s"
+	@echo "... Input.o"
+	@echo "... Input.i"
+	@echo "... Input.s"
 	@echo "... Insect.o"
 	@echo "... Insect.i"
 	@echo "... Insect.s"
@@ -258,6 +330,15 @@ help:
 	@echo "... Threshold.o"
 	@echo "... Threshold.i"
 	@echo "... Threshold.s"
+	@echo "... autopilot_interface.o"
+	@echo "... autopilot_interface.i"
+	@echo "... autopilot_interface.s"
+	@echo "... mavlink_control.o"
+	@echo "... mavlink_control.i"
+	@echo "... mavlink_control.s"
+	@echo "... serial_port.o"
+	@echo "... serial_port.i"
+	@echo "... serial_port.s"
 .PHONY : help
 
 
