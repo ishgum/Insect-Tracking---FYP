@@ -210,6 +210,30 @@ Main.cpp.s:
 	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Main.cpp.s
 .PHONY : Main.cpp.s
 
+Output.o: Output.cpp.o
+.PHONY : Output.o
+
+# target to build an object file
+Output.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.o
+.PHONY : Output.cpp.o
+
+Output.i: Output.cpp.i
+.PHONY : Output.i
+
+# target to preprocess a source file
+Output.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.i
+.PHONY : Output.cpp.i
+
+Output.s: Output.cpp.s
+.PHONY : Output.s
+
+# target to generate assembly for a file
+Output.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.s
+.PHONY : Output.cpp.s
+
 Threshold.o: Threshold.cpp.o
 .PHONY : Threshold.o
 
@@ -327,6 +351,9 @@ help:
 	@echo "... Main.o"
 	@echo "... Main.i"
 	@echo "... Main.s"
+	@echo "... Output.o"
+	@echo "... Output.i"
+	@echo "... Output.s"
 	@echo "... Threshold.o"
 	@echo "... Threshold.i"
 	@echo "... Threshold.s"

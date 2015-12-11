@@ -5,11 +5,12 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
+#include <numeric> 
 //#include <Windows.h>
 #include "FlyCapture2.h"
 
 #include <iomanip>
-
+#include "Output.h"
 
 using namespace cv;
 using namespace std;
@@ -42,7 +43,12 @@ class IRCam {
 	unsigned int xRes;
 	unsigned int yRes;
 	unsigned int fps;
+
+	vector<float> fpsMA;
+	float currentFPS;
 	Mat* srcMat;
+
+	bool initialised;
 public:
 	
 	IRCam(Mat* src, unsigned int x = FULL_FRAME, unsigned int y = FULL_FRAME, unsigned int frameRate = MAX_RATE);
@@ -55,6 +61,14 @@ public:
 	Error setROI(int offX, int offY, int scale);
 	Error setResolution(unsigned int x, unsigned int y);
 	Error setFrameRate ( unsigned int frameRate);
+
+	Size getImageSize(void);
+
+	void updateFPS(float in_fps);
+
+	void printOutput(void);
+
+	bool isInit();
 };
 
 

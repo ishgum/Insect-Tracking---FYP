@@ -6,18 +6,15 @@
 
 
 
-Insect::Insect(Mat* src) {
+Insect::Insect(Size in_size) {
 	found = false;
 	heightMA = vector<int>(HEIGHT_FILTER_SIZE, 0);
 	position = Point(0, 0);
 	prevPosition = position;
 	speed = 0.0;
-	ROI = Rect(0, 0, src->cols, src->rows);
-	frameCentre = Point(src->cols / 2, src->rows / 2);
+	size = in_size;
+	frameCentre = Point(size.width / 2, size.height / 2);
 }
-
-
-
 
 
 
@@ -26,6 +23,18 @@ void Insect::updateHeight(int brightness) {
 	heightMA.erase(heightMA.begin());
 
 	heightBracket = std::accumulate(heightMA.begin(), heightMA.end(), 0) / (HEIGHT_FILTER_SIZE * HEIGHT_BRACKET);
+}
+
+
+void Insect::printOutput(void) {
+
+	werase(output.insectData);
+	wprintw(output.insectData, "%d\n", found);
+	wprintw(output.insectData, "%.2f\n", relPosition.x);
+	wprintw(output.insectData, "%.2f\n", relPosition.y);
+	wprintw(output.insectData, "%d\n", heightBracket);
+	wprintw(output.insectData, "%.2f\n", relAngle);
+	wprintw(output.insectData, "%d\n", found);
 }
 
 
@@ -49,10 +58,10 @@ void Insect::updatePosition(Point2f centre) {
 
 
 
-void Insect::updateROI(Mat* src) {
+void Insect::updateROI(void) {
 	if (found) {
 		// Updates the size and location of the region of interest
-		int roiSize = ROI_SIZE * src->rows;
+		int roiSize = ROI_SIZE * size.height;
 
 		if (position.x > (roiSize / 2)) {
 			ROI.x = int(position.x) - roiSize / 2;
@@ -60,38 +69,20 @@ void Insect::updateROI(Mat* src) {
 		if (position.y > (roiSize / 2)) {
 			ROI.y = int(position.y) - roiSize / 2;
 		}
-		if ((position.x + roiSize / 2) >= src->cols) {
-			ROI.x = src->cols - roiSize;
+		if ((position.x + roiSize / 2) >= size.width) {
+			ROI.x = size.width - roiSize;
 		}
-		if ((position.y + roiSize / 2) >= src->rows) {
-			ROI.y = src->rows - roiSize;
+		if ((position.y + roiSize / 2) >= size.height) {
+			ROI.y = size.height - roiSize;
 		}
 		ROI.width = roiSize;
 		ROI.height = roiSize;
 	}
 	else {
-		ROI = Rect(WIDTH_OFFSET, HEIGHT_OFFSET, src->cols - WIDTH_OFFSET, src->rows - HEIGHT_OFFSET); //Reset ROI
+		ROI = Rect(WIDTH_OFFSET, HEIGHT_OFFSET, size.width - WIDTH_OFFSET, size.height - HEIGHT_OFFSET); //Reset ROI
 	}
 }
 
-
-
-void Insect::humanReadableOutput(void) {
-	printf("\n");
-	printf("Distance: %.0f	", relNorm / 40);
-	if (relAngle > 22.5 &&  relAngle < 157.5) {
-		printf("Down ");
-	}
-	if (relAngle < -22.5 &&  relAngle > -157.5) {
-		printf("Up ");
-	}
-	if (relAngle < -112.5 ||  relAngle > 112.5) {
-		printf("Left ");
-	}
-	if (relAngle > -67.5 &&  relAngle < 67.5) {
-		printf("Right ");
-	}
-}
 
 
 

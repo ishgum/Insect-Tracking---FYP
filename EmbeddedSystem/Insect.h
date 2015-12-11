@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include "Threshold.h"
+#include "Output.h"
 
 using namespace cv;
 using namespace std;
@@ -23,7 +24,8 @@ class Insect {
 	Point2f prevPosition;
 	Point2f frameCentre;
 
-	void humanReadableOutput(void);
+	Size size;
+
 public:
 	int heightBracket;
 	Point2f velocity;
@@ -36,10 +38,11 @@ public:
 	bool found;
 	Rect ROI;
 
-	Insect(Mat*);
+	Insect(Size size);
 	void updateHeight(int);
 	void updatePosition(Point2f);
-	void updateROI(Mat*);
+	void updateROI();
+	void printOutput(void);
 	vector<vector<Point> > findObjects(Mat*);
 	map<double, vector<Point> > mapContours(vector<vector<Point> > inputContours, Mat* inputImage);
 	void findInsect(Mat* inputImage);

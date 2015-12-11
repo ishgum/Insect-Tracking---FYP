@@ -1,6 +1,7 @@
 #include "IrCam.h"
 
 
+#define FPS_FILTER_SIZE 30
 
 
 
@@ -8,12 +9,15 @@ IRCam::IRCam(Mat* src, unsigned int x, unsigned int y, unsigned int frameRate) {
 
 	xRes = x;
 	yRes = y;
+	fpsMA = vector<float>(FPS_FILTER_SIZE, 0);
 	fps = fps;
+	currentFPS = 0.0;
 	srcMat = src;
+	initialised = false;
 }
 
 IRCam::~IRCam ( void ) {
-	printf("Camera closing\n");	
+	wprintw(output.outputStream, "Camera closing\n");	
 	release();
 
 }
@@ -21,6 +25,8 @@ IRCam::~IRCam ( void ) {
 
 void IRCam::init(void) {
 	
+
+
 	// Connect to a camera
 	camError = camera.Connect(0);
 	if (camError != PGRERROR_OK)	{ throw "Camera Connect"; }
@@ -51,10 +57,9 @@ void IRCam::init(void) {
 
 	camError = busMgr.GetUsbPortStatus(guid, &usb_prop);
 	//if (camError != PGRERROR_OK)	{throw "USB prop"; }
-	cout << "USB is " << usb_prop << endl;
+	wprintw(output.outputStream, "USB is %u\n", usb_prop);
 
-	cout << "Camera Initialised" << endl;
-
+	initialised = true;
 	return;
 }
 
@@ -124,6 +129,8 @@ Error IRCam::setResolution(unsigned int x, unsigned int y) {
 }
 
 
+
+
 Error IRCam::setFrameRate ( unsigned int frameRate) {
 	// Lower the framerate
 
@@ -172,3 +179,38 @@ void IRCam::release(void) {
 	camError = camera.StopCapture();
 	camera.Disconnect();
 }
+
+
+Size IRCam::getImageSize(void) {
+	return Size(xRes, yRes);
+}
+
+
+
+bool IRCam::isInit(void) {
+	return initialised;
+}
+
+
+void IRCam::updateFPS(float in_fps)
+{
+	fpsMA.push_back(in_fps);
+	fpsMA.erase(fpsMA.begin());
+
+	currentFPS = std::accumulate(fpsMA.begin(), fpsMA.end(), 0) / (FPS_FILTER_SIZE);
+}
+
+
+void IRCam::printOutput(void) {
+
+	werase(output.cameraData);
+	wprintw(output.cameraData, "%d\n", initialised);
+	wprintw(output.cameraData, "%.2f \n", currentFPS);
+	wprintw(output.cameraData, "%d X %d\n", xRes, yRes);
+
+}
+
+
+
+
+

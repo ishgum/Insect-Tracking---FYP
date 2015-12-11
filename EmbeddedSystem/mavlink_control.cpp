@@ -63,6 +63,7 @@
 UAVControl::UAVControl (char *uart_name, int baudrate) : serial_port(uart_name, baudrate), api(&serial_port)
 {
 	uavControl = false;
+	initialised = false;
 
 }
 
@@ -75,7 +76,7 @@ UAVControl::UAVControl (char *uart_name, int baudrate) : serial_port(uart_name, 
 UAVControl::~UAVControl()
 {
 
-	printf("Closing Mavlink Connection\n");
+	wprintw(output.outputStream, "Closing Mavlink Connection\n");
 
 	// autopilot interface
 	try {
@@ -106,19 +107,21 @@ void UAVControl::init (void)
 	 * This is where the port is opened, and read and write threads are started.
 	 */
 	try { serial_port.start(); }
-	catch (int i) { printf("UAV not connected\n"); }
+	catch (int i) { throw("Serial Connection\n"); }
 	
 	try { api.start(); }
-	catch (int i) { printf("API not started\n"); }
+	catch (int i) { throw("Auto-pilot start up\n"); }
 
 	api.disable_offboard_control();
 	uavControl = false;
 	
 	// initialize command data strtuctures
-	mavlink_set_position_target_local_ned_t sp = api.initial_position;
+	mavlink_set_position_target_local_ned_t sp;
 	mavlink_set_position_target_local_ned_t ip = api.initial_position;
 	
-	printf("\nInitial POSITION XYZ = [ % .4f , % .4f , % .4f ] \n\n", ip.x, ip.y, ip.z);
+	wprintw(output.outputStream, "\nInitial POSITION XYZ = [ % .4f , % .4f , % .4f ] \n\n", ip.x, ip.y, ip.z);
+	
+	initialised = true;
 
 	// autopilot_interface.h provides some helper functions to build the command
 
@@ -137,7 +140,7 @@ void UAVControl::enableControl(void)
 	// --------------------------------------------------------------------------
 
 	mavlink_local_position_ned_t pos = api.current_messages.local_position_ned;
-	if ((pos.z - ip.z) < 10) { printf ("Error: UAV too low"); }
+	if ((pos.z - ip.z) < 10) { wprintw(output.outputStream, "Error: UAV too low"); }
 	else {
 		api.enable_offboard_control();
 		uavControl = true;
@@ -185,8 +188,8 @@ bool UAVControl::getControlStatus(void)
 
 void UAVControl::printControl (void)
 {
-	if (uavControl)	printf("\nUAV Control ON\n");
-	else printf("\nUAV Control OFF\n");
+	if (uavControl)	wprintw(output.outputStream, "\nUAV Control ON\n");
+	else wprintw(output.outputStream, "\nUAV Control OFF\n");
 }
 
 
@@ -247,11 +250,32 @@ void UAVControl::printPosition (void)
 
 	// Wait for 8 seconds, check position
 	mavlink_local_position_ned_t pos = api.current_messages.local_position_ned;
-	printf("CURRENT POSITION XYZ = [ % .4f , % .4f , % .4f ]", pos.x, pos.y, pos.z);
+	wprintw(output.outputStream, "CURRENT POSITION XYZ = [ % .4f , % .4f , % .4f ]", pos.x, pos.y, pos.z);
 
-	//printf("\n");
+	//wprintw(output.outputStream, "\n");
 
 	return;
+
+}
+
+
+bool UAVControl::isInit()
+{
+	return initialised;
+}
+
+
+
+
+void UAVControl::printOutput(void) {
+
+	mavlink_local_position_ned_t pos = api.current_messages.local_position_ned;
+	
+	werase(output.uavData);
+	wprintw(output.uavData, "%d\n", initialised);
+	wprintw(output.uavData, "%.4f\n", pos.x);
+	wprintw(output.uavData, "%.4f\n", pos.y);	
+	wprintw(output.uavData, "%.4f \n", pos.z);
 
 }
 

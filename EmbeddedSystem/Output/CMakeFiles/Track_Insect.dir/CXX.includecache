@@ -31,6 +31,8 @@ stdio.h
 -
 Threshold.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.h
+Output.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
 
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/IrCam.h
 opencv2/core/core.hpp
@@ -39,10 +41,14 @@ opencv2/imgproc/imgproc.hpp
 -
 iostream
 -
+numeric
+-
 FlyCapture2.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/FlyCapture2.h
 iomanip
 -
+Output.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
 
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Main.cpp
 opencv2/core/core.hpp
@@ -61,14 +67,30 @@ time.h
 -
 signal.h
 -
+ncurses.h
+-
 Insect.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Insect.h
 IrCam.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/IrCam.h
 Input.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Input.h
+Output.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
 mavlink_control.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/mavlink_control.h
+
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
+stdlib.h
+-
+stdio.h
+-
+iostream
+-
+unistd.h
+-
+ncurses.h
+-
 
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.h
 opencv2/core/core.hpp
@@ -99,6 +121,8 @@ time.h
 -
 sys/time.h
 -
+Output.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
 ../mavlink/common/mavlink.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/mavlink.h
 
@@ -131,6 +155,8 @@ autopilot_interface.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/autopilot_interface.h
 serial_port.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
+Output.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
 
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
 cstdlib
@@ -147,6 +173,8 @@ pthread.h
 -
 signal.h
 -
+Output.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
 ../mavlink/common/mavlink.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/mavlink.h
 

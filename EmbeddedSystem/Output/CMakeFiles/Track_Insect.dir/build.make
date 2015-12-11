@@ -167,9 +167,32 @@ CMakeFiles/Track_Insect.dir/Input.cpp.o.provides: CMakeFiles/Track_Insect.dir/In
 
 CMakeFiles/Track_Insect.dir/Input.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/Input.cpp.o
 
+CMakeFiles/Track_Insect.dir/Output.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/Output.cpp.o: ../Output.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles $(CMAKE_PROGRESS_6)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Track_Insect.dir/Output.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/Output.cpp.o -c /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.cpp
+
+CMakeFiles/Track_Insect.dir/Output.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/Output.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.cpp > CMakeFiles/Track_Insect.dir/Output.cpp.i
+
+CMakeFiles/Track_Insect.dir/Output.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/Output.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.cpp -o CMakeFiles/Track_Insect.dir/Output.cpp.s
+
+CMakeFiles/Track_Insect.dir/Output.cpp.o.requires:
+.PHONY : CMakeFiles/Track_Insect.dir/Output.cpp.o.requires
+
+CMakeFiles/Track_Insect.dir/Output.cpp.o.provides: CMakeFiles/Track_Insect.dir/Output.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/Output.cpp.o.provides
+
+CMakeFiles/Track_Insect.dir/Output.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/Output.cpp.o
+
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: ../mavlink_control.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles $(CMAKE_PROGRESS_6)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles $(CMAKE_PROGRESS_7)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o -c /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/mavlink_control.cpp
 
@@ -192,7 +215,7 @@ CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.provides.build: CMakeFiles/Tra
 
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ../autopilot_interface.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles $(CMAKE_PROGRESS_7)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles $(CMAKE_PROGRESS_8)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o -c /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/autopilot_interface.cpp
 
@@ -215,7 +238,7 @@ CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o.provides.build: CMakeFiles
 
 CMakeFiles/Track_Insect.dir/serial_port.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
 CMakeFiles/Track_Insect.dir/serial_port.cpp.o: ../serial_port.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles $(CMAKE_PROGRESS_8)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output/CMakeFiles $(CMAKE_PROGRESS_9)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Track_Insect.dir/serial_port.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/serial_port.cpp.o -c /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.cpp
 
@@ -243,6 +266,7 @@ Track_Insect_OBJECTS = \
 "CMakeFiles/Track_Insect.dir/Threshold.cpp.o" \
 "CMakeFiles/Track_Insect.dir/IrCam.cpp.o" \
 "CMakeFiles/Track_Insect.dir/Input.cpp.o" \
+"CMakeFiles/Track_Insect.dir/Output.cpp.o" \
 "CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o" \
 "CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o" \
 "CMakeFiles/Track_Insect.dir/serial_port.cpp.o"
@@ -255,6 +279,7 @@ Track_Insect: CMakeFiles/Track_Insect.dir/Insect.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/Threshold.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/IrCam.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/Input.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/Output.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/serial_port.cpp.o
@@ -306,6 +331,7 @@ CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Insect.cpp.o.r
 CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Threshold.cpp.o.requires
 CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/IrCam.cpp.o.requires
 CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Input.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Output.cpp.o.requires
 CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.requires
 CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o.requires
 CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/serial_port.cpp.o.requires

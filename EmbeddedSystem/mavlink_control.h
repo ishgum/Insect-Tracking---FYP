@@ -75,6 +75,7 @@ using namespace std;
 
 #include "autopilot_interface.h"
 #include "serial_port.h"
+#include "Output.h"
 
 
 // ------------------------------------------------------------------------------
@@ -88,6 +89,7 @@ class UAVControl {
 	mavlink_set_position_target_local_ned_t sp;
 	mavlink_set_position_target_local_ned_t ip;
 	bool uavControl;
+	bool initialised;
 public:
 	int threshold;
 
@@ -101,6 +103,9 @@ public:
 	void printControl(void);
 	void updateVelocity(float x, float y, float z = 0.0);
 	void printPosition (void) ;
+	void printOutput(void);
+
+	bool isInit();
 };
 
 #endif

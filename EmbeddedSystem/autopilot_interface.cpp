@@ -91,7 +91,7 @@ set_position(float x, float y, float z, mavlink_set_position_target_local_ned_t 
 	sp.y   = y;
 	sp.z   = z;
 
-	//printf("POSITION SETPOINT XYZ = [ %.4f , %.4f , %.4f ] \n", sp.x, sp.y, sp.z);
+	//wprintw(output.outputStream, "POSITION SETPOINT XYZ = [ %.4f , %.4f , %.4f ] \n", sp.x, sp.y, sp.z);
 
 }
 
@@ -113,7 +113,7 @@ set_velocity(float vx, float vy, float vz, mavlink_set_position_target_local_ned
 	sp.vy  = vy;
 	sp.vz  = vz;
 
-	//printf("VELOCITY SETPOINT UVW = [ %.4f , %.4f , %.4f ] \n", sp.vx, sp.vy, sp.vz);
+	//wprintw(output.outputStream, "VELOCITY SETPOINT UVW = [ %.4f , %.4f , %.4f ] \n", sp.vx, sp.vy, sp.vz);
 
 }
 
@@ -128,7 +128,7 @@ set_acceleration(float ax, float ay, float az, mavlink_set_position_target_local
 {
 
 	// NOT IMPLEMENTED
-	fprintf(stderr,"set_acceleration doesn't work yet \n");
+	wprintw(output.outputStream, "set_acceleration doesn't work yet \n");
 	throw 1;
 
 
@@ -159,7 +159,7 @@ set_yaw(float yaw, mavlink_set_position_target_local_ned_t &sp)
 
 	sp.yaw  = yaw;
 
-	//printf("POSITION SETPOINT YAW = %.4f \n", sp.yaw);
+	//wprintw(output.outputStream, "POSITION SETPOINT YAW = %.4f \n", sp.yaw);
 
 }
 
@@ -264,7 +264,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_HEARTBEAT:
 				{
-					//printf("MAVLINK_MSG_ID_HEARTBEAT\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_HEARTBEAT\n");
 					mavlink_msg_heartbeat_decode(&message, &(current_messages.heartbeat));
 					current_messages.time_stamps.heartbeat = get_time_usec();
 					this_timestamps.heartbeat = current_messages.time_stamps.heartbeat;
@@ -273,7 +273,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_SYS_STATUS:
 				{
-					//printf("MAVLINK_MSG_ID_SYS_STATUS\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_SYS_STATUS\n");
 					mavlink_msg_sys_status_decode(&message, &(current_messages.sys_status));
 					current_messages.time_stamps.sys_status = get_time_usec();
 					this_timestamps.sys_status = current_messages.time_stamps.sys_status;
@@ -282,7 +282,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_BATTERY_STATUS:
 				{
-					//printf("MAVLINK_MSG_ID_BATTERY_STATUS\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_BATTERY_STATUS\n");
 					mavlink_msg_battery_status_decode(&message, &(current_messages.battery_status));
 					current_messages.time_stamps.battery_status = get_time_usec();
 					this_timestamps.battery_status = current_messages.time_stamps.battery_status;
@@ -291,7 +291,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_RADIO_STATUS:
 				{
-					//printf("MAVLINK_MSG_ID_RADIO_STATUS\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_RADIO_STATUS\n");
 					mavlink_msg_radio_status_decode(&message, &(current_messages.radio_status));
 					current_messages.time_stamps.radio_status = get_time_usec();
 					this_timestamps.radio_status = current_messages.time_stamps.radio_status;
@@ -300,7 +300,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_LOCAL_POSITION_NED:
 				{
-					//printf("MAVLINK_MSG_ID_LOCAL_POSITION_NED\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_LOCAL_POSITION_NED\n");
 					mavlink_msg_local_position_ned_decode(&message, &(current_messages.local_position_ned));
 					current_messages.time_stamps.local_position_ned = get_time_usec();
 					this_timestamps.local_position_ned = current_messages.time_stamps.local_position_ned;
@@ -309,7 +309,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
 				{
-					//printf("MAVLINK_MSG_ID_GLOBAL_POSITION_INT\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_GLOBAL_POSITION_INT\n");
 					mavlink_msg_global_position_int_decode(&message, &(current_messages.global_position_int));
 					current_messages.time_stamps.global_position_int = get_time_usec();
 					this_timestamps.global_position_int = current_messages.time_stamps.global_position_int;
@@ -318,7 +318,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED:
 				{
-					//printf("MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED\n");
 					mavlink_msg_position_target_local_ned_decode(&message, &(current_messages.position_target_local_ned));
 					current_messages.time_stamps.position_target_local_ned = get_time_usec();
 					this_timestamps.position_target_local_ned = current_messages.time_stamps.position_target_local_ned;
@@ -327,7 +327,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT:
 				{
-					//printf("MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT\n");
 					mavlink_msg_position_target_global_int_decode(&message, &(current_messages.position_target_global_int));
 					current_messages.time_stamps.position_target_global_int = get_time_usec();
 					this_timestamps.position_target_global_int = current_messages.time_stamps.position_target_global_int;
@@ -336,7 +336,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_HIGHRES_IMU:
 				{
-					//printf("MAVLINK_MSG_ID_HIGHRES_IMU\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_HIGHRES_IMU\n");
 					mavlink_msg_highres_imu_decode(&message, &(current_messages.highres_imu));
 					current_messages.time_stamps.highres_imu = get_time_usec();
 					this_timestamps.highres_imu = current_messages.time_stamps.highres_imu;
@@ -345,7 +345,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_ATTITUDE:
 				{
-					//printf("MAVLINK_MSG_ID_ATTITUDE\n");
+					//wprintw(output.outputStream, "MAVLINK_MSG_ID_ATTITUDE\n");
 					mavlink_msg_attitude_decode(&message, &(current_messages.attitude));
 					current_messages.time_stamps.attitude = get_time_usec();
 					this_timestamps.attitude = current_messages.time_stamps.attitude;
@@ -354,7 +354,7 @@ read_messages()
 
 				default:
 				{
-					// printf("Warning, did not handle message id %i\n",message.msgid);
+					// wprintw(output.outputStream, "Warning, did not handle message id %i\n",message.msgid);
 					break;
 				}
 
@@ -440,9 +440,9 @@ write_setpoint()
 
 	// check the write
 	if ( not len > 0 )
-		fprintf(stderr,"WARNING: could not send POSITION_TARGET_LOCAL_NED \n");
+		wprintw(output.outputStream, "WARNING: could not send POSITION_TARGET_LOCAL_NED \n");
 	//	else
-	//		printf("%lu POSITION_TARGET  = [ %f , %f , %f ] \n", write_count, position_target.x, position_target.y, position_target.z);
+	//		wprintw(output.outputStream, "%lu POSITION_TARGET  = [ %f , %f , %f ] \n", write_count, position_target.x, position_target.y, position_target.z);
 
 	return;
 }
@@ -458,7 +458,7 @@ enable_offboard_control()
 	// Should only send this command once
 	if ( control_status == false )
 	{
-		printf("\nENABLE OFFBOARD MODE\n");
+		wprintw(output.outputStream, "\nENABLE OFFBOARD MODE\n");
 
 		// ----------------------------------------------------------------------
 		//   TOGGLE OFF-BOARD MODE
@@ -472,11 +472,11 @@ enable_offboard_control()
 			control_status = true;
 		else
 		{
-			fprintf(stderr,"Error: off-board mode not set, could not write message\n");
+			wprintw(output.outputStream, "Error: off-board mode not set, could not write message\n");
 			//throw EXIT_FAILURE;
 		}
 
-		//printf("\n");
+		//wprintw(output.outputStream, "\n");
 
 	} // end: if not offboard_status
 
@@ -494,7 +494,7 @@ disable_offboard_control()
 	// Should only send this command once
 	if ( control_status == true )
 	{
-		printf("\nDISABLE OFFBOARD MODE\n");
+		wprintw(output.outputStream, "\nDISABLE OFFBOARD MODE\n");
 
 		// ----------------------------------------------------------------------
 		//   TOGGLE OFF-BOARD MODE
@@ -508,11 +508,11 @@ disable_offboard_control()
 			control_status = false;
 		else
 		{
-			fprintf(stderr,"Error: off-board mode not set, could not write message\n");
+			wprintw(output.outputStream, "Error: off-board mode not set, could not write message\n");
 			//throw EXIT_FAILURE;
 		}
 
-		//printf("\n");
+		//wprintw(output.outputStream, "\n");
 
 	} // end: if offboard_status
 
@@ -561,7 +561,7 @@ start()
 
 	if ( not serial_port->status == 1 ) // SERIAL_PORT_OPEN
 	{
-		fprintf(stderr,"ERROR: serial port not open\n");
+		wprintw(output.outputStream, "ERROR: serial port not open\n");
 		throw 1;
 	}
 
@@ -570,20 +570,20 @@ start()
 	//   READ THREAD
 	// --------------------------------------------------------------------------
 
-	printf("START READ THREAD \n");
+	wprintw(output.outputStream, "START READ THREAD \n");
 
 	result = pthread_create( &read_tid, NULL, &start_autopilot_interface_read_thread, this );
 	if ( result ) throw result;
 
 	// now we're reading messages
-	printf("\n");
+	wprintw(output.outputStream, "\n");
 
 
 	// --------------------------------------------------------------------------
 	//   CHECK FOR MESSAGES
 	// --------------------------------------------------------------------------
 
-	printf("CHECK FOR MESSAGES\n");
+	wprintw(output.outputStream, "CHECK FOR MESSAGES\n");
 
 	while ( not current_messages.sysid )
 	{
@@ -592,10 +592,10 @@ start()
 		usleep(500000); // check at 2Hz
 	}
 
-	printf("Found\n");
+	wprintw(output.outputStream, "Found\n");
 
 	// now we know autopilot is sending messages
-	printf("\n");
+	wprintw(output.outputStream, "\n");
 
 
 	// --------------------------------------------------------------------------
@@ -611,15 +611,15 @@ start()
 	if ( not system_id )
 	{
 		system_id = current_messages.sysid;
-		printf("GOT VEHICLE SYSTEM ID: %i\n", system_id );
+		wprintw(output.outputStream, "GOT VEHICLE SYSTEM ID: %i\n", system_id );
 	}
 
 	// Component ID
 	if ( not autopilot_id )
 	{
 		autopilot_id = current_messages.compid;
-		printf("GOT AUTOPILOT COMPONENT ID: %i\n", autopilot_id);
-		printf("\n");
+		wprintw(output.outputStream, "GOT AUTOPILOT COMPONENT ID: %i\n", autopilot_id);
+		wprintw(output.outputStream, "\n");
 	}
 
 
@@ -647,9 +647,9 @@ start()
 	initial_position.yaw      = local_data.attitude.yaw;
 	initial_position.yaw_rate = local_data.attitude.yawspeed;
 
-	printf("INITIAL POSITION XYZ = [ %.4f , %.4f , %.4f ] \n", initial_position.x, initial_position.y, initial_position.z);
-	printf("INITIAL POSITION YAW = %.4f \n", initial_position.yaw);
-	printf("\n");
+	wprintw(output.outputStream, "INITIAL POSITION XYZ = [ %.4f , %.4f , %.4f ] \n", initial_position.x, initial_position.y, initial_position.z);
+	wprintw(output.outputStream, "INITIAL POSITION YAW = %.4f \n", initial_position.yaw);
+	wprintw(output.outputStream, "\n");
 
 	// we need this before starting the write thread
 
@@ -657,7 +657,7 @@ start()
 	// --------------------------------------------------------------------------
 	//   WRITE THREAD
 	// --------------------------------------------------------------------------
-	printf("START WRITE THREAD \n");
+	wprintw(output.outputStream, "START WRITE THREAD \n");
 
 	result = pthread_create( &write_tid, NULL, &start_autopilot_interface_write_thread, this );
 	if ( result ) throw result;
@@ -667,7 +667,7 @@ start()
 		usleep(100000); // 10Hz
 
 	// now we're streaming setpoint commands
-	printf("\n");
+	wprintw(output.outputStream, "\n");
 
 
 	// Done!
@@ -686,7 +686,7 @@ stop()
 	// --------------------------------------------------------------------------
 	//   CLOSE THREADS
 	// --------------------------------------------------------------------------
-	printf("CLOSE THREADS\n");
+	wprintw(output.outputStream, "CLOSE THREADS\n");
 
 	// signal exit
 	time_to_exit = true;
@@ -696,7 +696,7 @@ stop()
 	pthread_join(write_tid,NULL);
 
 	// now the read and write threads are closed
-	printf("\n");
+	wprintw(output.outputStream, "\n");
 
 	// still need to close the serial_port separately
 }
@@ -711,7 +711,7 @@ start_read_thread()
 
 	if ( reading_status != 0 )
 	{
-		fprintf(stderr,"read thread already running\n");
+		wprintw(output.outputStream, "read thread already running\n");
 		return;
 	}
 	else
@@ -732,7 +732,7 @@ start_write_thread(void)
 {
 	if ( not writing_status == false )
 	{
-		fprintf(stderr,"write thread already running\n");
+		wprintw(output.outputStream, "write thread already running\n");
 		return;
 	}
 
@@ -760,7 +760,7 @@ handle_quit( int sig )
 
 	}
 	catch (int error) {
-		fprintf(stderr,"Warning, could not stop autopilot interface\n");
+		wprintw(output.outputStream, "Warning, could not stop autopilot interface\n");
 	}
 
 }
