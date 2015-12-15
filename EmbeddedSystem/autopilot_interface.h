@@ -239,11 +239,13 @@ struct Mavlink_Messages {
  */
 class Autopilot_Interface
 {
+	
 
 public:
 
 	Autopilot_Interface();
 	Autopilot_Interface(Serial_Port *serial_port_);
+	void initialize_defaults();
 	~Autopilot_Interface();
 
 	char reading_status;
@@ -273,12 +275,15 @@ public:
 
 	void handle_quit( int sig );
 
+	void set_serial_port(Serial_Port* serial_port_);
+
 
 private:
 
 	Serial_Port *serial_port;
 
 	bool time_to_exit;
+	bool portSet;
 
 	pthread_t read_tid;
 	pthread_t write_tid;

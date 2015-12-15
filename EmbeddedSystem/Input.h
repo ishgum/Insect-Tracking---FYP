@@ -11,6 +11,8 @@
 using namespace std;
 
 
+
+
 class myIn {
 	char c;
 	bool newChar;

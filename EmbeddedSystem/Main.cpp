@@ -10,12 +10,10 @@
 
 #include <ncurses.h>
 
-//#include "Thresholding.h"
 #include "Insect.h"
 #include "IrCam.h"
 #include "Input.h"
 #include "Output.h"
-//#include "OutputStream.h"
 #include "mavlink_control.h"
 
 
@@ -26,9 +24,6 @@ using namespace std;
 
 
 
-#define USE_CAM		// On to use IR cam (real-time), off to use recorded footage
-
-
 bool runProgram;
 char  c;
 
@@ -36,9 +31,26 @@ static bool contPause, contCam, contQuit, contUAV, contDebugROI, contDebugFull;
 
 
 
+void printFlagParameters(int y, int x)
+{
+    map<const char*, int> outputMap;
+
+	outputMap["Flag Info"] = 0;
+
+	outputMap["ROI Debug:"] = 2;
+	outputMap["Full Frame Debug:"] = 3;
+	outputMap["Paused:"] = 4;
+	outputMap["Running:"] = 5;
+
+    printDataWindow(outputMap, y, x);
+
+}
+
+
 void printFlags(void) {
 
 	werase(output.flagData);
+	wprintw(output.flagData, "\n\n");
 	wprintw(output.flagData, "%d\n", contDebugROI);
 	wprintw(output.flagData, "%d\n", contDebugFull);
 	wprintw(output.flagData, "%d\n", contPause);	
@@ -125,16 +137,6 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 }
 
 
-void printData (Insect insect, float fps) {
-	if (insect.found) 
-	{ 
-		printf("\r X: %.2f  Y: %.2f  Angle: %.2f  FPS: %.2f ", insect.relPosition.x, insect.relPosition.y, insect.relAngle, fps); 
-	}
-	else { printf("\nNo insect found"); }
-	return;
-}
-
-
 
 void mainProgram(void) {
 	clock_t time1, time2;
@@ -145,6 +147,13 @@ void mainProgram(void) {
 	IRCam cam(&src);
 	Insect insect(cam.getImageSize());
 
+	insect.printParameters(INSECT_DATA_Y, INSECT_DATA_X);
+	uav.printParameters(UAV_DATA_Y, UAV_DATA_X);
+	cam.printParameters(CAMERA_DATA_Y, CAMERA_DATA_X);
+    printFlagParameters(FLAG_DATA_Y, FLAG_DATA_X);
+	
+
+
 	wprintw(output.outputStream, "Press c to start camera capture\n");
 	wprintw(output.outputStream, "Press d to toggle the image\n");
 	wprintw(output.outputStream, "Press u to toggle UAV control\n");
@@ -154,9 +163,11 @@ void mainProgram(void) {
 
 		inputControl();
 
+		/* UAV Control */
+
 		if (!uav.isInit() && contUAV) {
 			try 
-			{ 
+			{              
 				uav.init(); 
 				wprintw(output.outputStream, "UAV Connected\n");
 }
@@ -169,14 +180,15 @@ void mainProgram(void) {
 		}
 
 		
-		if (uav.isInit() && contUAV) 
+		if (uav.isInit() && contUAV && insect.found) 
 		{
-			uav.toggleControl();
-			uav.printControl();
-			contUAV = false;
+			uav.updateVelocity(insect.relPosition.x, insect.relPosition.y, 0);
 		}
+		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }
 	
-	
+
+		/* Camera Control */
+
 		if (!cam.isInit() && contCam) {
 			try 
 			{ 
@@ -204,7 +216,7 @@ void mainProgram(void) {
 			src_ROI = src(insect.ROI);
 			insect.findInsect(&src_ROI);
 			
-			//printData(insect, fps);	
+	
 			showImage(src, src_ROI, insect);
 			waitKey(10);
 			
@@ -213,9 +225,7 @@ void mainProgram(void) {
 			cam.updateFPS(findFPS(time1, time2));
 		}
 
-		if (insect.found && uav.isInit()) {
-			uav.updateVelocity(insect.relPosition.x, insect.relPosition.y, 0);
-		}		
+	
 		wprintw(output.outputStream, ">\r");
 
 		cam.printOutput();
@@ -238,9 +248,23 @@ void mainProgram(void) {
 int main(int argc, char** argv)
 {
 	signal(SIGINT,quit_handler);
-    initscr();
+	initscr();
+	int h, w;
+	getmaxyx(stdscr, h, w);
+	while (h < 42 || w < 89)
+	{
+		mvprintw(0,0,"Error: Screen is too small.\n");
+		printw("Height = %d < 42\n", h);
+		printw("Width = %d < 89", w);
+		refresh();
+		erase();
+		getmaxyx(stdscr, h, w);
+	}
+	
+	resizeterm(42, 89);
+	refresh();
 	cbreak(); 
-    noecho();
+	noecho();
 	curs_set(0);
 	
 	 

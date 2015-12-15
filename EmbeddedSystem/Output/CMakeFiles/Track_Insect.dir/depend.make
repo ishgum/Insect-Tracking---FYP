@@ -8,6 +8,7 @@ CMakeFiles/Track_Insect.dir/Insect.cpp.o: ../Insect.cpp
 CMakeFiles/Track_Insect.dir/Insect.cpp.o: ../Insect.h
 CMakeFiles/Track_Insect.dir/Insect.cpp.o: ../Output.h
 CMakeFiles/Track_Insect.dir/Insect.cpp.o: ../Threshold.h
+CMakeFiles/Track_Insect.dir/Insect.cpp.o: ../parameters.h
 CMakeFiles/Track_Insect.dir/Insect.cpp.o: /usr/local/include/opencv2/core/core.hpp
 CMakeFiles/Track_Insect.dir/Insect.cpp.o: /usr/local/include/opencv2/core/core_c.h
 CMakeFiles/Track_Insect.dir/Insect.cpp.o: /usr/local/include/opencv2/core/mat.hpp
@@ -22,6 +23,7 @@ CMakeFiles/Track_Insect.dir/Insect.cpp.o: /usr/local/include/opencv2/imgproc/typ
 CMakeFiles/Track_Insect.dir/IrCam.cpp.o: ../IrCam.cpp
 CMakeFiles/Track_Insect.dir/IrCam.cpp.o: ../IrCam.h
 CMakeFiles/Track_Insect.dir/IrCam.cpp.o: ../Output.h
+CMakeFiles/Track_Insect.dir/IrCam.cpp.o: ../parameters.h
 CMakeFiles/Track_Insect.dir/IrCam.cpp.o: /usr/include/flycapture/AVIRecorder.h
 CMakeFiles/Track_Insect.dir/IrCam.cpp.o: /usr/include/flycapture/BusManager.h
 CMakeFiles/Track_Insect.dir/IrCam.cpp.o: /usr/include/flycapture/Camera.h
@@ -52,6 +54,7 @@ CMakeFiles/Track_Insect.dir/Main.cpp.o: ../Output.h
 CMakeFiles/Track_Insect.dir/Main.cpp.o: ../Threshold.h
 CMakeFiles/Track_Insect.dir/Main.cpp.o: ../autopilot_interface.h
 CMakeFiles/Track_Insect.dir/Main.cpp.o: ../mavlink_control.h
+CMakeFiles/Track_Insect.dir/Main.cpp.o: ../parameters.h
 CMakeFiles/Track_Insect.dir/Main.cpp.o: ../serial_port.h
 CMakeFiles/Track_Insect.dir/Main.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h
 CMakeFiles/Track_Insect.dir/Main.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/./mavlink_msg_actuator_control_target.h
@@ -215,6 +218,7 @@ CMakeFiles/Track_Insect.dir/Main.cpp.o: /usr/local/include/opencv2/video/trackin
 
 CMakeFiles/Track_Insect.dir/Output.cpp.o: ../Output.cpp
 CMakeFiles/Track_Insect.dir/Output.cpp.o: ../Output.h
+CMakeFiles/Track_Insect.dir/Output.cpp.o: ../parameters.h
 
 CMakeFiles/Track_Insect.dir/Threshold.cpp.o: ../Threshold.cpp
 CMakeFiles/Track_Insect.dir/Threshold.cpp.o: ../Threshold.h
@@ -232,6 +236,7 @@ CMakeFiles/Track_Insect.dir/Threshold.cpp.o: /usr/local/include/opencv2/imgproc/
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ../Output.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ../autopilot_interface.cpp
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ../autopilot_interface.h
+CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ../parameters.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ../serial_port.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/./mavlink_msg_actuator_control_target.h
@@ -373,6 +378,7 @@ CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: ../Output.h
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: ../autopilot_interface.h
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: ../mavlink_control.cpp
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: ../mavlink_control.h
+CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: ../parameters.h
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: ../serial_port.h
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/./mavlink_msg_actuator_control_target.h
@@ -511,6 +517,7 @@ CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: /home/turtlebot/Documents/Ins
 CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/protocol.h
 
 CMakeFiles/Track_Insect.dir/serial_port.cpp.o: ../Output.h
+CMakeFiles/Track_Insect.dir/serial_port.cpp.o: ../parameters.h
 CMakeFiles/Track_Insect.dir/serial_port.cpp.o: ../serial_port.cpp
 CMakeFiles/Track_Insect.dir/serial_port.cpp.o: ../serial_port.h
 CMakeFiles/Track_Insect.dir/serial_port.cpp.o: /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h

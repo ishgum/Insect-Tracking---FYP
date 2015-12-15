@@ -5,36 +5,6 @@
 using namespace std;
 
 
-/*
-menu::menu(int x, int y, const char* name) {
-	width = strlen(name);
-	rows = 0;
-	x_pos = x;
-	y_pos = y;
-
-	title = name;
-
-}
-
-
-void menu::create(void) {
-	width = lobeMap.rbegin()->second;
-	window = newwin(rows + 2, width, y_pos, x_pos);
-
-	wattron(window, A_UNDERLINE);
-    mvwprintw(window, 0, width, title);
-    wattroff(window, A_UNDERLINE);
-	
-}
-
-
-
-
-void menu::addRow(const char* rowText)
-{
-	entryMap[rowText] = strlen(rowText);
-}
-*/
 
 
 OutputStream::OutputStream(void) {
@@ -43,16 +13,16 @@ OutputStream::OutputStream(void) {
 
 
 void OutputStream::init(void) {
-	int h, w;
-    getmaxyx(stdscr, h, w);
-	outputStream = newwin(h-20, 38, 7, 50);
+
+	outputStream = newwin(OUTPUT_STREAM_HEIGHT, OUTPUT_STREAM_WIDTH, OUTPUT_STREAM_Y, OUTPUT_STREAM_X);
+	
 	scrollok(outputStream, TRUE);
 
 
-	insectData = newwin(6, 20, 7, 27);
-	uavData = newwin(4, 20, 17, 27);
-	cameraData = newwin(3, 20, 25, 27);
-	flagData = newwin(4, 20, 32,27);
+	insectData = newwin(8, DATA_WIDTH, INSECT_DATA_Y, DATA_COLUMN);
+	uavData = newwin(6, DATA_WIDTH, UAV_DATA_Y, DATA_COLUMN);
+	cameraData = newwin(5, DATA_WIDTH, CAMERA_DATA_Y, DATA_COLUMN);
+	flagData = newwin(6, DATA_WIDTH, FLAG_DATA_Y, DATA_COLUMN);
 
 }
 
@@ -74,102 +44,62 @@ void OutputStream::refresh(void) {
 OutputStream output;
 
 
-void printInsectWindow(int height, int width, int y, int x)
+
+
+
+
+
+
+void printDataWindow(map<const char*, int> in_map, int y, int x)
 {
-	WINDOW * window = newwin(height, width, y, x);
+	map<const char*,int>::iterator it;
+	int width = 0;
+	
+	for (it=in_map.begin(); it!=in_map.end(); ++it)
+	{	
+        int wordLength = strlen(it->first);
+        if (wordLength > width) width = wordLength;
+	}
 
-    wattron(window, A_UNDERLINE);
-    mvwprintw(window, 0, width - 11, "Insect Data");
-    wattroff(window, A_UNDERLINE);
 
-    mvwprintw(window, 2, width - 13, "Insect Found:");
-    mvwprintw(window, 3, width - 11, "X Position:");
-    mvwprintw(window, 4, width - 11, "Y Position:");
-    mvwprintw(window, 5, width - 7, "Height:");
-    mvwprintw(window, 6, width - 18, "Angle from Centre:");
-    mvwprintw(window, 7, width - 21, "Distance from Centre:");
+	WINDOW * window = newwin(in_map.size()+1, width, y, x);
+
+
+
+	for (it=in_map.begin(); it!=in_map.end(); ++it)
+	{
+        if (it->second == 0) wattron(window, A_UNDERLINE);  
+  
+ 		mvwprintw(window, it->second, width - strlen(it->first), it->first);
+
+        if (it->second == 0) wattroff(window, A_UNDERLINE);
+	}
 
     wrefresh(window);
 }
-
-void printUAVWindow(int height, int width, int y, int x)
-{
-	WINDOW * window = newwin(height, width, y, x);
-
-    wattron(window, A_UNDERLINE);
-    mvwprintw(window, 0, width - 8, "UAV Data");
-    wattroff(window, A_UNDERLINE);
-
-    mvwprintw(window, 2, width - 14, "UAV Connected:");
-    mvwprintw(window, 3, width - 11, "X Position:");
-    mvwprintw(window, 4, width - 11, "Y Position:");
-    mvwprintw(window, 5, width - 11, "Z Position:");
-
-
-    wrefresh(window);
-}
-
-
-void printCameraWindow(int height, int width, int y, int x)
-{
-	WINDOW * window = newwin(height, width, y, x);
-
-    wattron(window, A_UNDERLINE);
-    mvwprintw(window, 0, width - 11, "Camera Info");
-    wattroff(window, A_UNDERLINE);
-
-    mvwprintw(window, 2, width - 17, "Camera Connected:");
-    mvwprintw(window, 3, width - 4, "FPS:");
-	mvwprintw(window, 4, width - 11, "Frame Size:");
-
-
-    wrefresh(window);
-}
-
-
-void printFlagWindow(int height, int width, int y, int x)
-{
-	WINDOW * window = newwin(height, width, y, x);
-
-    wattron(window, A_UNDERLINE);
-    mvwprintw(window, 0, width - 9, "Flag Info");
-    wattroff(window, A_UNDERLINE);
-
-    mvwprintw(window, 2, width - 10, "ROI Debug:");
-    mvwprintw(window, 3, width - 17, "Full Frame Debug:");
-	mvwprintw(window, 4, width - 7, "Paused:");
-	mvwprintw(window, 5, width - 8, "Running:");
-
-
-    wrefresh(window);
-}
-
 
 
 
 
 
 void printMainScreen(void) {
-    int h, w;
-   	getmaxyx(stdscr, h, w);
+	int h, w;
+	getmaxyx(stdscr, h, w);
 
 
-    attron(A_STANDOUT);
-    mvprintw(0, 0, " Insect Tracking Program");
-    chgat(-1, A_STANDOUT, 0, NULL);
+	attron(A_STANDOUT);
+	mvprintw(0, 0, " Insect Tracking Program");
+	chgat(-1, A_STANDOUT, 0, NULL);
 
     mvprintw(h-1,0, "Press 'q' to quit - Press 'p' to pause");
 
 	mvprintw(5, 49, "Output Stream");
-	WINDOW * outputBox = newwin(h-18, 40, 6, 49);
+	
+	WINDOW * outputBox = newwin(OUTPUT_STREAM_HEIGHT+2, OUTPUT_STREAM_WIDTH+2, OUTPUT_STREAM_Y-1, OUTPUT_STREAM_X-1);
 	box(outputBox, 0, 0);
 	
     refresh();
 	wrefresh(outputBox);
 
-    printInsectWindow(8, 21, 5, 2);
-	printUAVWindow(6, 14, 15, 9);
-	printCameraWindow(5, 17, 23, 6);
-	printFlagWindow(6, 17, 30, 6);
 
 }

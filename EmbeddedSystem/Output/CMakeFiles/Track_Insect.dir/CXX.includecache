@@ -29,6 +29,8 @@ iostream
 -
 stdio.h
 -
+string.h
+-
 Threshold.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.h
 Output.h
@@ -89,8 +91,14 @@ iostream
 -
 unistd.h
 -
+map
+-
+string.h
+-
 ncurses.h
 -
+parameters.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
 
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.h
 opencv2/core/core.hpp
@@ -157,6 +165,10 @@ serial_port.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
 Output.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
+parameters.h
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
+
+/home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
 
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
 cstdlib
@@ -177,6 +189,8 @@ Output.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
 ../mavlink/common/mavlink.h
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/mavlink.h
+typeinfo
+-
 
 /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h
 stdint.h

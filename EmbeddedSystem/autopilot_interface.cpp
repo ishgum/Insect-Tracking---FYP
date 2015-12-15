@@ -187,7 +187,21 @@ set_yaw_rate(float yaw_rate, mavlink_set_position_target_local_ned_t &sp)
 //   Con/De structors
 // ------------------------------------------------------------------------------
 Autopilot_Interface::
+Autopilot_Interface(void)
+{
+	initialize_defaults();
+}
+
+Autopilot_Interface::
 Autopilot_Interface(Serial_Port *serial_port_)
+{
+	initialize_defaults();
+	set_serial_port(serial_port_);
+}
+
+void
+Autopilot_Interface::
+initialize_defaults()
 {
 	// initialize attributes
 	write_count = 0;
@@ -207,13 +221,27 @@ Autopilot_Interface(Serial_Port *serial_port_)
 	current_messages.sysid  = system_id;
 	current_messages.compid = autopilot_id;
 
-	serial_port = serial_port_; // serial port management object
-
+	portSet = false;
 }
+
+
 
 Autopilot_Interface::
 ~Autopilot_Interface()
 {}
+
+
+// -------------------------------------------------------------------------------
+//   Set Serial Port
+// --------------------------------------------------------------------------------
+
+void 
+Autopilot_Interface::
+set_serial_port(Serial_Port* serial_port_)
+{
+	serial_port = serial_port_;
+	portSet = true;
+}
 
 
 // ------------------------------------------------------------------------------

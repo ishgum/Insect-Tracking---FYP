@@ -9,6 +9,7 @@ CMakeFiles/Track_Insect.dir/Insect.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Insect.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.h
+ /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
  /usr/local/include/opencv2/core/core.hpp
  /usr/local/include/opencv2/core/core_c.h
  /usr/local/include/opencv2/core/mat.hpp
@@ -23,6 +24,7 @@ CMakeFiles/Track_Insect.dir/IrCam.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/IrCam.cpp
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/IrCam.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
+ /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
  /usr/include/flycapture/AVIRecorder.h
  /usr/include/flycapture/BusManager.h
  /usr/include/flycapture/Camera.h
@@ -53,6 +55,7 @@ CMakeFiles/Track_Insect.dir/Main.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/autopilot_interface.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/mavlink_control.h
+ /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/./mavlink_msg_actuator_control_target.h
@@ -216,6 +219,7 @@ CMakeFiles/Track_Insect.dir/Main.cpp.o
 CMakeFiles/Track_Insect.dir/Output.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.cpp
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
+ /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
 CMakeFiles/Track_Insect.dir/Threshold.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.cpp
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Threshold.h
@@ -233,6 +237,7 @@ CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/autopilot_interface.cpp
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/autopilot_interface.h
+ /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/./mavlink_msg_actuator_control_target.h
@@ -374,6 +379,7 @@ CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/autopilot_interface.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/mavlink_control.cpp
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/mavlink_control.h
+ /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/common/./mavlink_msg_actuator_control_target.h
@@ -512,6 +518,7 @@ CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/protocol.h
 CMakeFiles/Track_Insect.dir/serial_port.cpp.o
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/Output.h
+ /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/parameters.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.cpp
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/serial_port.h
  /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/mavlink/checksum.h

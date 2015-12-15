@@ -201,14 +201,29 @@ void IRCam::updateFPS(float in_fps)
 }
 
 
+
+void IRCam::printParameters(int y, int x)
+{
+	outputMap["Camera Info"] = 0;
+
+	outputMap["Camera Connected:"] = 2;
+	outputMap["FPS:"] = 3;
+	outputMap["Frame Size:"] = 4;
+
+
+	printDataWindow(outputMap, y, x);
+
+}
+
 void IRCam::printOutput(void) {
 
 	werase(output.cameraData);
-	wprintw(output.cameraData, "%d\n", initialised);
-	wprintw(output.cameraData, "%.2f \n", currentFPS);
-	wprintw(output.cameraData, "%d X %d\n", xRes, yRes);
+	mvwprintw(output.cameraData, outputMap["Camera Connected:"], 0, "%d\n", initialised);
+	mvwprintw(output.cameraData, outputMap["FPS:"], 0, "%.2f \n", currentFPS);
+	mvwprintw(output.cameraData, outputMap["Frame Size:"], 0, "%d X %d\n", xRes, yRes);
 
 }
+
 
 
 

@@ -8,6 +8,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <string.h>
+
 #include "Threshold.h"
 #include "Output.h"
 
@@ -23,6 +25,7 @@ class Insect {
 	vector<int> heightMA;
 	Point2f prevPosition;
 	Point2f frameCentre;
+	map<const char*, int> outputMap;
 
 	Size size;
 
@@ -42,6 +45,7 @@ public:
 	void updateHeight(int);
 	void updatePosition(Point2f);
 	void updateROI();
+	void printParameters(int, int);
 	void printOutput(void);
 	vector<vector<Point> > findObjects(Mat*);
 	map<double, vector<Point> > mapContours(vector<vector<Point> > inputContours, Mat* inputImage);

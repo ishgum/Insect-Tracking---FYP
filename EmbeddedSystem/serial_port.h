@@ -64,7 +64,7 @@
 
 #include "Output.h"
 #include "../mavlink/common/mavlink.h"
-
+#include <typeinfo>
 
 // ------------------------------------------------------------------------------
 //   Defines
@@ -116,6 +116,9 @@ public:
 	Serial_Port(char *&uart_name_, int &baudrate_);
 	void initialize_defaults();
 	~Serial_Port();
+		
+	void set_uart(char* &uart_name_);
+	void set_baud(int &baudrate_);
 
 	bool debug;
 	char *uart_name;
@@ -123,7 +126,7 @@ public:
 	int  status;
 
 	int read_message(mavlink_message_t &message);
-	int	write_message(mavlink_message_t &message);
+	int write_message(mavlink_message_t &message);
 
 	void open_serial();
 	void close_serial();
@@ -132,6 +135,10 @@ public:
 	void stop();
 
 	void handle_quit( int sig );
+
+
+
+
 
 private:
 

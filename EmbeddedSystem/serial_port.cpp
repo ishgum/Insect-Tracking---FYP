@@ -105,6 +105,21 @@ initialize_defaults()
 }
 
 
+void
+Serial_Port::
+set_uart(char* &uart_name_)
+{
+	uart_name = uart_name_;
+}
+
+void
+Serial_Port::
+set_baud(int &baudrate_)
+{
+	baudrate = baudrate_;
+}
+
+
 // ------------------------------------------------------------------------------
 //   Read from Serial
 // ------------------------------------------------------------------------------
@@ -220,7 +235,11 @@ open_serial()
 	// --------------------------------------------------------------------------
 	wprintw(output.outputStream, "OPEN PORT\n");
 
+	wprintw(output.outputStream, "\nAttempting to connect to port: %s\n", uart_name);
+
+
 	fd = _open_port(uart_name);
+
 
 	// Check success
 	if (fd == -1)
@@ -247,6 +266,7 @@ open_serial()
 		wprintw(output.outputStream, "Connection attempt to port %s with %d baud, 8N1 failed, exiting.\n", uart_name, baudrate);
 		throw EXIT_FAILURE;
 	}
+
 
 	// --------------------------------------------------------------------------
 	//   CONNECTED!

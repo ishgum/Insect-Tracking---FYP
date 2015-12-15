@@ -14,6 +14,7 @@ Insect::Insect(Size in_size) {
 	speed = 0.0;
 	size = in_size;
 	frameCentre = Point(size.width / 2, size.height / 2);
+
 }
 
 
@@ -25,16 +26,34 @@ void Insect::updateHeight(int brightness) {
 	heightBracket = std::accumulate(heightMA.begin(), heightMA.end(), 0) / (HEIGHT_FILTER_SIZE * HEIGHT_BRACKET);
 }
 
+#define DATA_TITLE_POSITION 0
+#define DATA_PARAMETER_POSITION 2
+
+
+void Insect::printParameters(int y, int x)
+{
+	outputMap["Insect Data"] = 0;
+
+	outputMap["Insect Found:"] = 2;
+	outputMap["X Position:"] = 3;
+	outputMap["Y Position:"] = 4;
+	outputMap["Height:"] = 7;
+	outputMap["Angle from Centre:"] = 6;
+	outputMap["Distance from Centre:"] = 5;
+
+	printDataWindow(outputMap, y, x);
+
+}
 
 void Insect::printOutput(void) {
 
 	werase(output.insectData);
-	wprintw(output.insectData, "%d\n", found);
-	wprintw(output.insectData, "%.2f\n", relPosition.x);
-	wprintw(output.insectData, "%.2f\n", relPosition.y);
-	wprintw(output.insectData, "%d\n", heightBracket);
-	wprintw(output.insectData, "%.2f\n", relAngle);
-	wprintw(output.insectData, "%d\n", found);
+	mvwprintw(output.insectData, outputMap["Insect Found:"], 0, "%d\n", found);
+	mvwprintw(output.insectData, outputMap["X Position:"], 0, "%.2f\n", relPosition.x);
+	mvwprintw(output.insectData, outputMap["Y Position:"], 0, "%.2f\n", relPosition.y);
+	mvwprintw(output.insectData, outputMap["Height:"], 0, "%d\n", heightBracket);
+	mvwprintw(output.insectData, outputMap["Angle from Centre:"], 0, "%.2f\n", relAngle);
+	mvwprintw(output.insectData, outputMap["Distance from Centre:"], 0, "%d\n", found);
 }
 
 

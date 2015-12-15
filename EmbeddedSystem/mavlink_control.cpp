@@ -60,7 +60,7 @@
 //   Constructor
 // ------------------------------------------------------------------------------
 
-UAVControl::UAVControl (char *uart_name, int baudrate) : serial_port(uart_name, baudrate), api(&serial_port)
+UAVControl::UAVControl (char* uart_name, int baudrate) : serial_port(uart_name, baudrate), api(&serial_port)
 {
 	uavControl = false;
 	initialised = false;
@@ -78,18 +78,19 @@ UAVControl::~UAVControl()
 
 	wprintw(output.outputStream, "Closing Mavlink Connection\n");
 
+	wrefresh(output.outputStream);
 	// autopilot interface
 	try {
 		api.handle_quit(0);		// Also disables offboard control
 	}
 	catch (int error){}
 
+
 	// serial port
 	try {
 		serial_port.handle_quit(0);
 	}
 	catch (int error){}
-
 
 }
 
@@ -100,17 +101,22 @@ void UAVControl::init (void)
 	// --------------------------------------------------------------------------
 	//   PORT and THREAD STARTUP
 	// --------------------------------------------------------------------------
-
+	//Serial_Port serial_port(uart_name, baudrate);
+	//Autopilot_Interface api(&serial_port);
 
 	/*
 	 * Start the port and autopilot_interface
 	 * This is where the port is opened, and read and write threads are started.
 	 */
+
+
 	try { serial_port.start(); }
 	catch (int i) { throw("Serial Connection\n"); }
 	
+
 	try { api.start(); }
 	catch (int i) { throw("Auto-pilot start up\n"); }
+
 
 	api.disable_offboard_control();
 	uavControl = false;
@@ -126,6 +132,8 @@ void UAVControl::init (void)
 	// autopilot_interface.h provides some helper functions to build the command
 
 }
+
+
 
 
 // ------------------------------------------------------------------------------
@@ -265,20 +273,32 @@ bool UAVControl::isInit()
 }
 
 
+void UAVControl::printParameters(int y, int x)
+{
+	outputMap["UAV Data"] = 0;
 
+	outputMap["UAV Connected:"] = 2;
+	outputMap["X Position:"] = 3;
+	outputMap["Y Position:"] = 4;
+	outputMap["Z Position:"] = 5;
+
+
+	printDataWindow(outputMap, y, x);
+
+}
 
 void UAVControl::printOutput(void) {
 
 	mavlink_local_position_ned_t pos = api.current_messages.local_position_ned;
-	
+
 	werase(output.uavData);
-	wprintw(output.uavData, "%d\n", initialised);
-	wprintw(output.uavData, "%.4f\n", pos.x);
-	wprintw(output.uavData, "%.4f\n", pos.y);	
-	wprintw(output.uavData, "%.4f \n", pos.z);
+	mvwprintw(output.uavData, outputMap["UAV Connected:"], 0, "%d\n", initialised);
+	mvwprintw(output.uavData, outputMap["X Position:"], 0, "%.4f\n", pos.x);
+	mvwprintw(output.uavData, outputMap["Y Position:"], 0, "%.4f\n", pos.y);
+	mvwprintw(output.uavData, outputMap["Z Position:"], 0, "%.4f\n", pos.z);
+
 
 }
-
 
 
 

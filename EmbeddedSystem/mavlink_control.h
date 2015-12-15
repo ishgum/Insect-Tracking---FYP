@@ -77,6 +77,9 @@ using namespace std;
 #include "serial_port.h"
 #include "Output.h"
 
+#include "parameters.h"
+
+
 
 // ------------------------------------------------------------------------------
 //   Prototypes
@@ -90,10 +93,14 @@ class UAVControl {
 	mavlink_set_position_target_local_ned_t ip;
 	bool uavControl;
 	bool initialised;
+
+
+	map<const char*, int> outputMap;
+
 public:
 	int threshold;
 
-	UAVControl(char *uart_name = (char*)"/dev/ttyUSB0", int baudrate  = 57600);
+	UAVControl(char* uart_name = (char*)UAV_UART_CONNECT, int baudrate  = UAV_BAUDRATE);
 	~UAVControl();
 	void init(void);
 	void enableControl(void);
@@ -102,7 +109,9 @@ public:
 	bool getControlStatus(void);
 	void printControl(void);
 	void updateVelocity(float x, float y, float z = 0.0);
-	void printPosition (void) ;
+	void printPosition (void);
+	
+	void printParameters(int y, int x);
 	void printOutput(void);
 
 	bool isInit();

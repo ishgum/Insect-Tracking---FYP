@@ -49,6 +49,8 @@ class IRCam {
 	Mat* srcMat;
 
 	bool initialised;
+
+	map<const char*, int> outputMap;
 public:
 	
 	IRCam(Mat* src, unsigned int x = FULL_FRAME, unsigned int y = FULL_FRAME, unsigned int frameRate = MAX_RATE);
@@ -66,6 +68,7 @@ public:
 
 	void updateFPS(float in_fps);
 
+	void printParameters(int y, int x);
 	void printOutput(void);
 
 	bool isInit();
