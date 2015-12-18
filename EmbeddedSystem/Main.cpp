@@ -27,7 +27,7 @@ using namespace std;
 bool runProgram;
 char  c;
 
-static bool contPause, contCam, contQuit, contUAV, contDebugROI, contDebugFull;
+static bool contPause, contCam, contQuit, contUAV, contDebugROI, contDebugFull, contRefresh;
 
 
 
@@ -76,6 +76,33 @@ float findFPS(float t1, float t2)
 
 	return fps;   
  }
+ 
+ 
+ 
+ 
+ void drawMainWindow(void)
+ {
+ 	erase();
+ 	int h, w;
+	getmaxyx(stdscr, h, w);
+	while (h < 42 || w < 89)
+	{
+		mvprintw(0,0,"Error: Screen is too small.\n");
+		printw("Height = %d < 42\n", h);
+		printw("Width = %d < 89", w);
+		refresh();
+		erase();
+		getmaxyx(stdscr, h, w);
+	}
+	
+	resizeterm(42, 89);
+	refresh();
+
+    printMainScreen();
+}
+
+
+
 
 
 
@@ -84,29 +111,51 @@ void inputControl(void) {
 	char currentInput = wgetch(output.outputStream);
 	switch (currentInput) {
 		case 'p':
+			if (contPause) wprintw(output.outputStream, "Resuming program\n");
+			else wprintw(output.outputStream, "Pausing program\n");
 			contPause = !contPause;
 			break;
 		
+		
 		case 'c':
+			if (contCam) wprintw(output.outputStream, "Camera already running\n");
+			else wprintw(output.outputStream, "Activating Camera\n");
 			contCam = true;
 			break;
 
 
 		case 'q':
+			wprintw(output.outputStream, "Program quitting\n");
 			contQuit = true;
 			break;
 
 		case 'u':
+			if (!contUAV) wprintw(output.outputStream, "Enabling offboard control\n");
+			else wprintw(output.outputStream, "Disabling offboard control\n");
 			contUAV = !contUAV;
 			break;
 
 		case 'd':
+			if (!contDebugROI) wprintw(output.outputStream, "Enabling ROI window. (Note: this will negatively affector performance)\n");
+			else wprintw(output.outputStream, "Closing ROI windows\n");
 			contDebugROI = !contDebugROI;
 			break;
 
 		case 'f':
+			if (!contDebugFull) wprintw(output.outputStream, "Enabling Full frame window. (Note: this will negatively affector performance)\n");
+			else wprintw(output.outputStream, "Closing Full frame windows\n");
 			contDebugFull = !contDebugFull;
 			break;
+			
+		case 'r':
+			contRefresh = true;
+			wprintw(output.outputStream, "Refreshing screen\n");
+			break;
+			
+		case 'e':
+			wprintw(output.outputStream, "Echo\n");
+			break;
+			
 	}
 
 }
@@ -114,23 +163,24 @@ void inputControl(void) {
 
 void showImage (Mat image, Mat image_ROI, Insect insect) {
 
-		if (contDebugFull) {
+		if (contDebugFull) 
+		{
 		
-		rectangle(image, insect.ROI, Scalar(255, 255, 255), 2, 8, 0);
-		line(image, Point(image.cols / 2, image.rows / 2), insect.position, Scalar(255, 0, 0), 3);
-		line(image, insect.position, insect.position + 5*insect.velocity, Scalar(0, 255, 0), 3);
+			rectangle(image, insect.ROI, Scalar(255, 255, 255), 2, 8, 0);
+			line(image, Point(image.cols / 2, image.rows / 2), insect.position, Scalar(255, 0, 0), 3);
+			line(image, insect.position, insect.position + 5*insect.velocity, Scalar(0, 255, 0), 3);
 
-		resize(image, image, Size(), 0.3, 0.3);
-		//resize(image_ROI, image_ROI, Size(), 0.3, 0.3);
+			resize(image, image, Size(), 0.3, 0.3);
+			//resize(image_ROI, image_ROI, Size(), 0.3, 0.3);
 
-		imshow("Program Output", image);
+			imshow("Program Output", image);
 		}
 		else { destroyWindow("Program Output"); }
 
 		if (contDebugROI) {
-		namedWindow("ROI");
-		moveWindow("ROI", 1024, 10);
-		imshow("ROI", image_ROI);
+			namedWindow("ROI");
+			moveWindow("ROI", 1024, 10);
+			imshow("ROI", image_ROI);
 		}
 		else { destroyWindow("ROI"); }
 
@@ -141,22 +191,12 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 void mainProgram(void) {
 	clock_t time1, time2;
 	Mat src, src_ROI;
+	contRefresh = true;
 
 
 	UAVControl uav;
 	IRCam cam(&src);
 	Insect insect(cam.getImageSize());
-
-	insect.printParameters(INSECT_DATA_Y, INSECT_DATA_X);
-	uav.printParameters(UAV_DATA_Y, UAV_DATA_X);
-	cam.printParameters(CAMERA_DATA_Y, CAMERA_DATA_X);
-    printFlagParameters(FLAG_DATA_Y, FLAG_DATA_X);
-	
-
-
-	wprintw(output.outputStream, "Press c to start camera capture\n");
-	wprintw(output.outputStream, "Press d to toggle the image\n");
-	wprintw(output.outputStream, "Press u to toggle UAV control\n");
 
 
 	while (!contQuit) {
@@ -164,7 +204,20 @@ void mainProgram(void) {
 		inputControl();
 
 		/* UAV Control */
-
+		
+		
+		if (contRefresh) 
+		{
+			drawMainWindow();
+			insect.printParameters(INSECT_DATA_Y, INSECT_DATA_X);
+			uav.printParameters(UAV_DATA_Y, UAV_DATA_X);
+			cam.printParameters(CAMERA_DATA_Y, CAMERA_DATA_X);
+			printFlagParameters(FLAG_DATA_Y, FLAG_DATA_X);
+			
+			contRefresh = false;
+		}
+		
+		
 		if (!uav.isInit() && contUAV) {
 			try 
 			{              
@@ -249,29 +302,13 @@ int main(int argc, char** argv)
 {
 	signal(SIGINT,quit_handler);
 	initscr();
-	int h, w;
-	getmaxyx(stdscr, h, w);
-	while (h < 42 || w < 89)
-	{
-		mvprintw(0,0,"Error: Screen is too small.\n");
-		printw("Height = %d < 42\n", h);
-		printw("Width = %d < 89", w);
-		refresh();
-		erase();
-		getmaxyx(stdscr, h, w);
-	}
-	
-	resizeterm(42, 89);
-	refresh();
 	cbreak(); 
 	noecho();
 	curs_set(0);
 	
-	 
-    printMainScreen();
-
 	output.init();
 	nodelay(output.outputStream, TRUE);
+	
 
 	mainProgram();
 

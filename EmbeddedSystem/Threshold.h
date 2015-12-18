@@ -19,7 +19,7 @@ using namespace std;
 
 
 //#define SHOW_HISTOGRAM
-#define MIN_LOBE_AREA 30
+#define MIN_LOBE_AREA 5
 #define FIND_WIDTH 10
 #define NUM_BINS 256
 #define AVERAGE_SIZE 1
