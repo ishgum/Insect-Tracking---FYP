@@ -9,6 +9,9 @@
 #include "Thresholding.h"
 #include "Insect.h"
 #include "Fps.h"
+
+#include "Windows.h"
+
 //#include "IrCam.h"
 //#include "Kalman.h"
 
@@ -111,7 +114,7 @@ int main(int argc, char** argv)
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/Tests/MVI_2987.MOV");
 
 	//IR RREFLEC TESTS:
-	//capture.open("C:/Users/myadmin/Documents/IR footage/retro2_2015-05-09-193310-0000.avi");
+	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000.avi");
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only.avi"); 
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR footage/retro2_2015-05-09-193310-0000_8seconds_only_Uncompressed_Grayscale.avi");
@@ -121,6 +124,8 @@ int main(int argc, char** argv)
 	//DEPTH TESTS:
 	//capture.open("C:/Users/myadmin/Documents/_M2D2/Data/IR_footage_depth/realRun4_0.avi");
 
+	if (!capture.open(0))
+		return 0;
 
 
 	#ifdef FPS
@@ -133,14 +138,45 @@ int main(int argc, char** argv)
 	//resize(src, src, Size(), 0.3, 0.3);
 	Insect insect(&src);
 	
+	while (src.empty()) {
+		printf("Trying to find source");
+		capture >> src;
+	}
+
+
 	while (!src.empty()) {
+
 
 		src_ROI = src(insect.ROI);
 
 		//imshow("Source", src);
 
+		LARGE_INTEGER time, freq;
+		if (!QueryPerformanceFrequency(&freq)){
+			//  Handle error
+			return 0;
+		}
+		if (!QueryPerformanceCounter(&time)){
+			//  Handle error
+			return 0;
+		}
+		double measured_time = (double)time.QuadPart / freq.QuadPart;
 
 		insect = findInsect(insect, &src_ROI);
+
+
+		if (!QueryPerformanceFrequency(&freq)){
+			//  Handle error
+			return 0;
+		}
+		if (!QueryPerformanceCounter(&time)){
+			//  Handle error
+			return 0;
+		}
+		double measured_time_2 = (double)time.QuadPart / freq.QuadPart;
+
+		double difference = measured_time_2 - measured_time;
+		printf("%.4f", difference);
 
 		insect.updateROI(&src);
 
