@@ -149,6 +149,8 @@ void Insect::findInsect(Mat* inputImage) {
 	threshold(lum, lum, lumThreshold, 255, 0);
 	//threshold(lum, lum, 200, 255, 0);
 
+	imshow("Background Subtraction", lum);
+
 	vector<vector<Point> > imageContours = findObjects(&lum);
 	map<double, vector<Point> > contourMap = mapContours(imageContours, &lum);
 		
@@ -167,7 +169,9 @@ void Insect::findInsect(Mat* inputImage) {
 }
 
 
+void Insect::findInsect(Mat* inputImage) {
 
+}
 
 
 

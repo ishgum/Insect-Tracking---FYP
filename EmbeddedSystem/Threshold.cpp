@@ -138,7 +138,7 @@ int findThreshold(Mat inputImage) {
 	
 
 	if (lobeMap.size() > 1) {
-		return lobeMap.rbegin()->first;
+		return lobeMap.begin()->first;
 	}
 	else
 	{
