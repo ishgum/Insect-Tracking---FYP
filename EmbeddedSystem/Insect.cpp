@@ -122,7 +122,7 @@ map<double, vector<Point> > Insect::mapContours(vector<vector<Point> > inputCont
 
 	for (int i = 0; i < inputContours.size(); i++)
 	{
-		if (inputContours[i].size() > 10) 
+		if (inputContours[i].size() > 2) 
 		{
 			Mat mask = Mat::zeros(inputImage->size(), CV_8UC1);
 			drawContours(mask, inputContours, i, cv::Scalar(255), CV_FILLED, CV_AA, noArray(), 1, Point(0, 0));
@@ -143,16 +143,22 @@ void Insect::findInsect(Mat* inputImage) {
 	
 	if (lumThreshold < 0) {
 		found = false;
+		wprintw(output.outputStream, "No insect found\n");
 		return;
 	}
+	//wprintw(output.outputStream, "Threshold: %u", lumThreshold);
 
 	threshold(lum, lum, lumThreshold, 255, 0);
 	//threshold(lum, lum, 200, 255, 0);
+	
+	//resize(lum, lum, Size(), 0.3, 0.3);
+	//imshow("Lum", lum);
+
 
 	vector<vector<Point> > imageContours = findObjects(&lum);
-	map<double, vector<Point> > contourMap = mapContours(imageContours, &lum);
+	wprintw(output.outputStream, "Num contours: %u\n", imageContours.size());
+	map<double, vector<Point> > contourMap = mapContours(imageContours, inputImage);
 		
-
 	if (contourMap.size() != 0) {
 		double insectIntensity = contourMap.rbegin()->first;
 		Moments conMom = (moments(contourMap.rbegin()->second, false));
@@ -164,8 +170,8 @@ void Insect::findInsect(Mat* inputImage) {
 	else {
 		found = false;
 	}
-}
 
+}
 
 
 

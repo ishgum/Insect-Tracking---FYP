@@ -117,7 +117,7 @@ map<int, int> findLobes(vector<int> inputHistogram, vector<int>& mins, int minLo
 		for (int j = mins[i]; j < mins[i + 1]; j++) {
 			currentSum += inputHistogram[j];
 		}
-		if (currentSum > minLobeArea)	lobeMap[mins[i]] = currentSum;
+		if (currentSum > minLobeArea)	lobeMap[currentSum] = mins[i+1];
 	}
 	return lobeMap;
 }
@@ -138,7 +138,7 @@ int findThreshold(Mat inputImage) {
 	
 
 	if (lobeMap.size() > 1) {
-		return lobeMap.rbegin()->first;
+		return lobeMap.rbegin()->second;
 	}
 	else
 	{
