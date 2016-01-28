@@ -22,7 +22,7 @@ using namespace std;
 #define MIN_LOBE_AREA 5
 #define FIND_WIDTH 10
 #define NUM_BINS 256
-#define AVERAGE_SIZE 1
+#define AVERAGE_SIZE 20
 
 MatND findHistogram(Mat, int);
 

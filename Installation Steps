@@ -2,10 +2,10 @@ Download CMake
 Generate new makefile with cmake and correct path
 Make program
 
-Download OpenCV for linux and extract
+Download OpenCV 2.4.11 for linux and extract
 Follow instructions on opencv website
 
-Download flycapture
+Download flycapture (https://www.ptgrey.com/KB/10548)
 Follow instructions
 Change buffer size
 
@@ -13,6 +13,9 @@ UART Example
 Download https://github.com/mavlink/c_uart_interface_example
 make; ./mavlink_control -d /dev/ttyACM0
 
+Init MAVLINK submodule
+while inside fyp git repo:
+git submodule update --init --recursive
 
 To remote control to NUC
 Putty and XMing

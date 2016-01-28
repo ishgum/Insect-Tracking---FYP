@@ -143,7 +143,7 @@ void Insect::findInsect(Mat* inputImage) {
 	
 	if (lumThreshold < 0) {
 		found = false;
-		wprintw(output.outputStream, "No insect found\n");
+		//wprintw(output.outputStream, "No insect found - no valid threshold\r");
 		return;
 	}
 	//wprintw(output.outputStream, "Threshold: %u", lumThreshold);
@@ -156,7 +156,13 @@ void Insect::findInsect(Mat* inputImage) {
 
 
 	vector<vector<Point> > imageContours = findObjects(&lum);
-	wprintw(output.outputStream, "Num contours: %u\n", imageContours.size());
+
+	if (imageContours.size() > 20) {
+		found = false;
+		//wprintw(output.outputStream, "No insect found - too many contours\r");
+		return;
+	}
+
 	map<double, vector<Point> > contourMap = mapContours(imageContours, inputImage);
 		
 	if (contourMap.size() != 0) {

@@ -117,7 +117,7 @@ void UAVControl::init (void)
 	try { api.start(); }
 	catch (int i) { throw("Auto-pilot start up\n"); }
 
-
+	wrefresh(output.outputStream);
 	api.disable_offboard_control();
 	uavControl = false;
 	

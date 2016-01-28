@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(InsectTracking)
 find_package( OpenCV REQUIRED )
-set(SOURCE_DIR /home/turtlebot/Documents/InsectTrackingSummerProject/fyp/EmbeddedSystem/)
+set(SOURCE_DIR /home/ucnavi2/fyp/EmbeddedSystem/)
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g")

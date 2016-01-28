@@ -220,7 +220,7 @@ void mainProgram(void) {
 		
 		if (!uav.isInit() && contUAV) {
 			try 
-			{              
+			{           
 				uav.init(); 
 				wprintw(output.outputStream, "UAV Connected\n");
 }
@@ -235,7 +235,7 @@ void mainProgram(void) {
 		
 		if (uav.isInit() && contUAV && insect.found) 
 		{
-			uav.updateVelocity(insect.relPosition.x, insect.relPosition.y, 0);
+			uav.updateVelocity(insect.relPosition.x/SPEED_SCALE, insect.relPosition.y/SPEED_SCALE, 0);
 		}
 		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }
 	
@@ -301,6 +301,7 @@ void mainProgram(void) {
 int main(int argc, char** argv)
 {
 	signal(SIGINT,quit_handler);
+	printf("Got here");
 	initscr();
 	cbreak(); 
 	noecho();

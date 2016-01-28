@@ -100,7 +100,7 @@ class UAVControl {
 public:
 	int threshold;
 
-	UAVControl(char* uart_name = (char*)UAV_UART_CONNECT, int baudrate  = UAV_BAUDRATE);
+	UAVControl(char* uart_name = (char*)UAV_UART_CONNECT_DEFAULT, int baudrate  = UAV_BAUDRATE);
 	~UAVControl();
 	void init(void);
 	void enableControl(void);

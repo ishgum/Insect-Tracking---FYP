@@ -590,8 +590,10 @@ start()
 	if ( not serial_port->status == 1 ) // SERIAL_PORT_OPEN
 	{
 		wprintw(output.outputStream, "ERROR: serial port not open\n");
+		wrefresh(output.outputStream);
 		throw 1;
 	}
+	
 
 
 	// --------------------------------------------------------------------------
@@ -599,12 +601,13 @@ start()
 	// --------------------------------------------------------------------------
 
 	wprintw(output.outputStream, "START READ THREAD \n");
+	wrefresh(output.outputStream);
 
 	result = pthread_create( &read_tid, NULL, &start_autopilot_interface_read_thread, this );
 	if ( result ) throw result;
 
+
 	// now we're reading messages
-	wprintw(output.outputStream, "\n");
 
 
 	// --------------------------------------------------------------------------
@@ -612,6 +615,7 @@ start()
 	// --------------------------------------------------------------------------
 
 	wprintw(output.outputStream, "CHECK FOR MESSAGES\n");
+	wrefresh(output.outputStream);
 
 	while ( not current_messages.sysid )
 	{
@@ -621,9 +625,9 @@ start()
 	}
 
 	wprintw(output.outputStream, "Found\n");
+	wrefresh(output.outputStream);
 
 	// now we know autopilot is sending messages
-	wprintw(output.outputStream, "\n");
 
 
 	// --------------------------------------------------------------------------
@@ -649,7 +653,8 @@ start()
 		wprintw(output.outputStream, "GOT AUTOPILOT COMPONENT ID: %i\n", autopilot_id);
 		wprintw(output.outputStream, "\n");
 	}
-
+	wprintw(output.outputStream, "Hello3\n");
+	wrefresh(output.outputStream);
 
 	// --------------------------------------------------------------------------
 	//   GET INITIAL POSITION
@@ -663,6 +668,8 @@ start()
 			return;
 		usleep(500000);
 	}
+	wprintw(output.outputStream, "Hello4\n");
+	wrefresh(output.outputStream);
 
 	// copy initial position ned
 	Mavlink_Messages local_data = current_messages;
@@ -686,6 +693,7 @@ start()
 	//   WRITE THREAD
 	// --------------------------------------------------------------------------
 	wprintw(output.outputStream, "START WRITE THREAD \n");
+	wrefresh(output.outputStream);
 
 	result = pthread_create( &write_tid, NULL, &start_autopilot_interface_write_thread, this );
 	if ( result ) throw result;
@@ -696,6 +704,7 @@ start()
 
 	// now we're streaming setpoint commands
 	wprintw(output.outputStream, "\n");
+	wrefresh(output.outputStream);
 
 
 	// Done!

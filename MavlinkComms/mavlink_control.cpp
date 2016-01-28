@@ -212,7 +212,7 @@ commands(Autopilot_Interface &api)
 	// NOW pixhawk will try to move
 
 	// Wait for 8 seconds, check position
-	for (int i=0; i < 8; i++)
+	for (int i=0; i < 100; i++)
 	{
 		mavlink_local_position_ned_t pos = api.current_messages.local_position_ned;
 		printf("%i CURRENT POSITION XYZ = [ % .4f , % .4f , % .4f ] \n", i, pos.x, pos.y, pos.z);
