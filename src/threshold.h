@@ -14,6 +14,8 @@
 #include <iostream>
 #include <ctype.h>
 
+#include "common.h"
+
 using namespace cv;
 using namespace std;
 

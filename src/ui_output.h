@@ -16,27 +16,6 @@
 
 using namespace std;
 
-/*
-
-class myIn {
-	int rows, width, x_pos, y_pos;
-	map<const char*, int > entryMap;
-	char* title;
-	WINDOW * window;
-public:
-	myIn(void);
-
-	void start(void);
-	char getChar();		//Performs destructive read
-	void setChar(char inC);	
-	bool gotChar();
-
-};
-
-extern myIn input;
-
-static void* readInput(void *threadid);
-*/
 
 
 

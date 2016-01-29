@@ -10,11 +10,10 @@
 
 #include <ncurses.h>
 
-#include "Insect.h"
-#include "IrCam.h"
-#include "Input.h"
-#include "Output.h"
-#include "mavlink_control.h"
+#include "insect.h"
+#include "camera_interface.h"
+#include "common.h"
+#include "mavlink_interface.h"
 
 
 using namespace cv;
@@ -196,7 +195,7 @@ void mainProgram(void) {
 
 	UAVControl uav;
 	uav.setPID(1, 0, 0);
-	IRCam cam(&src);
+	Camera_Interface cam(&src);
 	Insect insect(cam.getImageSize());
 
 
@@ -272,7 +271,7 @@ void mainProgram(void) {
 			
 	
 			showImage(src, src_ROI, insect);
-			waitKey(10);
+			waitKey(WAIT_PERIOD);		// Must have this line in!
 			
 			time2 = clock();
 

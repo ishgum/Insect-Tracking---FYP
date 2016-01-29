@@ -48,10 +48,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ucnavi2/fyp/EmbeddedSystem
+CMAKE_SOURCE_DIR = /home/ucnavi2/fyp/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ucnavi2/fyp/EmbeddedSystem
+CMAKE_BINARY_DIR = /home/ucnavi2/fyp/src
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles /home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ucnavi2/fyp/src/CMakeFiles /home/ucnavi2/fyp/src/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ucnavi2/fyp/src/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -123,168 +123,6 @@ Track_Insect/fast:
 	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/build
 .PHONY : Track_Insect/fast
 
-Input.o: Input.cpp.o
-
-.PHONY : Input.o
-
-# target to build an object file
-Input.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Input.cpp.o
-.PHONY : Input.cpp.o
-
-Input.i: Input.cpp.i
-
-.PHONY : Input.i
-
-# target to preprocess a source file
-Input.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Input.cpp.i
-.PHONY : Input.cpp.i
-
-Input.s: Input.cpp.s
-
-.PHONY : Input.s
-
-# target to generate assembly for a file
-Input.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Input.cpp.s
-.PHONY : Input.cpp.s
-
-Insect.o: Insect.cpp.o
-
-.PHONY : Insect.o
-
-# target to build an object file
-Insect.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Insect.cpp.o
-.PHONY : Insect.cpp.o
-
-Insect.i: Insect.cpp.i
-
-.PHONY : Insect.i
-
-# target to preprocess a source file
-Insect.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Insect.cpp.i
-.PHONY : Insect.cpp.i
-
-Insect.s: Insect.cpp.s
-
-.PHONY : Insect.s
-
-# target to generate assembly for a file
-Insect.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Insect.cpp.s
-.PHONY : Insect.cpp.s
-
-IrCam.o: IrCam.cpp.o
-
-.PHONY : IrCam.o
-
-# target to build an object file
-IrCam.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/IrCam.cpp.o
-.PHONY : IrCam.cpp.o
-
-IrCam.i: IrCam.cpp.i
-
-.PHONY : IrCam.i
-
-# target to preprocess a source file
-IrCam.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/IrCam.cpp.i
-.PHONY : IrCam.cpp.i
-
-IrCam.s: IrCam.cpp.s
-
-.PHONY : IrCam.s
-
-# target to generate assembly for a file
-IrCam.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/IrCam.cpp.s
-.PHONY : IrCam.cpp.s
-
-Main.o: Main.cpp.o
-
-.PHONY : Main.o
-
-# target to build an object file
-Main.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Main.cpp.o
-.PHONY : Main.cpp.o
-
-Main.i: Main.cpp.i
-
-.PHONY : Main.i
-
-# target to preprocess a source file
-Main.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Main.cpp.i
-.PHONY : Main.cpp.i
-
-Main.s: Main.cpp.s
-
-.PHONY : Main.s
-
-# target to generate assembly for a file
-Main.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Main.cpp.s
-.PHONY : Main.cpp.s
-
-Output.o: Output.cpp.o
-
-.PHONY : Output.o
-
-# target to build an object file
-Output.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.o
-.PHONY : Output.cpp.o
-
-Output.i: Output.cpp.i
-
-.PHONY : Output.i
-
-# target to preprocess a source file
-Output.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.i
-.PHONY : Output.cpp.i
-
-Output.s: Output.cpp.s
-
-.PHONY : Output.s
-
-# target to generate assembly for a file
-Output.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.s
-.PHONY : Output.cpp.s
-
-Threshold.o: Threshold.cpp.o
-
-.PHONY : Threshold.o
-
-# target to build an object file
-Threshold.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Threshold.cpp.o
-.PHONY : Threshold.cpp.o
-
-Threshold.i: Threshold.cpp.i
-
-.PHONY : Threshold.i
-
-# target to preprocess a source file
-Threshold.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Threshold.cpp.i
-.PHONY : Threshold.cpp.i
-
-Threshold.s: Threshold.cpp.s
-
-.PHONY : Threshold.s
-
-# target to generate assembly for a file
-Threshold.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Threshold.cpp.s
-.PHONY : Threshold.cpp.s
-
 autopilot_interface.o: autopilot_interface.cpp.o
 
 .PHONY : autopilot_interface.o
@@ -312,59 +150,221 @@ autopilot_interface.cpp.s:
 	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.s
 .PHONY : autopilot_interface.cpp.s
 
-mavlink_control.o: mavlink_control.cpp.o
+camera_interface.o: camera_interface.cpp.o
 
-.PHONY : mavlink_control.o
-
-# target to build an object file
-mavlink_control.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o
-.PHONY : mavlink_control.cpp.o
-
-mavlink_control.i: mavlink_control.cpp.i
-
-.PHONY : mavlink_control.i
-
-# target to preprocess a source file
-mavlink_control.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_control.cpp.i
-.PHONY : mavlink_control.cpp.i
-
-mavlink_control.s: mavlink_control.cpp.s
-
-.PHONY : mavlink_control.s
-
-# target to generate assembly for a file
-mavlink_control.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_control.cpp.s
-.PHONY : mavlink_control.cpp.s
-
-serial_port.o: serial_port.cpp.o
-
-.PHONY : serial_port.o
+.PHONY : camera_interface.o
 
 # target to build an object file
-serial_port.cpp.o:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_port.cpp.o
-.PHONY : serial_port.cpp.o
+camera_interface.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/camera_interface.cpp.o
+.PHONY : camera_interface.cpp.o
 
-serial_port.i: serial_port.cpp.i
+camera_interface.i: camera_interface.cpp.i
 
-.PHONY : serial_port.i
+.PHONY : camera_interface.i
 
 # target to preprocess a source file
-serial_port.cpp.i:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_port.cpp.i
-.PHONY : serial_port.cpp.i
+camera_interface.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/camera_interface.cpp.i
+.PHONY : camera_interface.cpp.i
 
-serial_port.s: serial_port.cpp.s
+camera_interface.s: camera_interface.cpp.s
 
-.PHONY : serial_port.s
+.PHONY : camera_interface.s
 
 # target to generate assembly for a file
-serial_port.cpp.s:
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_port.cpp.s
-.PHONY : serial_port.cpp.s
+camera_interface.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/camera_interface.cpp.s
+.PHONY : camera_interface.cpp.s
+
+insect.o: insect.cpp.o
+
+.PHONY : insect.o
+
+# target to build an object file
+insect.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/insect.cpp.o
+.PHONY : insect.cpp.o
+
+insect.i: insect.cpp.i
+
+.PHONY : insect.i
+
+# target to preprocess a source file
+insect.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/insect.cpp.i
+.PHONY : insect.cpp.i
+
+insect.s: insect.cpp.s
+
+.PHONY : insect.s
+
+# target to generate assembly for a file
+insect.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/insect.cpp.s
+.PHONY : insect.cpp.s
+
+main.o: main.cpp.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/main.cpp.s
+.PHONY : main.cpp.s
+
+mavlink_interface.o: mavlink_interface.cpp.o
+
+.PHONY : mavlink_interface.o
+
+# target to build an object file
+mavlink_interface.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o
+.PHONY : mavlink_interface.cpp.o
+
+mavlink_interface.i: mavlink_interface.cpp.i
+
+.PHONY : mavlink_interface.i
+
+# target to preprocess a source file
+mavlink_interface.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.i
+.PHONY : mavlink_interface.cpp.i
+
+mavlink_interface.s: mavlink_interface.cpp.s
+
+.PHONY : mavlink_interface.s
+
+# target to generate assembly for a file
+mavlink_interface.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.s
+.PHONY : mavlink_interface.cpp.s
+
+serial_interface.o: serial_interface.cpp.o
+
+.PHONY : serial_interface.o
+
+# target to build an object file
+serial_interface.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_interface.cpp.o
+.PHONY : serial_interface.cpp.o
+
+serial_interface.i: serial_interface.cpp.i
+
+.PHONY : serial_interface.i
+
+# target to preprocess a source file
+serial_interface.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_interface.cpp.i
+.PHONY : serial_interface.cpp.i
+
+serial_interface.s: serial_interface.cpp.s
+
+.PHONY : serial_interface.s
+
+# target to generate assembly for a file
+serial_interface.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_interface.cpp.s
+.PHONY : serial_interface.cpp.s
+
+threshold.o: threshold.cpp.o
+
+.PHONY : threshold.o
+
+# target to build an object file
+threshold.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/threshold.cpp.o
+.PHONY : threshold.cpp.o
+
+threshold.i: threshold.cpp.i
+
+.PHONY : threshold.i
+
+# target to preprocess a source file
+threshold.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/threshold.cpp.i
+.PHONY : threshold.cpp.i
+
+threshold.s: threshold.cpp.s
+
+.PHONY : threshold.s
+
+# target to generate assembly for a file
+threshold.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/threshold.cpp.s
+.PHONY : threshold.cpp.s
+
+ui_input.o: ui_input.cpp.o
+
+.PHONY : ui_input.o
+
+# target to build an object file
+ui_input.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_input.cpp.o
+.PHONY : ui_input.cpp.o
+
+ui_input.i: ui_input.cpp.i
+
+.PHONY : ui_input.i
+
+# target to preprocess a source file
+ui_input.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_input.cpp.i
+.PHONY : ui_input.cpp.i
+
+ui_input.s: ui_input.cpp.s
+
+.PHONY : ui_input.s
+
+# target to generate assembly for a file
+ui_input.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_input.cpp.s
+.PHONY : ui_input.cpp.s
+
+ui_output.o: ui_output.cpp.o
+
+.PHONY : ui_output.o
+
+# target to build an object file
+ui_output.cpp.o:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_output.cpp.o
+.PHONY : ui_output.cpp.o
+
+ui_output.i: ui_output.cpp.i
+
+.PHONY : ui_output.i
+
+# target to preprocess a source file
+ui_output.cpp.i:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_output.cpp.i
+.PHONY : ui_output.cpp.i
+
+ui_output.s: ui_output.cpp.s
+
+.PHONY : ui_output.s
+
+# target to generate assembly for a file
+ui_output.cpp.s:
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_output.cpp.s
+.PHONY : ui_output.cpp.s
 
 # Help Target
 help:
@@ -375,33 +375,33 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... Track_Insect"
-	@echo "... Input.o"
-	@echo "... Input.i"
-	@echo "... Input.s"
-	@echo "... Insect.o"
-	@echo "... Insect.i"
-	@echo "... Insect.s"
-	@echo "... IrCam.o"
-	@echo "... IrCam.i"
-	@echo "... IrCam.s"
-	@echo "... Main.o"
-	@echo "... Main.i"
-	@echo "... Main.s"
-	@echo "... Output.o"
-	@echo "... Output.i"
-	@echo "... Output.s"
-	@echo "... Threshold.o"
-	@echo "... Threshold.i"
-	@echo "... Threshold.s"
 	@echo "... autopilot_interface.o"
 	@echo "... autopilot_interface.i"
 	@echo "... autopilot_interface.s"
-	@echo "... mavlink_control.o"
-	@echo "... mavlink_control.i"
-	@echo "... mavlink_control.s"
-	@echo "... serial_port.o"
-	@echo "... serial_port.i"
-	@echo "... serial_port.s"
+	@echo "... camera_interface.o"
+	@echo "... camera_interface.i"
+	@echo "... camera_interface.s"
+	@echo "... insect.o"
+	@echo "... insect.i"
+	@echo "... insect.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
+	@echo "... mavlink_interface.o"
+	@echo "... mavlink_interface.i"
+	@echo "... mavlink_interface.s"
+	@echo "... serial_interface.o"
+	@echo "... serial_interface.i"
+	@echo "... serial_interface.s"
+	@echo "... threshold.o"
+	@echo "... threshold.i"
+	@echo "... threshold.s"
+	@echo "... ui_input.o"
+	@echo "... ui_input.i"
+	@echo "... ui_input.s"
+	@echo "... ui_output.o"
+	@echo "... ui_output.i"
+	@echo "... ui_output.s"
 .PHONY : help
 
 

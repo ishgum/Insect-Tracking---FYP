@@ -1,7 +1,8 @@
-#include "Insect.h"
 
-#define HEIGHT_FILTER_SIZE 10
-#define HEIGHT_BRACKET 20
+
+
+
+#include "insect.h"
 
 
 
@@ -26,8 +27,7 @@ void Insect::updateHeight(int brightness) {
 	heightBracket = std::accumulate(heightMA.begin(), heightMA.end(), 0) / (HEIGHT_FILTER_SIZE * HEIGHT_BRACKET);
 }
 
-#define DATA_TITLE_POSITION 0
-#define DATA_PARAMETER_POSITION 2
+
 
 
 void Insect::printParameters(int y, int x)

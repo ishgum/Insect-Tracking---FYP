@@ -1,5 +1,5 @@
 
-#include "Input.h"
+#include "ui_input.h"
 
 
 using namespace std;

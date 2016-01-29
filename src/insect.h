@@ -10,8 +10,8 @@
 
 #include <string.h>
 
-#include "Threshold.h"
-#include "Output.h"
+#include "threshold.h"
+#include "common.h"
 
 using namespace cv;
 using namespace std;
@@ -20,6 +20,13 @@ using namespace std;
 #define ROI_SIZE .15
 #define HEIGHT_OFFSET 10
 #define WIDTH_OFFSET 10
+
+
+#define HEIGHT_FILTER_SIZE 10
+#define HEIGHT_BRACKET 20
+
+#define DATA_TITLE_POSITION 0
+#define DATA_PARAMETER_POSITION 2
 
 class Insect {
 	vector<int> heightMA;

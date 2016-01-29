@@ -43,10 +43,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ucnavi2/fyp/EmbeddedSystem
+CMAKE_SOURCE_DIR = /home/ucnavi2/fyp/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ucnavi2/fyp/EmbeddedSystem
+CMAKE_BINARY_DIR = /home/ucnavi2/fyp/src
 
 # Include any dependencies generated for this target.
 include CMakeFiles/Track_Insect.dir/depend.make
@@ -57,186 +57,186 @@ include CMakeFiles/Track_Insect.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/Track_Insect.dir/flags.make
 
-CMakeFiles/Track_Insect.dir/Main.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/Main.cpp.o: Main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Track_Insect.dir/Main.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/Main.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/Main.cpp
+CMakeFiles/Track_Insect.dir/main.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/main.cpp.o: main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Track_Insect.dir/main.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/main.cpp.o -c /home/ucnavi2/fyp/src/main.cpp
 
-CMakeFiles/Track_Insect.dir/Main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/Main.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/Main.cpp > CMakeFiles/Track_Insect.dir/Main.cpp.i
+CMakeFiles/Track_Insect.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/main.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/main.cpp > CMakeFiles/Track_Insect.dir/main.cpp.i
 
-CMakeFiles/Track_Insect.dir/Main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/Main.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/Main.cpp -o CMakeFiles/Track_Insect.dir/Main.cpp.s
+CMakeFiles/Track_Insect.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/main.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/main.cpp -o CMakeFiles/Track_Insect.dir/main.cpp.s
 
-CMakeFiles/Track_Insect.dir/Main.cpp.o.requires:
+CMakeFiles/Track_Insect.dir/main.cpp.o.requires:
 
-.PHONY : CMakeFiles/Track_Insect.dir/Main.cpp.o.requires
+.PHONY : CMakeFiles/Track_Insect.dir/main.cpp.o.requires
 
-CMakeFiles/Track_Insect.dir/Main.cpp.o.provides: CMakeFiles/Track_Insect.dir/Main.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Main.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/Main.cpp.o.provides
+CMakeFiles/Track_Insect.dir/main.cpp.o.provides: CMakeFiles/Track_Insect.dir/main.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/main.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/main.cpp.o.provides
 
-CMakeFiles/Track_Insect.dir/Main.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/Main.cpp.o
-
-
-CMakeFiles/Track_Insect.dir/Insect.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/Insect.cpp.o: Insect.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Track_Insect.dir/Insect.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/Insect.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/Insect.cpp
-
-CMakeFiles/Track_Insect.dir/Insect.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/Insect.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/Insect.cpp > CMakeFiles/Track_Insect.dir/Insect.cpp.i
-
-CMakeFiles/Track_Insect.dir/Insect.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/Insect.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/Insect.cpp -o CMakeFiles/Track_Insect.dir/Insect.cpp.s
-
-CMakeFiles/Track_Insect.dir/Insect.cpp.o.requires:
-
-.PHONY : CMakeFiles/Track_Insect.dir/Insect.cpp.o.requires
-
-CMakeFiles/Track_Insect.dir/Insect.cpp.o.provides: CMakeFiles/Track_Insect.dir/Insect.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Insect.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/Insect.cpp.o.provides
-
-CMakeFiles/Track_Insect.dir/Insect.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/Insect.cpp.o
+CMakeFiles/Track_Insect.dir/main.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/main.cpp.o
 
 
-CMakeFiles/Track_Insect.dir/Threshold.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/Threshold.cpp.o: Threshold.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Track_Insect.dir/Threshold.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/Threshold.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/Threshold.cpp
+CMakeFiles/Track_Insect.dir/insect.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/insect.cpp.o: insect.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Track_Insect.dir/insect.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/insect.cpp.o -c /home/ucnavi2/fyp/src/insect.cpp
 
-CMakeFiles/Track_Insect.dir/Threshold.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/Threshold.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/Threshold.cpp > CMakeFiles/Track_Insect.dir/Threshold.cpp.i
+CMakeFiles/Track_Insect.dir/insect.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/insect.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/insect.cpp > CMakeFiles/Track_Insect.dir/insect.cpp.i
 
-CMakeFiles/Track_Insect.dir/Threshold.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/Threshold.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/Threshold.cpp -o CMakeFiles/Track_Insect.dir/Threshold.cpp.s
+CMakeFiles/Track_Insect.dir/insect.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/insect.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/insect.cpp -o CMakeFiles/Track_Insect.dir/insect.cpp.s
 
-CMakeFiles/Track_Insect.dir/Threshold.cpp.o.requires:
+CMakeFiles/Track_Insect.dir/insect.cpp.o.requires:
 
-.PHONY : CMakeFiles/Track_Insect.dir/Threshold.cpp.o.requires
+.PHONY : CMakeFiles/Track_Insect.dir/insect.cpp.o.requires
 
-CMakeFiles/Track_Insect.dir/Threshold.cpp.o.provides: CMakeFiles/Track_Insect.dir/Threshold.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Threshold.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/Threshold.cpp.o.provides
+CMakeFiles/Track_Insect.dir/insect.cpp.o.provides: CMakeFiles/Track_Insect.dir/insect.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/insect.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/insect.cpp.o.provides
 
-CMakeFiles/Track_Insect.dir/Threshold.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/Threshold.cpp.o
-
-
-CMakeFiles/Track_Insect.dir/IrCam.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/IrCam.cpp.o: IrCam.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Track_Insect.dir/IrCam.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/IrCam.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/IrCam.cpp
-
-CMakeFiles/Track_Insect.dir/IrCam.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/IrCam.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/IrCam.cpp > CMakeFiles/Track_Insect.dir/IrCam.cpp.i
-
-CMakeFiles/Track_Insect.dir/IrCam.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/IrCam.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/IrCam.cpp -o CMakeFiles/Track_Insect.dir/IrCam.cpp.s
-
-CMakeFiles/Track_Insect.dir/IrCam.cpp.o.requires:
-
-.PHONY : CMakeFiles/Track_Insect.dir/IrCam.cpp.o.requires
-
-CMakeFiles/Track_Insect.dir/IrCam.cpp.o.provides: CMakeFiles/Track_Insect.dir/IrCam.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/IrCam.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/IrCam.cpp.o.provides
-
-CMakeFiles/Track_Insect.dir/IrCam.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/IrCam.cpp.o
+CMakeFiles/Track_Insect.dir/insect.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/insect.cpp.o
 
 
-CMakeFiles/Track_Insect.dir/Input.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/Input.cpp.o: Input.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Track_Insect.dir/Input.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/Input.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/Input.cpp
+CMakeFiles/Track_Insect.dir/threshold.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/threshold.cpp.o: threshold.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Track_Insect.dir/threshold.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/threshold.cpp.o -c /home/ucnavi2/fyp/src/threshold.cpp
 
-CMakeFiles/Track_Insect.dir/Input.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/Input.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/Input.cpp > CMakeFiles/Track_Insect.dir/Input.cpp.i
+CMakeFiles/Track_Insect.dir/threshold.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/threshold.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/threshold.cpp > CMakeFiles/Track_Insect.dir/threshold.cpp.i
 
-CMakeFiles/Track_Insect.dir/Input.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/Input.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/Input.cpp -o CMakeFiles/Track_Insect.dir/Input.cpp.s
+CMakeFiles/Track_Insect.dir/threshold.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/threshold.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/threshold.cpp -o CMakeFiles/Track_Insect.dir/threshold.cpp.s
 
-CMakeFiles/Track_Insect.dir/Input.cpp.o.requires:
+CMakeFiles/Track_Insect.dir/threshold.cpp.o.requires:
 
-.PHONY : CMakeFiles/Track_Insect.dir/Input.cpp.o.requires
+.PHONY : CMakeFiles/Track_Insect.dir/threshold.cpp.o.requires
 
-CMakeFiles/Track_Insect.dir/Input.cpp.o.provides: CMakeFiles/Track_Insect.dir/Input.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Input.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/Input.cpp.o.provides
+CMakeFiles/Track_Insect.dir/threshold.cpp.o.provides: CMakeFiles/Track_Insect.dir/threshold.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/threshold.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/threshold.cpp.o.provides
 
-CMakeFiles/Track_Insect.dir/Input.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/Input.cpp.o
-
-
-CMakeFiles/Track_Insect.dir/Output.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/Output.cpp.o: Output.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Track_Insect.dir/Output.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/Output.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/Output.cpp
-
-CMakeFiles/Track_Insect.dir/Output.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/Output.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/Output.cpp > CMakeFiles/Track_Insect.dir/Output.cpp.i
-
-CMakeFiles/Track_Insect.dir/Output.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/Output.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/Output.cpp -o CMakeFiles/Track_Insect.dir/Output.cpp.s
-
-CMakeFiles/Track_Insect.dir/Output.cpp.o.requires:
-
-.PHONY : CMakeFiles/Track_Insect.dir/Output.cpp.o.requires
-
-CMakeFiles/Track_Insect.dir/Output.cpp.o.provides: CMakeFiles/Track_Insect.dir/Output.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/Output.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/Output.cpp.o.provides
-
-CMakeFiles/Track_Insect.dir/Output.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/Output.cpp.o
+CMakeFiles/Track_Insect.dir/threshold.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/threshold.cpp.o
 
 
-CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o: mavlink_control.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/mavlink_control.cpp
+CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: camera_interface.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Track_Insect.dir/camera_interface.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/camera_interface.cpp.o -c /home/ucnavi2/fyp/src/camera_interface.cpp
 
-CMakeFiles/Track_Insect.dir/mavlink_control.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/mavlink_control.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/mavlink_control.cpp > CMakeFiles/Track_Insect.dir/mavlink_control.cpp.i
+CMakeFiles/Track_Insect.dir/camera_interface.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/camera_interface.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/camera_interface.cpp > CMakeFiles/Track_Insect.dir/camera_interface.cpp.i
 
-CMakeFiles/Track_Insect.dir/mavlink_control.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/mavlink_control.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/mavlink_control.cpp -o CMakeFiles/Track_Insect.dir/mavlink_control.cpp.s
+CMakeFiles/Track_Insect.dir/camera_interface.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/camera_interface.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/camera_interface.cpp -o CMakeFiles/Track_Insect.dir/camera_interface.cpp.s
 
-CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.requires:
+CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.requires:
 
-.PHONY : CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.requires
+.PHONY : CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.requires
 
-CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.provides: CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.provides
+CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.provides: CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.provides
 
-CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o
+CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/camera_interface.cpp.o
+
+
+CMakeFiles/Track_Insect.dir/ui_input.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/ui_input.cpp.o: ui_input.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Track_Insect.dir/ui_input.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/ui_input.cpp.o -c /home/ucnavi2/fyp/src/ui_input.cpp
+
+CMakeFiles/Track_Insect.dir/ui_input.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/ui_input.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/ui_input.cpp > CMakeFiles/Track_Insect.dir/ui_input.cpp.i
+
+CMakeFiles/Track_Insect.dir/ui_input.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/ui_input.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/ui_input.cpp -o CMakeFiles/Track_Insect.dir/ui_input.cpp.s
+
+CMakeFiles/Track_Insect.dir/ui_input.cpp.o.requires:
+
+.PHONY : CMakeFiles/Track_Insect.dir/ui_input.cpp.o.requires
+
+CMakeFiles/Track_Insect.dir/ui_input.cpp.o.provides: CMakeFiles/Track_Insect.dir/ui_input.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_input.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/ui_input.cpp.o.provides
+
+CMakeFiles/Track_Insect.dir/ui_input.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/ui_input.cpp.o
+
+
+CMakeFiles/Track_Insect.dir/ui_output.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/ui_output.cpp.o: ui_output.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Track_Insect.dir/ui_output.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/ui_output.cpp.o -c /home/ucnavi2/fyp/src/ui_output.cpp
+
+CMakeFiles/Track_Insect.dir/ui_output.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/ui_output.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/ui_output.cpp > CMakeFiles/Track_Insect.dir/ui_output.cpp.i
+
+CMakeFiles/Track_Insect.dir/ui_output.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/ui_output.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/ui_output.cpp -o CMakeFiles/Track_Insect.dir/ui_output.cpp.s
+
+CMakeFiles/Track_Insect.dir/ui_output.cpp.o.requires:
+
+.PHONY : CMakeFiles/Track_Insect.dir/ui_output.cpp.o.requires
+
+CMakeFiles/Track_Insect.dir/ui_output.cpp.o.provides: CMakeFiles/Track_Insect.dir/ui_output.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/ui_output.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/ui_output.cpp.o.provides
+
+CMakeFiles/Track_Insect.dir/ui_output.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/ui_output.cpp.o
+
+
+CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: mavlink_interface.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o -c /home/ucnavi2/fyp/src/mavlink_interface.cpp
+
+CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/mavlink_interface.cpp > CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.i
+
+CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/mavlink_interface.cpp -o CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.s
+
+CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.requires:
+
+.PHONY : CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.requires
+
+CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.provides: CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.provides
+
+CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o
 
 
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: autopilot_interface.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/autopilot_interface.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o -c /home/ucnavi2/fyp/src/autopilot_interface.cpp
 
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/autopilot_interface.cpp > CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/autopilot_interface.cpp > CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.i
 
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/autopilot_interface.cpp -o CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/autopilot_interface.cpp -o CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.s
 
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o.requires:
 
@@ -249,54 +249,54 @@ CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o.provides: CMakeFiles/Track
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o
 
 
-CMakeFiles/Track_Insect.dir/serial_port.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
-CMakeFiles/Track_Insect.dir/serial_port.cpp.o: serial_port.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/Track_Insect.dir/serial_port.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/serial_port.cpp.o -c /home/ucnavi2/fyp/EmbeddedSystem/serial_port.cpp
+CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: CMakeFiles/Track_Insect.dir/flags.make
+CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: serial_interface.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/Track_Insect.dir/serial_interface.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Track_Insect.dir/serial_interface.cpp.o -c /home/ucnavi2/fyp/src/serial_interface.cpp
 
-CMakeFiles/Track_Insect.dir/serial_port.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/serial_port.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/EmbeddedSystem/serial_port.cpp > CMakeFiles/Track_Insect.dir/serial_port.cpp.i
+CMakeFiles/Track_Insect.dir/serial_interface.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Track_Insect.dir/serial_interface.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ucnavi2/fyp/src/serial_interface.cpp > CMakeFiles/Track_Insect.dir/serial_interface.cpp.i
 
-CMakeFiles/Track_Insect.dir/serial_port.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/serial_port.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/EmbeddedSystem/serial_port.cpp -o CMakeFiles/Track_Insect.dir/serial_port.cpp.s
+CMakeFiles/Track_Insect.dir/serial_interface.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Track_Insect.dir/serial_interface.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ucnavi2/fyp/src/serial_interface.cpp -o CMakeFiles/Track_Insect.dir/serial_interface.cpp.s
 
-CMakeFiles/Track_Insect.dir/serial_port.cpp.o.requires:
+CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.requires:
 
-.PHONY : CMakeFiles/Track_Insect.dir/serial_port.cpp.o.requires
+.PHONY : CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.requires
 
-CMakeFiles/Track_Insect.dir/serial_port.cpp.o.provides: CMakeFiles/Track_Insect.dir/serial_port.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_port.cpp.o.provides.build
-.PHONY : CMakeFiles/Track_Insect.dir/serial_port.cpp.o.provides
+CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.provides: CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Track_Insect.dir/build.make CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.provides.build
+.PHONY : CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.provides
 
-CMakeFiles/Track_Insect.dir/serial_port.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/serial_port.cpp.o
+CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.provides.build: CMakeFiles/Track_Insect.dir/serial_interface.cpp.o
 
 
 # Object files for target Track_Insect
 Track_Insect_OBJECTS = \
-"CMakeFiles/Track_Insect.dir/Main.cpp.o" \
-"CMakeFiles/Track_Insect.dir/Insect.cpp.o" \
-"CMakeFiles/Track_Insect.dir/Threshold.cpp.o" \
-"CMakeFiles/Track_Insect.dir/IrCam.cpp.o" \
-"CMakeFiles/Track_Insect.dir/Input.cpp.o" \
-"CMakeFiles/Track_Insect.dir/Output.cpp.o" \
-"CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o" \
+"CMakeFiles/Track_Insect.dir/main.cpp.o" \
+"CMakeFiles/Track_Insect.dir/insect.cpp.o" \
+"CMakeFiles/Track_Insect.dir/threshold.cpp.o" \
+"CMakeFiles/Track_Insect.dir/camera_interface.cpp.o" \
+"CMakeFiles/Track_Insect.dir/ui_input.cpp.o" \
+"CMakeFiles/Track_Insect.dir/ui_output.cpp.o" \
+"CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o" \
 "CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o" \
-"CMakeFiles/Track_Insect.dir/serial_port.cpp.o"
+"CMakeFiles/Track_Insect.dir/serial_interface.cpp.o"
 
 # External object files for target Track_Insect
 Track_Insect_EXTERNAL_OBJECTS =
 
-Track_Insect: CMakeFiles/Track_Insect.dir/Main.cpp.o
-Track_Insect: CMakeFiles/Track_Insect.dir/Insect.cpp.o
-Track_Insect: CMakeFiles/Track_Insect.dir/Threshold.cpp.o
-Track_Insect: CMakeFiles/Track_Insect.dir/IrCam.cpp.o
-Track_Insect: CMakeFiles/Track_Insect.dir/Input.cpp.o
-Track_Insect: CMakeFiles/Track_Insect.dir/Output.cpp.o
-Track_Insect: CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/main.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/insect.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/threshold.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/camera_interface.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/ui_input.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/ui_output.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o
-Track_Insect: CMakeFiles/Track_Insect.dir/serial_port.cpp.o
+Track_Insect: CMakeFiles/Track_Insect.dir/serial_interface.cpp.o
 Track_Insect: CMakeFiles/Track_Insect.dir/build.make
 Track_Insect: /usr/local/lib/libopencv_videostab.so.2.4.11
 Track_Insect: /usr/local/lib/libopencv_ts.a
@@ -319,7 +319,7 @@ Track_Insect: /usr/local/lib/libopencv_imgproc.so.2.4.11
 Track_Insect: /usr/local/lib/libopencv_flann.so.2.4.11
 Track_Insect: /usr/local/lib/libopencv_core.so.2.4.11
 Track_Insect: CMakeFiles/Track_Insect.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable Track_Insect"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ucnavi2/fyp/src/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable Track_Insect"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Track_Insect.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -327,15 +327,15 @@ CMakeFiles/Track_Insect.dir/build: Track_Insect
 
 .PHONY : CMakeFiles/Track_Insect.dir/build
 
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Main.cpp.o.requires
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Insect.cpp.o.requires
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Threshold.cpp.o.requires
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/IrCam.cpp.o.requires
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Input.cpp.o.requires
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/Output.cpp.o.requires
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/mavlink_control.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/main.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/insect.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/threshold.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/camera_interface.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/ui_input.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/ui_output.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o.requires
 CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o.requires
-CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/serial_port.cpp.o.requires
+CMakeFiles/Track_Insect.dir/requires: CMakeFiles/Track_Insect.dir/serial_interface.cpp.o.requires
 
 .PHONY : CMakeFiles/Track_Insect.dir/requires
 
@@ -344,6 +344,6 @@ CMakeFiles/Track_Insect.dir/clean:
 .PHONY : CMakeFiles/Track_Insect.dir/clean
 
 CMakeFiles/Track_Insect.dir/depend:
-	cd /home/ucnavi2/fyp/EmbeddedSystem && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ucnavi2/fyp/EmbeddedSystem /home/ucnavi2/fyp/EmbeddedSystem /home/ucnavi2/fyp/EmbeddedSystem /home/ucnavi2/fyp/EmbeddedSystem /home/ucnavi2/fyp/EmbeddedSystem/CMakeFiles/Track_Insect.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ucnavi2/fyp/src && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ucnavi2/fyp/src /home/ucnavi2/fyp/src /home/ucnavi2/fyp/src /home/ucnavi2/fyp/src /home/ucnavi2/fyp/src/CMakeFiles/Track_Insect.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/Track_Insect.dir/depend
 

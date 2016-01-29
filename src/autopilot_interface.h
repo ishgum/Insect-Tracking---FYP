@@ -55,14 +55,13 @@
 //   Includes
 // ------------------------------------------------------------------------------
 
-#include "serial_port.h"
 
-#include <signal.h>
-#include <time.h>
 #include <sys/time.h>
 
-#include "Output.h"
-#include "../mavlink/common/mavlink.h"
+
+#include "serial_interface.h"
+#include "common.h"
+#include "../Tools/mavlink/common/mavlink.h"
 
 // ------------------------------------------------------------------------------
 //   Defines

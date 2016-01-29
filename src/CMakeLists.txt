@@ -10,7 +10,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg -g")
 
 include_directories(${SOURCE_DIR})
 include_directories(/usr/include/flycapture)
-set(SOURCES Main.cpp Insect.cpp Threshold.cpp IrCam.cpp Input.cpp Output.cpp mavlink_control.cpp autopilot_interface.cpp serial_port.cpp ${SOURCE_DIR}/Insect.h ${SOURCE_DIR}/Threshold.h ${SOURCE_DIR}/IrCam.h ${SOURCE_DIR}/Input.h ${SOURCE_DIR}/Output.h ${SOURCE_DIR}/mavlink_control.h ${SOURCE_DIR}/autopilot_interface.h ${SOURCE_DIR}/serial_port.h)
+set(SOURCES main.cpp insect.cpp threshold.cpp camera_interface.cpp ui_input.cpp ui_output.cpp mavlink_interface.cpp autopilot_interface.cpp serial_interface.cpp)
 add_executable(Track_Insect ${SOURCES})
 #set_property(TARGET Track_Insect PROPERTY CXX_STANDARD 11)
 #set_property(TARGET Track_Insect PROPERTY CXX_STANDARD_REQUIRED ON)

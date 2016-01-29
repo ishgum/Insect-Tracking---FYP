@@ -71,13 +71,12 @@
 using std::string;
 using namespace std;
 
-#include "../mavlink/common/mavlink.h"
+#include "../Tools/mavlink/common/mavlink.h"
 
 #include "autopilot_interface.h"
-#include "serial_port.h"
-#include "Output.h"
+#include "serial_interface.h"
+#include "common.h"
 
-#include "parameters.h"
 
 
 

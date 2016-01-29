@@ -6,5 +6,5 @@ CXX_FLAGS =  -pg -g
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/usr/local/include/opencv -I/usr/local/include -I/home/ucnavi2/fyp/EmbeddedSystem -I/usr/include/flycapture 
+CXX_INCLUDES = -I/usr/local/include/opencv -I/usr/local/include -I/home/ucnavi2/fyp/src -I/usr/include/flycapture 
 

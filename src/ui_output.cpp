@@ -1,5 +1,5 @@
 
-#include "Output.h"
+#include "ui_output.h"
 
 
 using namespace std;
