@@ -93,6 +93,7 @@ class UAVControl {
 	mavlink_set_position_target_local_ned_t ip;
 	bool uavControl;
 	bool initialised;
+	float pid_P, pid_I, pid_D;
 
 
 	map<const char*, int> outputMap;
@@ -108,7 +109,9 @@ public:
 	void toggleControl(void);
 	bool getControlStatus(void);
 	void printControl(void);
+	void setPID(float P, float I, float D);			//Note only proportional is used
 	void updateVelocity(float x, float y, float z = 0.0);
+	void updateVelocityPID(float x, float y, float z = 0.0);
 	void printPosition (void);
 	
 	void printParameters(int y, int x);

@@ -195,6 +195,7 @@ void mainProgram(void) {
 
 
 	UAVControl uav;
+	uav.setPID(1, 0, 0);
 	IRCam cam(&src);
 	Insect insect(cam.getImageSize());
 
@@ -235,7 +236,7 @@ void mainProgram(void) {
 		
 		if (uav.isInit() && contUAV && insect.found) 
 		{
-			uav.updateVelocity(insect.relPosition.x/SPEED_SCALE, insect.relPosition.y/SPEED_SCALE, 0);
+			uav.updateVelocityPID(insect.relPosition.x/SPEED_SCALE, insect.relPosition.y/SPEED_SCALE, 0);
 		}
 		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }
 	
@@ -300,7 +301,7 @@ void mainProgram(void) {
 /** @function main */
 int main(int argc, char** argv)
 {
-	signal(SIGINT,quit_handler);
+//	signal(SIGINT,quit_handler);
 	printf("Got here");
 	initscr();
 	cbreak(); 

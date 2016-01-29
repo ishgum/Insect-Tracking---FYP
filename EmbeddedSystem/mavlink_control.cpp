@@ -64,6 +64,7 @@ UAVControl::UAVControl (char* uart_name, int baudrate) : serial_port(uart_name, 
 {
 	uavControl = false;
 	initialised = false;
+	pid_P, pid_I, pid_D = 0.0;
 
 }
 
@@ -220,6 +221,28 @@ void UAVControl::updateVelocity(float x, float y, float z)
 	return;
 }
 
+
+void UAVControl::setPID(float P, float I, float D)
+{
+	pid_P = P;
+	pid_I = I;
+	pid_D = D;
+}
+
+
+void UAVControl::updateVelocityPID(float x, float y, float z)
+{
+
+	if (sqrt(x*x + y*y) < .3) { set_velocity(0, 0, 0, sp); }
+	else { set_velocity( pid_P*x, pid_P*y, pid_P*z, sp ); }		//[M/S]
+
+	set_yaw( 0, sp );			//[RAD]
+
+	// SEND THE COMMAND
+	api.update_setpoint(sp);
+
+	return;
+}
 
 /*
 void UAVControl::updateVelocityTest(float angle)
