@@ -59,15 +59,7 @@ opencv2/core/core.hpp
 -
 opencv2/imgproc/imgproc.hpp
 -
-opencv2/highgui/highgui.hpp
--
 numeric
--
-iostream
--
-stdio.h
--
-string.h
 -
 threshold.h
 /home/ucnavi2/fyp/src/threshold.h

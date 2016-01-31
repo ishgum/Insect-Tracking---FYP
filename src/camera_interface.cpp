@@ -44,7 +44,8 @@ Camera_Interface::Camera_Interface(Mat* src, unsigned int x, unsigned int y, uns
 	currentFPS = 0.0;
 }
 
-Camera_Interface::~Camera_Interface ( void ) {
+Camera_Interface::~Camera_Interface ( void ) 
+{
 	wprintw(output.outputStream, "Camera closing\n");	
 	camError = camera.StopCapture();
 	camera.Disconnect();
@@ -60,8 +61,9 @@ Camera_Interface::~Camera_Interface ( void ) {
 //   Initialise Camera
 // ------------------------------------------------------------------------------
 
-void Camera_Interface::init(void) {
-
+void 
+Camera_Interface::init(void) 
+{
 	// Temporary variables needed for intialisation
 	CameraInfo camInfo;
 	PGRGuid guid;
@@ -113,8 +115,8 @@ void Camera_Interface::init(void) {
 //   Set Hardware Region of Interest
 // ------------------------------------------------------------------------------
 
-Error Camera_Interface::setROI(int offX, int offY, int scale) {
-
+Error Camera_Interface::setROI(int offX, int offY, int scale) 
+{
 	fmt7ImageSettings.offsetX = offX;
 	fmt7ImageSettings.offsetY = offY;
 	fmt7ImageSettings.width = (unsigned int)xRes / scale;
@@ -147,9 +149,8 @@ Error Camera_Interface::setROI(int offX, int offY, int scale) {
 //   Set Resolution
 // ------------------------------------------------------------------------------
 
-Error Camera_Interface::setResolution(unsigned int x, unsigned int y) {
-	
-
+Error Camera_Interface::setResolution(unsigned int x, unsigned int y) 
+{
 	fmt7ImageSettings.width = x;
 	fmt7ImageSettings.height = y;
 
@@ -182,9 +183,8 @@ Error Camera_Interface::setResolution(unsigned int x, unsigned int y) {
 //   Get Image
 // ------------------------------------------------------------------------------
 
-void Camera_Interface::getImage(void) {
-
-
+void Camera_Interface::getImage(void) 
+{
 	// Retrieve buffer from camera
 	camError = camera.RetrieveBuffer(&rawImage);
 	
@@ -199,6 +199,7 @@ void Camera_Interface::getImage(void) {
 	unsigned int rowBytes = (double)rgbImage.GetReceivedDataSize() / (double)rgbImage.GetRows();
 	*srcMat = Mat(rgbImage.GetRows(), rgbImage.GetCols(), CV_8UC3, rgbImage.GetData(), rowBytes);
 
+	return;
 }
 
 
@@ -206,7 +207,8 @@ void Camera_Interface::getImage(void) {
 //   Get user set image size
 // ------------------------------------------------------------------------------
 
-Size Camera_Interface::getImageSize(void) {
+Size Camera_Interface::getImageSize(void) 
+{
 	return Size(xRes, yRes);
 }
 
@@ -215,7 +217,8 @@ Size Camera_Interface::getImageSize(void) {
 //   Get if camera is intialised
 // ------------------------------------------------------------------------------
 
-bool Camera_Interface::isInit(void) {
+bool Camera_Interface::isInit(void) 
+{
 	return initialised;
 }
 
@@ -256,13 +259,12 @@ void Camera_Interface::printParameters(int y, int x)
 //   Refresh data in ncurses window
 // ------------------------------------------------------------------------------
 
-void Camera_Interface::printOutput(void) {
-
+void Camera_Interface::printOutput(void) 
+{
 	werase(output.cameraData);
 	mvwprintw(output.cameraData, outputMap["Camera Connected:"], 0, "%d\n", initialised);
 	mvwprintw(output.cameraData, outputMap["FPS:"], 0, "%.2f \n", currentFPS);
 	mvwprintw(output.cameraData, outputMap["Frame Size:"], 0, "%d X %d\n", xRes, yRes);
-
 }
 
 

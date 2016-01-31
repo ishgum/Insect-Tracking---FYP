@@ -165,9 +165,9 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 		if (contDebugFull) 
 		{
 		
-			rectangle(image, insect.ROI, Scalar(255, 255, 255), 2, 8, 0);
-			line(image, Point(image.cols / 2, image.rows / 2), insect.position, Scalar(255, 0, 0), 3);
-			line(image, insect.position, insect.position + 5*insect.velocity, Scalar(0, 255, 0), 3);
+			rectangle(image, insect.getROI(), Scalar(255, 255, 255), 2, 8, 0);
+			line(image, Point(image.cols / 2, image.rows / 2), insect.getPosition(), Scalar(255, 0, 0), 3);
+			line(image, insect.getPosition(), insect.getPosition() + 5*insect.getVelocity(), Scalar(0, 255, 0), 3);
 
 			resize(image, image, Size(), 0.3, 0.3);
 			//resize(image_ROI, image_ROI, Size(), 0.3, 0.3);
@@ -233,9 +233,9 @@ void mainProgram(void) {
 		}
 
 		
-		if (uav.isInit() && contUAV && insect.found) 
+		if (uav.isInit() && contUAV && insect.isFound()) 
 		{
-			uav.updateVelocityPID(insect.relPosition.x/SPEED_SCALE, insect.relPosition.y/SPEED_SCALE, 0);
+			uav.updateVelocityPID(insect.getRelPosition().x/SPEED_SCALE, insect.getRelPosition().y/SPEED_SCALE, 0);
 		}
 		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }
 	
@@ -266,7 +266,7 @@ void mainProgram(void) {
 
 
 			insect.updateROI();
-			src_ROI = src(insect.ROI);
+			src_ROI = src(insect.getROI());
 			insect.findInsect(&src_ROI);
 			
 	
