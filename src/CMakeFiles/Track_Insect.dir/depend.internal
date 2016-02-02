@@ -9,14 +9,12 @@ CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o
  /home/ucnavi2/fyp/src/common.h
  /home/ucnavi2/fyp/src/parameters.h
  /home/ucnavi2/fyp/src/serial_interface.h
- /home/ucnavi2/fyp/src/ui_input.h
  /home/ucnavi2/fyp/src/ui_output.h
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o
  /home/ucnavi2/fyp/src/camera_interface.cpp
  /home/ucnavi2/fyp/src/camera_interface.h
  /home/ucnavi2/fyp/src/common.h
  /home/ucnavi2/fyp/src/parameters.h
- /home/ucnavi2/fyp/src/ui_input.h
  /home/ucnavi2/fyp/src/ui_output.h
  /usr/include/flycapture/AVIRecorder.h
  /usr/include/flycapture/BusManager.h
@@ -42,7 +40,6 @@ CMakeFiles/Track_Insect.dir/insect.cpp.o
  /home/ucnavi2/fyp/src/insect.h
  /home/ucnavi2/fyp/src/parameters.h
  /home/ucnavi2/fyp/src/threshold.h
- /home/ucnavi2/fyp/src/ui_input.h
  /home/ucnavi2/fyp/src/ui_output.h
  /usr/local/include/opencv2/core/core.hpp
  /usr/local/include/opencv2/core/core_c.h
@@ -101,7 +98,6 @@ CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o
  /home/ucnavi2/fyp/src/mavlink_interface.h
  /home/ucnavi2/fyp/src/parameters.h
  /home/ucnavi2/fyp/src/serial_interface.h
- /home/ucnavi2/fyp/src/ui_input.h
  /home/ucnavi2/fyp/src/ui_output.h
 CMakeFiles/Track_Insect.dir/serial_interface.cpp.o
  /home/ucnavi2/fyp/Tools/mavlink/common/mavlink.h
@@ -110,14 +106,12 @@ CMakeFiles/Track_Insect.dir/serial_interface.cpp.o
  /home/ucnavi2/fyp/src/parameters.h
  /home/ucnavi2/fyp/src/serial_interface.cpp
  /home/ucnavi2/fyp/src/serial_interface.h
- /home/ucnavi2/fyp/src/ui_input.h
  /home/ucnavi2/fyp/src/ui_output.h
 CMakeFiles/Track_Insect.dir/threshold.cpp.o
  /home/ucnavi2/fyp/src/common.h
  /home/ucnavi2/fyp/src/parameters.h
  /home/ucnavi2/fyp/src/threshold.cpp
  /home/ucnavi2/fyp/src/threshold.h
- /home/ucnavi2/fyp/src/ui_input.h
  /home/ucnavi2/fyp/src/ui_output.h
  /usr/local/include/opencv2/core/core.hpp
  /usr/local/include/opencv2/core/core_c.h
@@ -130,8 +124,10 @@ CMakeFiles/Track_Insect.dir/threshold.cpp.o
  /usr/local/include/opencv2/imgproc/imgproc.hpp
  /usr/local/include/opencv2/imgproc/types_c.h
 CMakeFiles/Track_Insect.dir/ui_input.cpp.o
+ /home/ucnavi2/fyp/src/parameters.h
  /home/ucnavi2/fyp/src/ui_input.cpp
  /home/ucnavi2/fyp/src/ui_input.h
+ /home/ucnavi2/fyp/src/ui_output.h
 CMakeFiles/Track_Insect.dir/ui_output.cpp.o
  /home/ucnavi2/fyp/src/parameters.h
  /home/ucnavi2/fyp/src/ui_output.cpp

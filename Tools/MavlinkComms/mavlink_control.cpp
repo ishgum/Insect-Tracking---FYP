@@ -172,7 +172,6 @@ commands(Autopilot_Interface &api)
 	//   START OFFBOARD MODE
 	// --------------------------------------------------------------------------
 
-	api.enable_offboard_control();
 	usleep(100); // give some time to let it sink in
 
 	// now the autopilot is accepting setpoint commands
@@ -225,8 +224,6 @@ commands(Autopilot_Interface &api)
 	// --------------------------------------------------------------------------
 	//   STOP OFFBOARD MODE
 	// --------------------------------------------------------------------------
-
-	api.disable_offboard_control();
 
 	// now pixhawk isn't listening to setpoint commands
 

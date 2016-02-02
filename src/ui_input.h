@@ -1,35 +1,25 @@
 
-#ifndef Input
-#define Input
+#ifndef UI_INPUT_H_
+#define UI_INPUT_H_
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
-#include <unistd.h>
 
+#include <ncurses.h>
+
+#include "ui_output.h"
 
 using namespace std;
 
 
+void inputControl (void);
 
+void printFlagParameters (int y, int x);
 
-class myIn {
-	char c;
-	bool newChar;
-	pthread_t thread;
-public:
-	myIn(void);
-	void start(void);
-	char getChar();		//Performs destructive read
-	void setChar(char inC);	
-	bool gotChar();
-
-};
-
-extern myIn input;
-
-static void* readInput(void *threadid);
+void printFlagOutput (void);
 
 
 
-#endif
+extern bool contPause, contCam, contQuit, contUAV, contDebugROI, contDebugFull, contRefresh;
+
+
+
+#endif //INPUT_H_

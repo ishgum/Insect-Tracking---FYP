@@ -1,13 +1,14 @@
-#ifndef PARAMETERS_H
-#define PARAMETERS_H
 
+#ifndef PARAMETERS_H_
+#define PARAMETERS_H_
+
+// Connection parameters
 #define UAV_UART_CONNECT_ACM0 "/dev/ttyACM0"
 #define UAV_UART_CONNECT_ACM1 "/dev/ttyACM1"
 #define UAV_UART_CONNECT_USB0 "/dev/ttyUSB0"
 #define UAV_UART_CONNECT_USB1 "/dev/ttyUSB1"
 
 #define UAV_UART_CONNECT_DEFAULT "/dev/ttyACM0"
-
 #define UAV_BAUDRATE 57600
 
 
@@ -33,6 +34,7 @@
 #define OUTPUT_STREAM_X 49
 
 
-#define SPEED_SCALE 500		//Conversion between pixels and metres. Should react at 1 m/s.
+//Conversion between pixels and metres. Should react at 1 m/s.
+#define SPEED_SCALE 500		
 
-#endif
+#endif //PARAMETERS_H_

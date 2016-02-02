@@ -43,8 +43,6 @@ common.h
 /home/ucnavi2/fyp/src/common.h
 
 /home/ucnavi2/fyp/src/common.h
-ui_input.h
-/home/ucnavi2/fyp/src/ui_input.h
 ui_output.h
 /home/ucnavi2/fyp/src/ui_output.h
 parameters.h
@@ -93,6 +91,8 @@ common.h
 /home/ucnavi2/fyp/src/common.h
 mavlink_interface.h
 /home/ucnavi2/fyp/src/mavlink_interface.h
+ui_input.h
+/home/ucnavi2/fyp/src/ui_input.h
 
 /home/ucnavi2/fyp/src/mavlink_interface.cpp
 mavlink_interface.h
@@ -189,14 +189,10 @@ ui_input.h
 /home/ucnavi2/fyp/src/ui_input.h
 
 /home/ucnavi2/fyp/src/ui_input.h
-stdlib.h
+ncurses.h
 -
-stdio.h
--
-iostream
--
-unistd.h
--
+ui_output.h
+/home/ucnavi2/fyp/src/ui_output.h
 
 /home/ucnavi2/fyp/src/ui_output.cpp
 ui_output.h

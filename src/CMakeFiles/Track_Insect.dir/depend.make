@@ -8,14 +8,12 @@ CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: autopilot_interface.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: common.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: parameters.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: serial_interface.h
-CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ui_input.h
 CMakeFiles/Track_Insect.dir/autopilot_interface.cpp.o: ui_output.h
 
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: camera_interface.cpp
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: camera_interface.h
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: common.h
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: parameters.h
-CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: ui_input.h
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: ui_output.h
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: /usr/include/flycapture/AVIRecorder.h
 CMakeFiles/Track_Insect.dir/camera_interface.cpp.o: /usr/include/flycapture/BusManager.h
@@ -41,7 +39,6 @@ CMakeFiles/Track_Insect.dir/insect.cpp.o: insect.cpp
 CMakeFiles/Track_Insect.dir/insect.cpp.o: insect.h
 CMakeFiles/Track_Insect.dir/insect.cpp.o: parameters.h
 CMakeFiles/Track_Insect.dir/insect.cpp.o: threshold.h
-CMakeFiles/Track_Insect.dir/insect.cpp.o: ui_input.h
 CMakeFiles/Track_Insect.dir/insect.cpp.o: ui_output.h
 CMakeFiles/Track_Insect.dir/insect.cpp.o: /usr/local/include/opencv2/core/core.hpp
 CMakeFiles/Track_Insect.dir/insect.cpp.o: /usr/local/include/opencv2/core/core_c.h
@@ -100,7 +97,6 @@ CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: mavlink_interface.cpp
 CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: mavlink_interface.h
 CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: parameters.h
 CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: serial_interface.h
-CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: ui_input.h
 CMakeFiles/Track_Insect.dir/mavlink_interface.cpp.o: ui_output.h
 
 CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: /home/ucnavi2/fyp/Tools/mavlink/common/mavlink.h
@@ -109,14 +105,12 @@ CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: common.h
 CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: parameters.h
 CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: serial_interface.cpp
 CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: serial_interface.h
-CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: ui_input.h
 CMakeFiles/Track_Insect.dir/serial_interface.cpp.o: ui_output.h
 
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: common.h
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: parameters.h
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: threshold.cpp
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: threshold.h
-CMakeFiles/Track_Insect.dir/threshold.cpp.o: ui_input.h
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: ui_output.h
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: /usr/local/include/opencv2/core/core.hpp
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: /usr/local/include/opencv2/core/core_c.h
@@ -129,8 +123,10 @@ CMakeFiles/Track_Insect.dir/threshold.cpp.o: /usr/local/include/opencv2/highgui/
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: /usr/local/include/opencv2/imgproc/imgproc.hpp
 CMakeFiles/Track_Insect.dir/threshold.cpp.o: /usr/local/include/opencv2/imgproc/types_c.h
 
+CMakeFiles/Track_Insect.dir/ui_input.cpp.o: parameters.h
 CMakeFiles/Track_Insect.dir/ui_input.cpp.o: ui_input.cpp
 CMakeFiles/Track_Insect.dir/ui_input.cpp.o: ui_input.h
+CMakeFiles/Track_Insect.dir/ui_input.cpp.o: ui_output.h
 
 CMakeFiles/Track_Insect.dir/ui_output.cpp.o: parameters.h
 CMakeFiles/Track_Insect.dir/ui_output.cpp.o: ui_output.cpp
