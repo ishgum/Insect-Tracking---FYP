@@ -223,6 +223,19 @@ bool Camera_Interface::isInit(void)
 }
 
 
+// ------------------------------------------------------------------------------
+//   Find FPS
+// ------------------------------------------------------------------------------
+
+float Camera_Interface::findFPS(float t1, float t2)   
+{   
+
+	float diff = (((float)t2 - (float)t1) / CLOCKS_PER_SEC );   
+	float fps = 1/diff;
+
+	return fps;   
+}
+
 
 // ------------------------------------------------------------------------------
 //   Update FPS
@@ -230,6 +243,7 @@ bool Camera_Interface::isInit(void)
 
 void Camera_Interface::updateFPS(float in_fps)
 {
+
 	fpsMA.push_back(in_fps);
 	fpsMA.erase(fpsMA.begin());
 

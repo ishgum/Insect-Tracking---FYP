@@ -1,6 +1,8 @@
 
+
 #ifndef PARAMETERS_H_
 #define PARAMETERS_H_
+
 
 // Connection parameters
 #define UAV_UART_CONNECT_ACM0 "/dev/ttyACM0"
@@ -36,5 +38,11 @@
 
 //Conversion between pixels and metres. Should react at 1 m/s.
 #define SPEED_SCALE 500		
+
+
+#define P_GAIN 1
+#define I_GAIN 0
+#define D_GAIN 0
+
 
 #endif //PARAMETERS_H_

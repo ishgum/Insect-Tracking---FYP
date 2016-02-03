@@ -50,7 +50,7 @@ MatND findHistogram(Mat inputImage, int numBins = NUM_BINS)
 //   Show Histogram
 // ------------------------------------------------------------------------------
 
-void showHistogram (MatND inputHistogram, int histSize = NUM_BINS)
+void showHistogram (MatND inputHistogram, int histSize)
 {
 	MatND histNormal;
 
@@ -73,6 +73,7 @@ void showHistogram (MatND inputHistogram, int histSize = NUM_BINS)
 			Scalar(255, 255, 255), 1, 8, 0);
 	}
 
+	// Show image
 	namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
 	imshow("calcHist Demo", histImage);
 } 
@@ -99,7 +100,7 @@ vector<float> histToVector(MatND inputHistogram)
 //   Moving Average Filter for histogram
 // ------------------------------------------------------------------------------
 
-vector<float> movingAverageFilter(vector<float> inputHistogram, int averageSize = AVERAGE_SIZE)
+vector<float> movingAverageFilter(vector<float> inputHistogram, int averageSize)
 {
 	vector<float> movingAverage;
 

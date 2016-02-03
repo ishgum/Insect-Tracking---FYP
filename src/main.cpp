@@ -1,3 +1,22 @@
+/****************************************************************************
+ *
+ *
+ * @file main.cpp
+ *
+ * @brief Brings together all of the submodules and manages the user interface
+ *
+ * Runs the main program which executes all of the sub modules
+ *
+ * @author Michael McAdam
+ *
+ *
+ ****************************************************************************/
+
+
+// ------------------------------------------------------------------------------
+//   Includes
+// ------------------------------------------------------------------------------
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -16,58 +35,35 @@
 #include "mavlink_interface.h"
 #include "ui_input.h"
 
+
+// ------------------------------------------------------------------------------
+//   Namespaces
+// ------------------------------------------------------------------------------
+
 using namespace cv;
 using namespace std;
+
+
+// ------------------------------------------------------------------------------
+//   Defines
+// ------------------------------------------------------------------------------
+
+// Note that opencv requires that there be a least 1 wait key function per loop in
+// order to display images. The number is the delay in msec.
 
 #define WAIT_PERIOD	10
 
 
 
-bool runProgram;
+
+// ------------------------------------------------------------------------------
+//   Functions
+// ------------------------------------------------------------------------------
 
 
-
-
-
-float findFPS(float t1, float t2)   
-{   
-
-	float diff = (((float)t2 - (float)t1) / CLOCKS_PER_SEC );   
-	float fps = 1/diff;
-
-	return fps;   
- }
- 
- 
- 
- 
- void drawMainWindow(void)
- {
- 	erase();
- 	int h, w;
-	getmaxyx(stdscr, h, w);
-	while (h < 42 || w < 89)
-	{
-		mvprintw(0,0,"Error: Screen is too small.\n");
-		printw("Height = %d < 42\n", h);
-		printw("Width = %d < 89", w);
-		refresh();
-		erase();
-		getmaxyx(stdscr, h, w);
-	}
-	
-	resizeterm(42, 89);
-	refresh();
-
-    printMainScreen();
-}
-
-
-
-
-
-
-
+// ------------------------------------------------------------------------------
+//   Show Image
+// ------------------------------------------------------------------------------
 
 void showImage (Mat image, Mat image_ROI, Insect insect) {
 
@@ -96,43 +92,47 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 
 
 
-void mainProgram(void) {
+// ------------------------------------------------------------------------------
+//   Main Program
+// ------------------------------------------------------------------------------
+
+void mainProgram(void) 
+{
+	// A method of measuring the FPS for the program
 	clock_t time1, time2;
+
+	// The two main image matrices
 	Mat src, src_ROI;
+
+	// Ensures the screen is initially printed to the screen
 	contRefresh = true;
 
-
+	// Creates the UAV object
 	UAVControl uav;
-	uav.setPID(1, 0, 0);
+	uav.setPID(P_GAIN, I_GAIN, D_GAIN);
+
+	// Creates the camera object
 	Camera_Interface cam(&src);
+
+	// Creates the insect object
 	Insect insect(cam.getImageSize());
 
 
 	while (!contQuit) {
 
+		// Checks for user input
 		inputControl();
 
-		/* UAV Control */
+
+		// ------------------------------------------------------------------------------
+		//   UAV Control
+		// ------------------------------------------------------------------------------
+
 		
-		
-		if (contRefresh) 
+		if (!uav.isInit() && contUAV) 
 		{
-			drawMainWindow();
-			insect.printParameters(INSECT_DATA_Y, INSECT_DATA_X);
-			uav.printParameters(UAV_DATA_Y, UAV_DATA_X);
-			cam.printParameters(CAMERA_DATA_Y, CAMERA_DATA_X);
-			printFlagParameters(FLAG_DATA_Y, FLAG_DATA_X);
-			
-			contRefresh = false;
-		}
-		
-		
-		if (!uav.isInit() && contUAV) {
-			try 
-			{           
-				uav.init(); 
-				wprintw(output.outputStream, "UAV Connected\n");
-}
+			try { uav.init(); }
+
 			catch (char const* s) 
 			{ 
 				wprintw(output.outputStream, "UAV init failed at: %s\n", s);
@@ -146,10 +146,13 @@ void mainProgram(void) {
 		{
 			uav.updateVelocityPID(insect.getRelPosition().x/SPEED_SCALE, insect.getRelPosition().y/SPEED_SCALE, 0);
 		}
+
 		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }
 	
 
-		/* Camera Control */
+		// ------------------------------------------------------------------------------
+		//   Camera Control
+		// ------------------------------------------------------------------------------
 
 		if (!cam.isInit() && contCam) {
 			try 
@@ -170,8 +173,8 @@ void mainProgram(void) {
 			time1 = clock();
 
 			try { cam.getImage(); }
-			catch (char const* s) 
-			{ wprintw(output.outputStream, "Cam capture failed: %s\n", s); }
+
+			catch (char const* s) { wprintw(output.outputStream, "Cam capture failed: %s\n", s); }
 
 
 			insect.updateROI();
@@ -184,17 +187,36 @@ void mainProgram(void) {
 			
 			time2 = clock();
 
-			cam.updateFPS(findFPS(time1, time2));
+			cam.updateFPS(cam.findFPS(time1, time2));
 		}
 
+		// ------------------------------------------------------------------------------
+		//   Output
+		// ------------------------------------------------------------------------------
 	
+
+		if (contRefresh) 
+		{
+			printMainScreen();
+			insect.printParameters(INSECT_DATA_Y, INSECT_DATA_X);
+			uav.printParameters(UAV_DATA_Y, UAV_DATA_X);
+			cam.printParameters(CAMERA_DATA_Y, CAMERA_DATA_X);
+			printFlagParameters(FLAG_DATA_Y, FLAG_DATA_X);
+			
+			contRefresh = false;
+		}
+
+
+		// Prints the line position
 		wprintw(output.outputStream, ">\r");
 
+		// Update the data outputs on every iteration
 		cam.printOutput();
 		uav.printOutput();
 		insect.printOutput();
 		printFlagOutput();
 	
+		// Refresh all data windows
 		output.refresh();
 
 	}
@@ -209,58 +231,19 @@ void mainProgram(void) {
 /** @function main */
 int main(int argc, char** argv)
 {
-//	signal(SIGINT,quit_handler);
-	printf("Got here");
-	initscr();
-	cbreak(); 
-	noecho();
-	curs_set(0);
-	
-	output.init();
-	nodelay(output.outputStream, TRUE);
-	
+	// Initialises the output screen for the UI
+	output.init();	
 
+	// The main program is run as a function to allow for natural class destruction on exit
 	mainProgram();
 
-	wprintw(output.outputStream, "\n\n\n\nProgram has quit. Press any key to exit"); 
+	// Program does not immediately close to give the user the ability to view the final state of the program
+	wprintw(output.outputStream, "\nProgram has quit. Press any key to exit"); 
 	wrefresh(output.outputStream);
 
 	getch();
 
-    endwin();
-/*
-	
-	
-	pthread_t controlThread;
-	//pthread_create(&controlThread, NULL, inputHandler, NULL);
-
-	//initscr();
-	cout << "Camera connected." << endl;
-	cout << "Press c to start camera capture" << endl;
-	cout << "Press d to toggle the image" << endl;
-	cout << "Press u to toggle UAV control" << endl;
-
-	//contCam = true;
-
-
-	while (!contQuit) {
-
-
-		
-
-
-		if (uav.getControlStatus()) 
-		{
-			uav.updateVelocity(float(.002*insect.relPosition.x), -float(.002*insect.relPosition.y));
-			uav.printPosition(); 
-		}
-
-		refresh();
-
-	}
-
 	endwin();
-	cout << "\nDone\n";
-*/
+
 	return(0);
 }

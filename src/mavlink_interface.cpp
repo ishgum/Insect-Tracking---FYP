@@ -130,8 +130,9 @@ void UAVControl::init (void)
 	
 	initialised = true;
 
-	// autopilot_interface.h provides some helper functions to build the command
+	wprintw(output.outputStream, "UAV Connected\n");
 
+	return;
 }
 
 

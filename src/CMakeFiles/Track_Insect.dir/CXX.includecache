@@ -169,18 +169,6 @@ opencv2/imgproc/imgproc.hpp
 -
 opencv2/highgui/highgui.hpp
 -
-iostream
--
-math.h
--
-stdlib.h
--
-stdio.h
--
-iostream
--
-ctype.h
--
 common.h
 /home/ucnavi2/fyp/src/common.h
 
@@ -199,14 +187,6 @@ ui_output.h
 /home/ucnavi2/fyp/src/ui_output.h
 
 /home/ucnavi2/fyp/src/ui_output.h
-stdlib.h
--
-stdio.h
--
-iostream
--
-unistd.h
--
 map
 -
 string.h
