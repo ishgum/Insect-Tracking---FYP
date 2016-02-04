@@ -14,7 +14,8 @@ Follow instructions on opencv website (http://docs.opencv.org/2.4/doc/tutorials/
 
 Download flycapture (https://www.ptgrey.com/KB/10548)
 Follow instructions
-Change buffer size
+Change buffer size under USBFS at https://www.ptgrey.com/KB/10685
+
 
 UART Example 
 Download https://github.com/mavlink/c_uart_interface_example
