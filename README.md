@@ -10,7 +10,7 @@ Generate new makefile with cmake and correct path
 Make program
 
 Download OpenCV 2.4.11 for linux and extract
-Follow instructions on opencv website
+Follow instructions on opencv website (http://docs.opencv.org/2.4/doc/tutorials/introduction/linux_install/linux_install.html)
 
 Download flycapture (https://www.ptgrey.com/KB/10548)
 Follow instructions
@@ -39,4 +39,3 @@ Get simulator
 https://pixhawk.org/dev/hil/jmavsim to install
 
 java -Djava.ext.dirs= -cp lib/*:out/production/jmavsim.jar me.drton.jmavsim.Simulator -serial /dev/ttyACM0 57600 -qgc to run
-
