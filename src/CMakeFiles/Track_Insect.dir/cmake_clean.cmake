@@ -1,4 +1,4 @@
-file(REMOVE_RECURSE
+FILE(REMOVE_RECURSE
   "CMakeFiles/Track_Insect.dir/main.cpp.o"
   "CMakeFiles/Track_Insect.dir/insect.cpp.o"
   "CMakeFiles/Track_Insect.dir/threshold.cpp.o"
@@ -13,6 +13,6 @@ file(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang CXX)
-  include(CMakeFiles/Track_Insect.dir/cmake_clean_${lang}.cmake OPTIONAL)
-endforeach()
+FOREACH(lang CXX)
+  INCLUDE(CMakeFiles/Track_Insect.dir/cmake_clean_${lang}.cmake OPTIONAL)
+ENDFOREACH(lang)
