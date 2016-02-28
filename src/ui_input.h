@@ -41,7 +41,7 @@ using namespace std;
 // ------------------------------------------------------------------------------
 
 
-extern bool contPause, contCam, contQuit, contUAV, contDebugROI, contDebugFull, contRefresh;
+extern bool contPause, contCam, contQuit, contUAV, contDebugROI, contDebugFull, contRefresh, contTest;
 
 
 

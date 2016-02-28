@@ -47,8 +47,8 @@ using namespace std;
 // ------------------------------------------------------------------------------
 
 #define ROI_SIZE .15
-#define HEIGHT_OFFSET 10
-#define WIDTH_OFFSET 10
+#define HEIGHT_OFFSET 0
+#define WIDTH_OFFSET 0
 
 
 #define HEIGHT_FILTER_SIZE 10

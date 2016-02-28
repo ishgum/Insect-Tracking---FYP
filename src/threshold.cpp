@@ -175,7 +175,7 @@ map<int, int> findLobes(vector<float> inputHistogram, vector<int>& mins, int min
 	map<int, int> lobeMap;
 
 	// Iterates through all of the minimums (these define the edges of the lobes)
-	for (int i = 0; i < mins.size() - 2; i++) 
+	for (int i = 0; i < mins.size() - 1; i++) 
 	{
 		float currentSum = 0;
 
@@ -209,9 +209,10 @@ int findThreshold(Mat inputImage) {
 
 	map<int, int> lobeMap = findLobes(histVect, mins);
 
+
 	// The lobe map is organised by keys, so the last entry should be the largest lobe. This returns
 	// the threshold location for this largest lobe - which should represent the background.
-	if (lobeMap.size() > 1) { return lobeMap.rbegin()->second; }
+	if (lobeMap.size() > 0) { return lobeMap.rbegin()->second; }
 	
 	// If no lobes are found, then the program returns an error code
 	else { return -1; }

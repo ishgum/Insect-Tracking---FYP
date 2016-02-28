@@ -40,9 +40,13 @@
 #define SPEED_SCALE 500		
 
 
-#define P_GAIN 1
+#define P_GAIN 0.1
 #define I_GAIN 0
 #define D_GAIN 0
+
+
+#define CRAFT_SPEED 0.5
+#define CRAFT_TIME 3
 
 
 #endif //PARAMETERS_H_

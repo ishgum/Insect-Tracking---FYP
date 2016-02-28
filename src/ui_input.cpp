@@ -60,6 +60,9 @@ bool contDebugFull;
 bool contRefresh;
 
 
+bool contTest;
+
+
 // ------------------------------------------------------------------------------
 //   Functions
 // ------------------------------------------------------------------------------
@@ -124,6 +127,10 @@ void inputControl(void)
 
 		case 'e':
 			wprintw(output.outputStream, "Echo\n");
+			break;
+
+		case 't':
+			contTest = true;
 			break;
 			
 	}

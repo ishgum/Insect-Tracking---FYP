@@ -144,7 +144,58 @@ void mainProgram(void)
 		
 		if (uav.isInit() && contUAV && insect.isFound()) 
 		{
-			uav.updateVelocityPID(insect.getRelPosition().x/SPEED_SCALE, insect.getRelPosition().y/SPEED_SCALE, 0);
+			uav.updateVelocityPID(-insect.getRelPosition().y/SPEED_SCALE, insect.getRelPosition().x/SPEED_SCALE, 0);
+		}
+
+		else if (uav.isInit() && contTest)
+		{
+			for (int i = 0; i < 100; i++)
+			{
+				switch (i%8)
+				{
+					case 0:
+						uav.updateVelocityPID(CRAFT_SPEED, 0, 0);
+						wprintw(output.outputStream, "\nNorth");
+						break;
+
+					case 1:
+						uav.updateVelocityPID(CRAFT_SPEED, CRAFT_SPEED, 0);
+						wprintw(output.outputStream, "\nNorth East");
+						break;
+
+					case 2:
+						uav.updateVelocityPID(0, CRAFT_SPEED, 0);
+						wprintw(output.outputStream, "\nEast");
+						break;
+
+					case 3:
+						uav.updateVelocityPID(-CRAFT_SPEED, CRAFT_SPEED, 0);
+						wprintw(output.outputStream, "\nSouth East");
+						break;
+
+					case 4:
+						uav.updateVelocityPID(-CRAFT_SPEED, 0, 0);
+						wprintw(output.outputStream, "\nSouth");
+						break;
+
+					case 5:
+						uav.updateVelocityPID(-CRAFT_SPEED, -CRAFT_SPEED, 0);
+						wprintw(output.outputStream, "\nSouth West");
+						break;
+
+					case 6:
+						uav.updateVelocityPID(0, -CRAFT_SPEED, 0);
+						wprintw(output.outputStream, "\nWest");
+						break;
+
+					case 7:
+						uav.updateVelocityPID(CRAFT_SPEED, -CRAFT_SPEED, 0);
+						wprintw(output.outputStream, "\nNorth West");
+						break;
+				}
+				wrefresh(output.outputStream);
+				sleep(CRAFT_TIME);
+			}
 		}
 
 		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }

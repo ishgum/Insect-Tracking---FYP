@@ -40,7 +40,7 @@ Insect::Insect(Size in_size)
 	speed = 0.0;
 	size = in_size;
 	frameCentre = Point(size.width / 2, size.height / 2);
-
+	ROI = Rect(WIDTH_OFFSET, HEIGHT_OFFSET, size.width - WIDTH_OFFSET, size.height - HEIGHT_OFFSET); 
 }
 
 
