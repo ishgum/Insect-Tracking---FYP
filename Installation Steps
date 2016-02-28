@@ -1,35 +1,248 @@
-Download CMake
-Generate new makefile with cmake and correct path
-Make program
+/*****************************************************************************
 
-Download OpenCV 2.4.11 for linux and extract
-Follow instructions on opencv website
+The setup I used was Ubuntu 14.04.3 LTS. I simply installed it from a USB drive.
 
-Download flycapture (https://www.ptgrey.com/KB/10548)
-Follow instructions
-Change buffer size
+Before executing any of these commands, I connected the NUC to the University wi-fi
+via ethernet - it was not possible to use the in-built wi-fi of the NUC as this no
+longer had any antennae. To be able to use the University ethernet, you have to open
+http://ienabler.canterbury.ac.nz:900/ and log on using your university credentials.
 
-UART Example 
-Download https://github.com/mavlink/c_uart_interface_example
-make; ./mavlink_control -d /dev/ttyACM0
+******************************************************************************/
 
-Init MAVLINK submodule
-while inside fyp git repo:
-git submodule update --init --recursive
+/********************************************************************
+*
+*	Setup for Track_Insect program
+*
+********************************************************************/
 
-To remote control to NUC
-Putty and XMing
-Launch XMing and XMing Launch
-Use 10.42.0.1 for and max sure to enable xforwarding under ssh. Use localhost:0
 
-Download QGroundControl
-sudo add-apt-repository ppa:beineri/opt-qt542-trusty
-sudo add-apt-repository ppa:qgroundcontrol/ppa
-sudo apt-get update
-sudo apt-get install qgroundcontrol
+// These are the first setup steps needed for the Ubuntu install
+    1  sudo apt-get update
+    2  sudo apt-get upgrade
+    
+    
+// Git to have access to the files
+    3  sudo apt-get install git
+    4  git clone https://eng-git.canterbury.ac.nz/dmm140/fyp.git	
+    
+    
+// The program was coded in C++ so you need the g++ compiler
+    5  sudo apt-get install g++
+    
+    
+// To automate the make files, cmake was used
+    6  sudo apt-get install cmake
+    
+    
+// These are the steps to install the Flycapture libraries to be able to used
+// the Point Grey Grasshopper 3 NIR camera. They follow instructions from: https://www.ptgrey.com/KB/10548
+    7  sudo apt-get install libraw1394-11 libgtkmm-2.4-1c2a libglademm-2.4-1c2a libgtkglextmm-x11-1.2-dev libgtkglextmm-x11-1.2 libusb-1.0-0
+    
+    
+// Note that if you use the project you will not have to download the libraries
+// but can simply find them in the tools folder
+    8  cd fyp/Tools/flycapture2-2.8.3.1-amd64/
+    9  sudo sh install_flycapture.sh 
+    
+    
+// To camera doesn't work if you dont also follow the instruction to increase the USBFS buffer size.
+// These are followed from instructions found here: https://www.ptgrey.com/KB/10685
+   10  cd ~/../../etc/default/
+   11  sudo gedit grub 
+   12  sudo update-grub
+    
+    
+// Similarly for OpenCV, the instructions are followed from: http://docs.opencv.org/2.4/doc/tutorials/introduction/linux_install/linux_install.html
+// No download is needed, as it should also be found in the Tools folder
+   13  cd ..
+   14  cd opencv-2.4.11/
+   15  sudo apt-get install build-essential
+   16  sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+   17  sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+   18  ls
+   19  mkdir release
+   20  cd release/
+   21  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+   22  make
+   23  sudo make install
+   
+   
+// The GUI uses the ncurses library - to get the header file this package needs to be installed
+   24  sudo apt-get install libncurses5-dev
+   
+   
+   25  cd ..
+   26  cd src/
+   
+// Before generating the makefile you should go through and delete any file that isn't a .cpp or .h
+// EXCEPT! CMakeLists.txt - this is what cmake uses to generate the makefile. 
+// Note that this includes the CMakeFiles folder
+// It is likely you will need to open this file and change the set(SOURCE_DIR ..) variable so that it
+// matches the filepath for your system
+// Once you have done this run this command to generate all of those files for your system.
 
-Get simulator
-https://pixhawk.org/dev/hil/jmavsim to install
+   27  cmake .
+   
+   
+// This uses the auto-generated makefile and compiles the program. THe -j10 means that if it can,
+// it will use more than one proccessor to compile it.
+   28  make -j10
 
-java -Djava.ext.dirs= -cp lib/*:out/production/jmavsim.jar me.drton.jmavsim.Simulator -serial /dev/ttyACM0 57600 -qgc to run
+
+// The sudo command is used here to give the program access to the usb ports.
+   29  sudo ./Track_Insect 
+   
+   
+/*************************************************************************************************
+   
+Please note the other tools in the folder are an example program for offboard control which is what 
+the auto-pilot interface for the program is based off. The code was downloaded from: https://github.com/mavlink/c_uart_interface_example
+
+Typically, plugged in via usb, the PX4 will be mounted on ttyACM0. However, sometimes it will be mounted on ttyACM1
+or, if you connevt via a telemetry port using a serial converter, it will be mounted on ttyUSB0. I couldn't find a good
+way to dynamically assigned this port, so it is in the parameters.h file. A useful tool to figure out what port it is on
+is typing
+
+   30  ls /dev/ttyACM*; ls /dev/ttyUSB*
+   
+This will show you what is connected. If it isn't ttyACM0, then change it in the parameters.h file and recompile the program.
+   
+**************************************************************************************************/
+   
+   
+//##########################################################################//
+
+
+
+
+
+
+/********************************************************************
+*
+*	Setup for qgroundcontrol and simulator
+*
+********************************************************************/
+
+/***********************************************************************************************************
+
+This details installation instructions for qgroundcontrol. My recommendation is to download qgroundcontrol
+on a windows machine and monitor the aircraft from there. However, jMAVsim seems to work better in Linux 
+and so it will be important to have qgroundcontrol to monitor that.
+
+***********************************************************************************************************/  
+   
+   
+// The first step is to start a mavlink session on the Pixhawks USB port.
+// The instructions are detailed in the readme of: https://github.com/mavlink/c_uart_interface_example
+   31  sudo apt-get install screen
+   32  sudo screen /dev/ttyACM0 57600 8N1
+
+
+// There are a few ways to install qgroundcontrol. This details one of them. You can also follow their install
+// instructions from the qgroundcontrol site.
+   33  sudo add-apt-repository ppa:beineri/opt-qt542-trusty
+   34  sudo add-apt-repository ppa:qgroundcontrol/ppa
+   35  sudo apt-get update
+   36  sudo apt-get install qgroundcontrol
+   37  cd ~/qgroundcontrol/
+   38  sudo usermod -a -G dialout $USER		// This allows the program to access the usb ports. (Means that you won't need to run ./Track_Insect with sudo)
+   39  sudo apt-get install libsdl1.2-dev 
+   40  ./qgroundcontrol-start.sh 		// You can run qgroundcontrol by executing this command
+
+
+//To install jMAVSim, the instructions were followed from: https://pixhawk.org/dev/hil/jmavsim
+   41  git clone https://github.com/PX4/jMAVSim.git
+   42  sudo apt-get install ant openjdk-7-jdk openjdk-7-jre
+   43  cd jMAVSim
+   44  git submodule init
+   45  git submodule update
+   46  ant
+   
+   
+ Note: you need to run the simulator first and then qgroundcontrol.
+ 
+ 
+ 
+ 
+ 
+ 
+/********************************************************************
+*
+*	Setup for wi-fi connection
+*
+********************************************************************/
+ 
+ 
+/*******************************************************************
+
+You are likely going to connect to the NUC over wi-fi so you can monitor it in the air.
+This assumes you are using the aeronavics machines with the NUC and the Rocket modem.
+
+The antennae for the NUC have been removed so you will need to use to modem. 
+
+The first important point is that the Rocket requires power over ethernet (POE). Either use a POE adapter
+or plug in the battery to the aeronavics machine.
+
+Once you have done this, you should go into edit connections and add a connection. Go into ipv4 setting
+change the mode from automatic to manual. Add a IP address
+
+You MUST you an IP on 192.168.1 - I used 192.168.1.2 with 255.255.255.0 as the netmask with no default gateway.
+
+Once you have done this, if you open your browser and type 192.168.1.20 into the address bar you should get a login screen for airOS
+
+The user name is: ubnt
+The password is: ubnt
+
+To be able to directly connect to the modem from a laptop you need to change three settings. 
+
+First click on the first tab which is a logo. And disable airMAX by unchecking the enable airMAX box. (Click change in the bottom right corner and apply)
+Second, click on the wireless tab and change the wireless mode to an access point (you can then change the SSID name)
+Finally, change the channel width to 20 MHz as this is what most devices support. (Click change and apply again)
+
+If you now look in your laptops wi-fi networks an ssid matching the one you entered and you should be able to successfully connect to it.
+
+Before you can connect to the NUC you need to change the ipv4 settings for your laptop. You need to change it to 192.168.1.(something)
+I used 192.168.1.3 - Note that this something cannot be 1, 2 or 20.
+
+You should now be able to successfully SSH into the NUC over the wi-fi link.
+
+***********************************************************************/
+
+
+/********************************************************************
+*
+*	Setup for ssh connection
+*
+********************************************************************/
+
+ 
+/*******************************************************************
+
+The setup I used was using a windows laptop to monitor and control the NUC remotely.
+
+To do this, you need to download PuTTY and XMing. See www.geo.mtu.edu/geoschem/docs/putty_install.html
+
+PuTTY allow you to ssh into the Linux machine.
+XMing allows things to be displayed back to the laptop i.e camera footage.
+
+To allow you to connect via ssh you need to install openssh server on the NUC
+
+	48 sudo apt-get install openssh-server openssh-client
+	
+
+You should be able to connect via SSH by typing in the IP address for the NUC (192.168.1.2)
+
+To use XMing expand the SSH tab on the left hand side, click the X11 menu and enable XForwarding.
+
+
+
+While not necessary, the final suggestion for this connection is installing TMUX.
+A potential problem is that you could lose the wifi connection while you are flying. Using a standard terminal this
+would result in the program no longer running. 
+
+	49 sudo apt-get install tmux
+	
+Tmux allows the program to continue running as long as the NUC is on. If you lose the connection, you can reconnect by 
+reattaching to the tmux session.
+
 
