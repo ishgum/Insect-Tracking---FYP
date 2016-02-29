@@ -63,17 +63,6 @@ using namespace std;
 // ------------------------------------------------------------------------------
 
 
-void printLogData ( Insect insect ) 
-{
-	time_t ltime = time(NULL); /* get current cal time */
-	char *timeStamp = asctime(localtime(&ltime));
-	timeStamp[24] = '\0';
-
-	testFile <<   timeStamp << ":"
-					<< "	North: " <<-insect.getRelPosition().y/SPEED_SCALE 
-					<< "	East: " << insect.getRelPosition().x/SPEED_SCALE << "\n" ; 
-}
-
 
 
 // ------------------------------------------------------------------------------
@@ -115,8 +104,7 @@ void mainProgram(void)
 {
 	// A method of measuring the FPS for the program
 	struct timespec time1, time2;
-    time_t ltime; /* calendar time */
-
+    time_t ltime = time(NULL); /* calendar time */
 
 	// The two main image matrices
 	Mat src, src_ROI;
@@ -134,16 +122,22 @@ void mainProgram(void)
 	// Creates the insect object
 	Insect insect(cam.getImageSize());
 
+	// Set up the output log file
 	bool writeFile = false;
-	ofstream testFile ("test.txt");
-	if (testFile.is_open()) { writeFile = true; }
-	else { wprintw(output.outputStream, "File not able to be written - no log file"); }
+	char buffer[40] = {0};
+	strftime(buffer, sizeof(buffer), "../logs/log-%d-%b-%y-%T.txt", localtime(&ltime));
 
-
+	ofstream logFile (buffer);
+	if (logFile.is_open()) 
+	{ 
+		writeFile = true; 
+		logFile << "Log for insect tracking test flight" << endl;
+		logFile << "Local time	North output	East output" << endl;
+	}
+	else { wprintw(output.outputStream, "File not able to be written - no log file\n"); }
+	
+	
 	while (!contQuit) {
-
-		// Checks for user input
-		inputControl();
 
 
 		// ---------------------------------------------------------------------
@@ -163,10 +157,21 @@ void mainProgram(void)
 			}
 		}
 		
+		
 
 		if (uav.isInit() && contUAV && insect.isFound()) 
 		{
-			if (writeFile) { printLogData(insect); }	
+			// Output for log
+			if (writeFile) 
+			{ 
+				char timeStamp[10] = {0};
+				ltime = time(NULL);
+				strftime(timeStamp, sizeof(timeStamp), "%T", localtime(&ltime));
+
+				logFile <<   timeStamp	<< "	" <<
+					-insect.getRelPosition().y/SPEED_SCALE << "		" << 
+					insect.getRelPosition().x/SPEED_SCALE << endl ;
+			}	
 	
 			uav.updateVelocityPID(-insect.getRelPosition().y/SPEED_SCALE, insect.getRelPosition().x/SPEED_SCALE, 0);
 		}
@@ -221,7 +226,6 @@ void mainProgram(void)
 		//   Output
 		// ------------------------------------------------------------------
 	
-
 		if (contRefresh) 
 		{
 			printMainScreen();
@@ -232,7 +236,6 @@ void mainProgram(void)
 			
 			contRefresh = false;
 		}
-
 
 		// Prints the line position
 		wprintw(output.outputStream, ">\r");
@@ -247,9 +250,17 @@ void mainProgram(void)
 		output.refresh();
 
 		waitKey(WAIT_PERIOD);		// Must have this line in!
+	
 
+
+		// ------------------------------------------------------------------
+		//   Input
+		// ------------------------------------------------------------------
+
+		// Checks for user input
+		inputControl();
 	}
-	testFile.close();
+	logFile.close();
 }
 
 
