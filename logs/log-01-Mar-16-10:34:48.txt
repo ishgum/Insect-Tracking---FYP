@@ -1,0 +1,2 @@
+Log for insect tracking test flight
+Local time	North output	East output
