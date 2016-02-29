@@ -227,9 +227,9 @@ bool Camera_Interface::isInit(void)
 //   Find FPS
 // ------------------------------------------------------------------------------
 
-float Camera_Interface::findFPS(float t1, float t2)   
+float Camera_Interface::findFPS(double t1, double t2)   
 {   
-
+	
 	float diff = (((float)t2 - (float)t1) / CLOCKS_PER_SEC );   
 	float fps = 1/diff;
 

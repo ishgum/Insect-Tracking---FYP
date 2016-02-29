@@ -4,9 +4,9 @@ find_package( OpenCV REQUIRED )
 set(SOURCE_DIR /home/ucnavi4/fyp/src/)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg -g")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g -lrt")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg -g -lrt")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg -g -lrt")
 
 include_directories(${SOURCE_DIR})
 include_directories(/usr/include/flycapture)

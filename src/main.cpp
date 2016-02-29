@@ -24,6 +24,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <fstream>
+
 #include <time.h>
 #include <signal.h>
 
@@ -61,6 +63,19 @@ using namespace std;
 // ------------------------------------------------------------------------------
 
 
+void printLogData ( Insect insect ) 
+{
+	time_t ltime = time(NULL); /* get current cal time */
+	char *timeStamp = asctime(localtime(&ltime));
+	timeStamp[24] = '\0';
+
+	testFile <<   timeStamp << ":"
+					<< "	North: " <<-insect.getRelPosition().y/SPEED_SCALE 
+					<< "	East: " << insect.getRelPosition().x/SPEED_SCALE << "\n" ; 
+}
+
+
+
 // ------------------------------------------------------------------------------
 //   Show Image
 // ------------------------------------------------------------------------------
@@ -90,7 +105,7 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 
 }
 
-
+#define BILLION  1E9
 
 // ------------------------------------------------------------------------------
 //   Main Program
@@ -99,7 +114,9 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 void mainProgram(void) 
 {
 	// A method of measuring the FPS for the program
-	clock_t time1, time2;
+	struct timespec time1, time2;
+    time_t ltime; /* calendar time */
+
 
 	// The two main image matrices
 	Mat src, src_ROI;
@@ -117,6 +134,11 @@ void mainProgram(void)
 	// Creates the insect object
 	Insect insect(cam.getImageSize());
 
+	bool writeFile = false;
+	ofstream testFile ("test.txt");
+	if (testFile.is_open()) { writeFile = true; }
+	else { wprintw(output.outputStream, "File not able to be written - no log file"); }
+
 
 	while (!contQuit) {
 
@@ -124,11 +146,11 @@ void mainProgram(void)
 		inputControl();
 
 
-		// ------------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 		//   UAV Control
-		// ------------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 
-		
+	
 		if (!uav.isInit() && contUAV) 
 		{
 			try { uav.init(); }
@@ -140,72 +162,23 @@ void mainProgram(void)
 				contUAV = false; 
 			}
 		}
-
 		
+
 		if (uav.isInit() && contUAV && insect.isFound()) 
 		{
+			if (writeFile) { printLogData(insect); }	
+	
 			uav.updateVelocityPID(-insect.getRelPosition().y/SPEED_SCALE, insect.getRelPosition().x/SPEED_SCALE, 0);
 		}
-
-		else if (uav.isInit() && contTest)
-		{
-			for (int i = 0; i < 100; i++)
-			{
-				switch (i%8)
-				{
-					case 0:
-						uav.updateVelocityPID(CRAFT_SPEED, 0, 0);
-						wprintw(output.outputStream, "\nNorth");
-						break;
-
-					case 1:
-						uav.updateVelocityPID(CRAFT_SPEED, CRAFT_SPEED, 0);
-						wprintw(output.outputStream, "\nNorth East");
-						break;
-
-					case 2:
-						uav.updateVelocityPID(0, CRAFT_SPEED, 0);
-						wprintw(output.outputStream, "\nEast");
-						break;
-
-					case 3:
-						uav.updateVelocityPID(-CRAFT_SPEED, CRAFT_SPEED, 0);
-						wprintw(output.outputStream, "\nSouth East");
-						break;
-
-					case 4:
-						uav.updateVelocityPID(-CRAFT_SPEED, 0, 0);
-						wprintw(output.outputStream, "\nSouth");
-						break;
-
-					case 5:
-						uav.updateVelocityPID(-CRAFT_SPEED, -CRAFT_SPEED, 0);
-						wprintw(output.outputStream, "\nSouth West");
-						break;
-
-					case 6:
-						uav.updateVelocityPID(0, -CRAFT_SPEED, 0);
-						wprintw(output.outputStream, "\nWest");
-						break;
-
-					case 7:
-						uav.updateVelocityPID(CRAFT_SPEED, -CRAFT_SPEED, 0);
-						wprintw(output.outputStream, "\nNorth West");
-						break;
-				}
-				wrefresh(output.outputStream);
-				sleep(CRAFT_TIME);
-			}
-		}
-
 		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }
 	
 
-		// ------------------------------------------------------------------------------
+		// ------------------------------------------------------------------
 		//   Camera Control
-		// ------------------------------------------------------------------------------
+		// ------------------------------------------------------------------
 
-		if (!cam.isInit() && contCam) {
+		if (!cam.isInit() && contCam) 
+		{
 			try 
 			{ 
 				cam.init(); 
@@ -221,8 +194,10 @@ void mainProgram(void)
 
 		if (cam.isInit() && contCam) 
 		{
-			time1 = clock();
 
+			clock_gettime(CLOCK_REALTIME, &time1);
+
+			
 			try { cam.getImage(); }
 
 			catch (char const* s) { wprintw(output.outputStream, "Cam capture failed: %s\n", s); }
@@ -234,16 +209,17 @@ void mainProgram(void)
 			
 	
 			showImage(src, src_ROI, insect);
-			waitKey(WAIT_PERIOD);		// Must have this line in!
 			
-			time2 = clock();
 
-			cam.updateFPS(cam.findFPS(time1, time2));
+			clock_gettime(CLOCK_REALTIME, &time2);
+			double timeDiff = (time2.tv_sec - time1.tv_sec) + (time2.tv_nsec - time1.tv_nsec) / double(BILLION);
+			
+			cam.updateFPS(1/(timeDiff));
 		}
 
-		// ------------------------------------------------------------------------------
+		// ------------------------------------------------------------------
 		//   Output
-		// ------------------------------------------------------------------------------
+		// ------------------------------------------------------------------
 	
 
 		if (contRefresh) 
@@ -270,8 +246,10 @@ void mainProgram(void)
 		// Refresh all data windows
 		output.refresh();
 
-	}
+		waitKey(WAIT_PERIOD);		// Must have this line in!
 
+	}
+	testFile.close();
 }
 
 

@@ -108,7 +108,7 @@ public:
 
 	Size getImageSize(void);
 
-	float findFPS(float t1, float t2);
+	float findFPS(double t1, double t2);
 	void updateFPS(float in_fps);
 
 	void printParameters(int y, int x);

@@ -77,6 +77,8 @@ iostream
 -
 stdio.h
 -
+fstream
+-
 time.h
 -
 signal.h

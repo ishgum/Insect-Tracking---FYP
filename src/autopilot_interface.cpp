@@ -624,8 +624,6 @@ start()
 		usleep(500000); // check at 2Hz
 	}
 
-	wprintw(output.outputStream, "Found\n");
-	wrefresh(output.outputStream);
 
 	// now we know autopilot is sending messages
 
@@ -653,8 +651,6 @@ start()
 		wprintw(output.outputStream, "GOT AUTOPILOT COMPONENT ID: %i\n", autopilot_id);
 		wprintw(output.outputStream, "\n");
 	}
-	wprintw(output.outputStream, "Hello3\n");
-	wrefresh(output.outputStream);
 
 	// --------------------------------------------------------------------------
 	//   GET INITIAL POSITION
@@ -668,8 +664,6 @@ start()
 			return;
 		usleep(500000);
 	}
-	wprintw(output.outputStream, "Hello4\n");
-	wrefresh(output.outputStream);
 
 	// copy initial position ned
 	Mavlink_Messages local_data = current_messages;
@@ -856,7 +850,7 @@ write_thread(void)
 	// otherwise it will go into fail safe
 	while ( not time_to_exit )
 	{
-		usleep(250000);   // Stream at 4Hz
+		usleep(25000);   // Stream at 4Hz
 		write_setpoint();
 	}
 
