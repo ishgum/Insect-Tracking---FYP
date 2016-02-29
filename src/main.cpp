@@ -31,11 +31,11 @@
 
 #include <ncurses.h>
 
-#include "insect.h"
-#include "camera_interface.h"
-#include "common.h"
-#include "mavlink_interface.h"
-#include "ui_input.h"
+#include "include/insect.h"
+#include "include/camera_interface.h"
+#include "include/common.h"
+#include "include/mavlink_interface.h"
+#include "include/ui_input.h"
 
 
 // ------------------------------------------------------------------------------

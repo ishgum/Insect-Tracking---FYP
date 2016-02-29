@@ -18,7 +18,7 @@
 //   Includes
 // ------------------------------------------------------------------------------
 
-#include "camera_interface.h"
+#include "include/camera_interface.h"
 
 
 // ----------------------------------------------------------------------------------
@@ -280,6 +280,7 @@ void Camera_Interface::printOutput(void)
 	mvwprintw(output.cameraData, outputMap["FPS:"], 0, "%.2f \n", currentFPS);
 	mvwprintw(output.cameraData, outputMap["Frame Size:"], 0, "%d X %d\n", xRes, yRes);
 }
+
 
 
 
