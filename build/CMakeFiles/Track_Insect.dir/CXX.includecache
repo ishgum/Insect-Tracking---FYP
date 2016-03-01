@@ -6,18 +6,6 @@
 
 #IncludeRegexTransform: 
 
-../src/include/parameters.h
-
-../src/include/ui_output.h
-map
--
-string.h
--
-ncurses.h
--
-parameters.h
-../src/include/parameters.h
-
 /home/ucnavi2/fyp/Tools/mavlink/common/mavlink.h
 version.h
 /home/ucnavi2/fyp/Tools/mavlink/common/version.h
@@ -37,6 +25,8 @@ include/camera_interface.h
 /home/ucnavi2/fyp/src/include/autopilot_interface.h
 sys/time.h
 -
+ncurses.h
+-
 serial_interface.h
 /home/ucnavi2/fyp/src/include/serial_interface.h
 common.h
@@ -49,8 +39,8 @@ opencv2/core/core.hpp
 -
 numeric
 -
-FlyCapture2.h
-/home/ucnavi2/fyp/src/include/FlyCapture2.h
+/usr/include/flycapture/FlyCapture2.h
+-
 common.h
 /home/ucnavi2/fyp/src/include/common.h
 
@@ -203,18 +193,12 @@ include/threshold.h
 /home/ucnavi2/fyp/src/include/threshold.h
 
 /home/ucnavi2/fyp/src/ui_input.cpp
-ui_input.h
-/home/ucnavi2/fyp/src/ui_input.h
-
-/home/ucnavi2/fyp/src/ui_input.h
-ncurses.h
--
-ui_output.h
-/home/ucnavi2/fyp/src/ui_output.h
+include/ui_input.h
+/home/ucnavi2/fyp/src/include/ui_input.h
 
 /home/ucnavi2/fyp/src/ui_output.cpp
-ui_output.h
-/home/ucnavi2/fyp/src/ui_output.h
+include/ui_output.h
+/home/ucnavi2/fyp/src/include/ui_output.h
 
 /usr/include/flycapture/AVIRecorder.h
 FlyCapture2Platform.h

@@ -57,7 +57,7 @@
 
 
 #include <sys/time.h>
-
+#include <ncurses.h>
 
 #include "serial_interface.h"
 #include "common.h"

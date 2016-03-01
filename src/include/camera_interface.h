@@ -29,7 +29,7 @@
 
 //#include <Windows.h>
 
-#include "FlyCapture2.h"
+#include "/usr/include/flycapture/FlyCapture2.h"
 #include "common.h"
 
 

@@ -124,11 +124,11 @@ CMakeFiles/Track_Insect.dir/src/threshold.cpp.o
  /usr/local/include/opencv2/imgproc/imgproc.hpp
  /usr/local/include/opencv2/imgproc/types_c.h
 CMakeFiles/Track_Insect.dir/src/ui_input.cpp.o
- ../src/include/parameters.h
- ../src/include/ui_output.h
+ /home/ucnavi2/fyp/src/include/parameters.h
+ /home/ucnavi2/fyp/src/include/ui_input.h
+ /home/ucnavi2/fyp/src/include/ui_output.h
  /home/ucnavi2/fyp/src/ui_input.cpp
- /home/ucnavi2/fyp/src/ui_input.h
 CMakeFiles/Track_Insect.dir/src/ui_output.cpp.o
- ../src/include/parameters.h
- ../src/include/ui_output.h
+ /home/ucnavi2/fyp/src/include/parameters.h
+ /home/ucnavi2/fyp/src/include/ui_output.h
  /home/ucnavi2/fyp/src/ui_output.cpp

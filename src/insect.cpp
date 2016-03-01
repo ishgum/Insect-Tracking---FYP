@@ -35,6 +35,7 @@ Insect::Insect(Size in_size)
 {
 	found = false;
 	heightMA = vector<int>(HEIGHT_FILTER_SIZE, 0);
+	velocity, speed, direction, relPosition, relAngle, relNorm, heightBracket = 0;
 	position = Point(0, 0);
 	prevPosition = position;
 	speed = 0.0;
@@ -133,12 +134,17 @@ void Insect::updateROI(void)
 
 vector<vector<Point> > Insect::findObjects(Mat* inputImage) 
 {	
-	vector<vector<Point> > contours;
+	vector<vector<Point> > contours, outputContours;
 	vector<Vec4i> hierarchy;
 
 	findContours(*inputImage, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	
-	return contours;
+	for (int i = 0; i < contours.size(); i++)
+	{
+		if (contours[i].size() > 2) { outputContours.push_back(contours[i]); }
+	}
+
+	return outputContours;
 }
 
 
@@ -200,14 +206,29 @@ void Insect::findInsect(Mat* inputImage)
 
 	// Map contours to their brightnesses
 	map<double, vector<Point> > contourMap = mapContours(imageContours, inputImage);
+
+	if (contourMap.rbegin()->second.size() < 3) {
+		found = false;
+		return;
+	}
 		
 	// This takes advantage of the fact that maps are ordered by their keys, the first entry 
 	// should be the brightest
 	double insectIntensity = contourMap.rbegin()->first;
 
+
 	// Find the centre of the insect from the moments
 	Moments conMom = (moments(contourMap.rbegin()->second, false));
 	Point insectCentre = Point2f(conMom.m10 / conMom.m00, conMom.m01 / conMom.m00);
+
+	// Check that the numbers haven't overflowed
+	if (insectCentre.x > 2048.0 || insectCentre.x < 0.0) 
+	{
+		wprintw(output.outputStream, "Error, returned an overflowed number");
+		found = false;
+		return;
+
+	}
 
 	// Update the position
 	updatePosition(insectCentre);
@@ -341,7 +362,7 @@ void Insect::printOutput(void) {
 	mvwprintw(output.insectData, outputMap["Y Position:"], 0, "%.2f\n", relPosition.y);
 	mvwprintw(output.insectData, outputMap["Height:"], 0, "%d\n", heightBracket);
 	mvwprintw(output.insectData, outputMap["Angle from Centre:"], 0, "%.2f\n", relAngle);
-	mvwprintw(output.insectData, outputMap["Distance from Centre:"], 0, "%d\n", found);
+	mvwprintw(output.insectData, outputMap["Distance from Centre:"], 0, "%.2f\n", relNorm);
 }
 
 

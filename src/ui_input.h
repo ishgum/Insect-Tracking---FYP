@@ -25,7 +25,7 @@
 
 #include <ncurses.h>
 
-#include "ui_output.h"
+#include "include/ui_output.h"
 
 
 // ------------------------------------------------------------------------------

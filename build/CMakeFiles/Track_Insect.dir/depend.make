@@ -124,9 +124,9 @@ CMakeFiles/Track_Insect.dir/src/threshold.cpp.o: /usr/local/include/opencv2/imgp
 CMakeFiles/Track_Insect.dir/src/threshold.cpp.o: /usr/local/include/opencv2/imgproc/types_c.h
 
 CMakeFiles/Track_Insect.dir/src/ui_input.cpp.o: ../src/include/parameters.h
+CMakeFiles/Track_Insect.dir/src/ui_input.cpp.o: ../src/include/ui_input.h
 CMakeFiles/Track_Insect.dir/src/ui_input.cpp.o: ../src/include/ui_output.h
 CMakeFiles/Track_Insect.dir/src/ui_input.cpp.o: ../src/ui_input.cpp
-CMakeFiles/Track_Insect.dir/src/ui_input.cpp.o: ../src/ui_input.h
 
 CMakeFiles/Track_Insect.dir/src/ui_output.cpp.o: ../src/include/parameters.h
 CMakeFiles/Track_Insect.dir/src/ui_output.cpp.o: ../src/include/ui_output.h
