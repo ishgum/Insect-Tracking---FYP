@@ -1,0 +1,37 @@
+/********************************************************
+*
+*		        Gimbal
+*
+*********************************************************/
+
+
+/***********************************************************
+
+The gimbal I used for this project was a RC Timer ASP 2 Axis Gimbal.
+
+The best guide for setting it up can be found here: http://www.itsqv.com/QVM/index.php?title=How_To_-_Martinez_Brushless_Gimbal_Controller_Set-Up
+
+
+The most important tip for working with the gimbal is that it has to be balanced.
+If it isn't balanced, it won't work properly and it will act very strangely.
+My suggestion would be to spend a bit of time balancing it properly - if you do this well, 
+then it should just be able to be powered on and then simply work.
+
+Alternatively, you can download the software from here: https://sourceforge.net/projects/brushless-gimbal-brugi/files/
+Follow the steps on the wiki so that you can tune it yourself. Personally, I was never able to tune
+it nicely and I just ended up using the default values.
+
+Very important note, if you want you upgrade to a later firmware for the controller. You need to compile
+an arduino sketch and upload it to the controller. To do this you MUST have an early version of Arduino.
+I found that using Arduino 1.6.7 that the sketch would not compile.
+However, using Arduino 1.0.5 it did compile.
+
+
+// Downwards facing camera
+In the wiki it describes how to change the software in the Arduino sketch so that it will naturally try and point
+downwards. I found that this did not work and the gimbal would act very strangely. Since the project needs a downwards
+facing camera, the best solution I found was to keep everything as defaults and simply mount the IMU in such a way that
+the default position means that the camera would point downwards.
+
+
+*************************************************************/

@@ -72,16 +72,16 @@ http://ienabler.canterbury.ac.nz:900/ and log on using your university credentia
    
    
    25  cd ..
-   26  cd src/
+   26  cd build/
    
-// Before generating the makefile you should go through and delete any file that isn't a .cpp or .h
-// EXCEPT! CMakeLists.txt - this is what cmake uses to generate the makefile. 
+// Before generating the makefile you should go through the build folder and delete any file that isn't a .cpp or .h
 // Note that this includes the CMakeFiles folder
+// CMakeLists.txt is what CMake uses to build the makefile - this file is found in the fyp directory.
 // It is likely you will need to open this file and change the set(SOURCE_DIR ..) variable so that it
 // matches the filepath for your system
 // Once you have done this run this command to generate all of those files for your system.
 
-   27  cmake .
+   27  cmake ..			// Note the double dot, this means that cmake will look in the folder above the build folder (i.e) fyp forCMakeLists.txt
    
    
 // This uses the auto-generated makefile and compiles the program. THe -j10 means that if it can,
@@ -161,10 +161,49 @@ and so it will be important to have qgroundcontrol to monitor that.
    
  Note: you need to run the simulator first and then qgroundcontrol.
  
+
+
+/********************************************************************
+*
+*	Setup a Terminal recorder
+*
+********************************************************************/
  
+/*********************************************************************
+
+Note that the program will automatically create a timestamped log file in the logs folder.
+This file simply outputs all of the commands sent to the UAV.
+
+If you wish to record more information you could add outputs to this file, or simply record your terminal session.
+
+A tool I found very useful was TermRecord. Instructions found at http://xmodulo.com/record-replay-terminal-session-linux.html
+
+***********************************************************************/
+
+// TermRecord uses python's pip to install it so you first need to install pip
+
+    47  sudo apt-get install python-pip
+
+// You can then use pip to install TermRecord
+
+    48  sudo pip install TermRecord
+
+// It is now ready to use. Start recording a session by typing:
  
+    49  TermRecord -o /home/ucnavi2/fyp/termCap/test1.html 		
+
+// Obviously if you have a different file path, this will be different
+// Then run the program as per usual, when you are done type:
+
+    50  exit
+
+// You should now have an html file that you can open with any web browser which will play back your terminal session
+// You should be able to pause and speed it up etc.
+// Note, I also installed a different terminal as I found it gave slightly better performance when used with this terminal recorder
+// i.e, it played back nicer. It's not necessary at all, but if you want to, I installed fish - instructions can be found here: https://hackercodex.com/guide/install-fish-shell-mac-ubuntu/
  
- 
+
+
  
 /********************************************************************
 *

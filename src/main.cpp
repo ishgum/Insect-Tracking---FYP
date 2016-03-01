@@ -53,7 +53,7 @@ using namespace std;
 // Note that opencv requires that there be a least 1 wait key function per loop in
 // order to display images. The number is the delay in msec.
 
-#define WAIT_PERIOD	10
+#define WAIT_PERIOD	5
 
 
 
@@ -85,9 +85,13 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 		}
 		else { destroyWindow("Program Output"); }
 
-		if (contDebugROI) {
-			namedWindow("ROI");
-			moveWindow("ROI", 1024, 10);
+		if (contDebugROI && insect.isFound()) {
+			resize(image_ROI, image_ROI, Size(), 0.5, 0.5);
+			imshow("ROI", image_ROI);
+		}
+		else if (contDebugROI)
+		{
+			resize(image_ROI, image_ROI, Size(), 0.1, 0.1);
 			imshow("ROI", image_ROI);
 		}
 		else { destroyWindow("ROI"); }
@@ -138,7 +142,7 @@ void mainProgram(void)
 	
 	
 	while (!contQuit) {
-
+		clock_gettime(CLOCK_REALTIME, &time1);
 
 		// ---------------------------------------------------------------------
 		//   UAV Control
@@ -200,9 +204,6 @@ void mainProgram(void)
 		if (cam.isInit() && contCam) 
 		{
 
-			clock_gettime(CLOCK_REALTIME, &time1);
-
-			
 			try { cam.getImage(); }
 
 			catch (char const* s) { wprintw(output.outputStream, "Cam capture failed: %s\n", s); }
@@ -215,11 +216,6 @@ void mainProgram(void)
 	
 			showImage(src, src_ROI, insect);
 			
-
-			clock_gettime(CLOCK_REALTIME, &time2);
-			double timeDiff = (time2.tv_sec - time1.tv_sec) + (time2.tv_nsec - time1.tv_nsec) / double(BILLION);
-			
-			cam.updateFPS(1/(timeDiff));
 		}
 
 		// ------------------------------------------------------------------
@@ -259,6 +255,11 @@ void mainProgram(void)
 
 		// Checks for user input
 		inputControl();
+
+		clock_gettime(CLOCK_REALTIME, &time2);
+		double timeDiff = (time2.tv_sec - time1.tv_sec) + (time2.tv_nsec - time1.tv_nsec) / double(BILLION);
+			
+		cam.updateFPS(1/(timeDiff));
 	}
 	logFile.close();
 }
