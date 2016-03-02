@@ -87,7 +87,7 @@ using namespace std;
 
 class UAVControl {
 	Serial_Port serial_port;
-	Autopilot_Interface api;
+
 	mavlink_set_position_target_local_ned_t sp;
 	mavlink_set_position_target_local_ned_t ip;
 	bool uavControl;
@@ -117,6 +117,8 @@ public:
 	void printOutput(void);
 
 	bool isInit();
+
+	Autopilot_Interface api;
 };
 
 #endif

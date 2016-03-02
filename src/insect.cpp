@@ -224,7 +224,7 @@ void Insect::findInsect(Mat* inputImage)
 	// Check that the numbers haven't overflowed
 	if (insectCentre.x > 2048.0 || insectCentre.x < 0.0) 
 	{
-		wprintw(output.outputStream, "Error, returned an overflowed number");
+		wprintw(output.outputStream, "Error, returned an overflowed number\n");
 		found = false;
 		return;
 

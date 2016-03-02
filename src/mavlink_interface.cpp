@@ -234,8 +234,7 @@ void UAVControl::setPID(float P, float I, float D)
 void UAVControl::updateVelocityPID(float x, float y, float z)
 {
 
-	if (sqrt(x*x + y*y) < .3) { set_velocity(0, 0, 0, sp); }
-	else { set_velocity( pid_P*x, pid_P*y, pid_P*z, sp ); }		//[M/S]
+	set_velocity( pid_P*x, pid_P*y, pid_P*z, sp );		//[M/S]
 
 	set_yaw( 0, sp );			//[RAD]
 

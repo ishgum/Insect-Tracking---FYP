@@ -225,7 +225,7 @@ or plug in the battery to the aeronavics machine.
 Once you have done this, you should go into edit connections and add a connection. Go into ipv4 setting
 change the mode from automatic to manual. Add a IP address
 
-You MUST you an IP on 192.168.1 - I used 192.168.1.2 with 255.255.255.0 as the netmask with no default gateway.
+You MUST you an IP on 192.168.1 - I used 192.168.1.3 with 255.255.255.0 as the netmask with no default gateway.
 
 Once you have done this, if you open your browser and type 192.168.1.20 into the address bar you should get a login screen for airOS
 
@@ -241,12 +241,46 @@ Finally, change the channel width to 20 MHz as this is what most devices support
 If you now look in your laptops wi-fi networks an ssid matching the one you entered and you should be able to successfully connect to it.
 
 Before you can connect to the NUC you need to change the ipv4 settings for your laptop. You need to change it to 192.168.1.(something)
-I used 192.168.1.3 - Note that this something cannot be 1, 2 or 20.
+I used 192.168.1.2 - Note that this something cannot be 1, 3 or 20.
 
 You should now be able to successfully SSH into the NUC over the wi-fi link.
 
 ***********************************************************************/
 
+
+
+
+/**********************************************************************
+*
+*   Advanced wi-fi setup
+*
+**********************************************************************/
+
+/********************************************************************
+
+This is a little bit more advanced but makes connecting to the network a little easier.
+To be able to connect properly you have to set up static IP address on your desktop computer.
+This can be annoying - especially if you want to change to another wireless network and have to go
+in and change the setting to automatically acquire the IP address again. These steps are how to
+set up the router so that you will automatically get assigned a correct I.P.
+
+
+Assuming you have completed the earlier steps, log back onto the airOS by going to your browser
+and connecting to 192.168.1.20.
+
+Once you have logged in click the network tab. Change the network to router.
+For simplicity I have added a picture named NetworkSetupPage so you can copy the setting directly.
+
+Important things to note from the picture:
+    - The WAN interface is the LAN0. This means that it is connected over the ethernet.
+    - The WAN IP address is static and is on the 192.168.1 subnet.
+    - The Gateway and DNS match the WAN IP
+    - NAT is enabled, this is so that you can connect to the machine
+
+    - The IP address for the LAN is on the 192.168.2 subnet
+    - The DHCP server is enabled (this is what assigns the IP address)
+
+This should mean you can keep your IPv4 settings on auto and connect to the network as per usual.
 
 /********************************************************************
 *

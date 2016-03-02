@@ -163,6 +163,8 @@ stdio.h
 -
 fstream
 -
+iomanip
+-
 time.h
 -
 signal.h

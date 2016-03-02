@@ -24,7 +24,9 @@
 #include <iostream>
 #include <stdio.h>
 
+
 #include <fstream>
+#include <iomanip>
 
 #include <time.h>
 #include <signal.h>
@@ -54,13 +56,59 @@ using namespace std;
 // order to display images. The number is the delay in msec.
 
 #define WAIT_PERIOD	5
+#define BILLION  1E9
 
-
-
-
+ofstream logFile;
+bool writeFile;
 // ------------------------------------------------------------------------------
 //   Functions
 // ------------------------------------------------------------------------------
+
+
+void createLog(void) 
+{
+    time_t ltime = time(NULL); /* calendar time */
+    writeFile = false;
+    char buffer[40] = {0};
+    strftime(buffer, sizeof(buffer), "../logs/log-%d-%b-%y-%T.txt", localtime(&ltime));
+
+    logFile.open(buffer);
+    if (logFile.is_open()) 
+    { 
+	    writeFile = true; 
+	    logFile << "Log for insect tracking test flight" << endl;
+	    logFile << setw(15) <<  left << "Local time";
+        logFile << setw(15) << "North output";
+        logFile << setw(15) << "East output";
+        logFile << setw(15) << "Insect Found";
+        logFile << setw(15) << "Battery Status";
+        logFile << setw(15) << "UAV Pos X";
+        logFile << setw(15) << "UAV Pos Y";
+        logFile << setw(15) << "UAV Yaw";
+        logFile << endl;
+    }
+    else { wprintw(output.outputStream, "File not able to be written - no log file\n"); }
+}
+
+
+
+void updateLog(Insect* insect, UAVControl* uav)
+{
+	char timeStamp[10] = {0};
+	time_t ltime = time(NULL);
+	strftime(timeStamp, sizeof(timeStamp), "%T", localtime(&ltime));
+
+	logFile << setw(15) << left <<  timeStamp;
+    logFile <<  setw(15) <<	-insect->getRelPosition().y/SPEED_SCALE;
+    logFile <<  setw(15) <<	insect->getRelPosition().x/SPEED_SCALE;
+    logFile <<  setw(15) <<	insect->isFound();
+    logFile <<  setw(15) <<	int(uav->api.current_messages.battery_status.battery_remaining);
+//    logFile <<	uav->api.current_messages.sys_status <<  "		";
+    logFile <<  setw(15) <<	uav->api.current_messages.local_position_ned.x;
+    logFile <<  setw(15) <<	uav->api.current_messages.local_position_ned.y;
+    logFile <<  setw(15) <<	uav->api.current_messages.attitude.yaw;
+    logFile <<  endl;
+}
 
 
 
@@ -98,7 +146,7 @@ void showImage (Mat image, Mat image_ROI, Insect insect) {
 
 }
 
-#define BILLION  1E9
+
 
 // ------------------------------------------------------------------------------
 //   Main Program
@@ -108,7 +156,6 @@ void mainProgram(void)
 {
 	// A method of measuring the FPS for the program
 	struct timespec time1, time2;
-    time_t ltime = time(NULL); /* calendar time */
 
 	// The two main image matrices
 	Mat src, src_ROI;
@@ -127,18 +174,8 @@ void mainProgram(void)
 	Insect insect(cam.getImageSize());
 
 	// Set up the output log file
-	bool writeFile = false;
-	char buffer[40] = {0};
-	strftime(buffer, sizeof(buffer), "../logs/log-%d-%b-%y-%T.txt", localtime(&ltime));
-
-	ofstream logFile (buffer);
-	if (logFile.is_open()) 
-	{ 
-		writeFile = true; 
-		logFile << "Log for insect tracking test flight" << endl;
-		logFile << "Local time	North output	East output" << endl;
-	}
-	else { wprintw(output.outputStream, "File not able to be written - no log file\n"); }
+	
+    createLog();
 	
 	
 	while (!contQuit) {
@@ -164,19 +201,7 @@ void mainProgram(void)
 		
 
 		if (uav.isInit() && contUAV && insect.isFound()) 
-		{
-			// Output for log
-			if (writeFile) 
-			{ 
-				char timeStamp[10] = {0};
-				ltime = time(NULL);
-				strftime(timeStamp, sizeof(timeStamp), "%T", localtime(&ltime));
-
-				logFile <<   timeStamp	<< "	" <<
-					-insect.getRelPosition().y/SPEED_SCALE << "		" << 
-					insect.getRelPosition().x/SPEED_SCALE << endl ;
-			}	
-	
+		{	
 			uav.updateVelocityPID(-insect.getRelPosition().y/SPEED_SCALE, insect.getRelPosition().x/SPEED_SCALE, 0);
 		}
 		else if (uav.isInit()) { uav.updateVelocity(0, 0, 0); }
@@ -247,7 +272,7 @@ void mainProgram(void)
 
 		waitKey(WAIT_PERIOD);		// Must have this line in!
 	
-
+        if (uav.isInit()) { updateLog(&insect, &uav); }
 
 		// ------------------------------------------------------------------
 		//   Input
